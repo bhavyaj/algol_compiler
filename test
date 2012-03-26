@@ -1,0 +1,12 @@
+labA:
+'BEgIN';
+	integer a;
+	main:
+	'begin' ;
+        	a := 10 ;
+COMMENt The absolute greatest element of the matrix a, of size n by m 
+is transferred to y, and the subscripts of this element to i and k;x := 10 ;
+        	a:=a+ 8.7;
+	'end';
+'end'
+

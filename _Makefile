@@ -1,0 +1,37 @@
+#----------------------------------------------------------------------------------
+# Simple Makefile  to create html2ascii program
+# Assumes lexer is in "html_lex.l" and main program is in "driver.c"
+#
+
+# Set the commands and options
+LEX=flex
+PARSER=yacc
+
+y.tab.c : parser.y algolLexer
+	$(PARSER) $(IPARSEFLAGS) $(YFLAGS) $@ $^
+y.tab.o: y.tab.c
+	$(CC) -g -c y.tab.c
+y.tab.h: y.tab.c
+parser.h: y.tab.h
+	cmp -s y.tab.h parser.h || cp y.tab.h parser.h
+
+
+algolLexer: lex.yy.o driver.o
+	$(CC) -o $@  $(LDFLAGS) $^
+
+driver.o: driver.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $^
+
+lex.yy.o: lex.yy.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $^
+
+lex.yy.c: lexer.l
+	$(LEX) $(LFLAGS) -i -o $@ $^
+
+.PHONY: clean
+
+#${OFILES}: ${HFILE} 
+
+clean:
+	$(RM) *.o lex.yy.c y.tab.c c.tab.h c.output c.tab.c y.output y.tab.h 
+

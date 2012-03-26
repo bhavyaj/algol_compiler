@@ -1,0 +1,133 @@
+Syntax of ALGOL 60
+
+
+<program> ::= <block> | <compound statement>
+	<block> ::= <unlabelled block> | <label>: <block>
+		<unlabelled block> ::= <block head> ; <compound tail>
+		<block head> ::= 'BEGIN' <declaration> | <block head> ; <declaration>
+	<compound statement> ::= <unlabelled compound> | <label>: <compound statement>
+		<unlabelled compound> ::= 'BEGIN' <compound tail>
+		<compound tail> ::= <statement> 'END' | <statement> ; <compound tail>
+
+<declaration> ::= <type declaration> | <array declaration> | <switch declaration> | <procedure declaration>
+	<type declaration> ::= <local or own type> <type list>
+		<local or own type> ::= <type> | 'OWN' <type>
+			<type> ::= 'REAL' | 'INTEGER' | 'BOOLEAN'
+		<type list> ::= <simple variable> | <simple variable> , <type list>
+	<array declaration> ::= 'ARRAY' <array list> | <local or own type> 'ARRAY' <array list>
+		<array list> ::= <array segment> | <array list> , <array segment>
+			<array segment> ::= <array identifier> [ <bound pair list> ] | <array identifier> , <array segment>
+				<array identifier> ::= <identifier>
+				<bound pair list> ::= <bound pair> |  <bound pair list> , <bound pair>
+					<bound pair> ::= <lower bound> : <upper bound>
+						<upper bound> ::= <arithmetic expression>
+						<lower bound> ::= <arithmetic expression>
+	<switch declaration> ::= 'SWITCH' <switch identifier> := <switch list>
+		<switch identifier> ::= <identifier>
+		<switch list> ::= <designational expression> | <switch list> , <designational expression>
+	<procedure declaration> ::= 'PROCEDURE' <procedure heading> <procedure body> | <type> 'PROCEDURE' <procedure heading> <procedure body>
+		<procedure heading> ::= <procedure identifier> <formal parameter part> ; <value part> <specification part>
+			<procedure identifier> ::= <identifier>
+			<formal parameter part> ::= <empty> | ( <formal parameter list> )
+				<formal parameter list> ::= <formal parameter> | <formal parameter list> <parameter delimiter> <formal parameter>
+					<formal parameter> ::= <identifier> 
+			<value part> ::= 'VALUE' <identifier list> ; | <empty>
+			<specification part> ::= <empty> | <specifier> <identifier list> ; | <specification part> <specifier> <identifier list>
+				<specifier> ::= 'STRING' | <type> | 'ARRAY' | <type> 'ARRAY' | 'LABEL' | 'SWITCH' | 'PROCEDURE' | <type> 'PROCEDURE'
+				<identifier list> ::= <identifier> | <identifier list> , <identifier>
+		<procedure body> ::= <statement> | <code>
+
+<statement> ::= <unconditional statement> | <conditional statement> | <for statement>
+	<unconditional statement> ::= <basic statement> | <compound statement> | <block>
+		<basic statement> ::= <unlabelled basic statement> | <label>: <basic statement>
+			<label> ::= <identifier> | <unsigned integer>
+			<unlabelled basic statement> ::= <assignment statement> | <go to statement> | <dummy statement> | <procedure statement>
+				<assignment statement> ::= <left part list> <arithmetic expression> | <left part list> <Boolean expression>
+					<left part list> ::= <left part> | <left part list> <left part>
+						<left part> ::= <variable> := | <procedure identifier> :=
+				<go to statement> ::= 'GOTO' <designational expression>
+					<designational expression> ::= <simple designational expression> |
+					                               <if clause> <simple designational expression> 'ELSE' <designational expression>
+					<simple designational expression> ::= <label> | <switch designator> | (<designational expression>)
+						<switch designator> ::= <switch identifier> [<subscript expression>]
+				<dummy statement> ::= <empty>
+				<procedure statement> ::= <procedure identifier> <actual parameter part>
+					<actual parameter part> ::= <empty> | ( <actual parameter list> )
+						<actual parameter list> ::= <actual parameter> | <actual parameter list> <parameter delimiter> <actual parameter>
+							<parameter delimiter> ::= , | ) <letter string> : (
+							<actual parameter> ::= <string> | <expression> | <array identifier> | <switch identifier> | <procedure identifier>
+	<conditional statement> ::= <if statement> | <if statement> 'ELSE' <statement> | <if clause> <for statement> | <label>: <conditional statement>
+		<if statement> ::= <if clause> <unconditional statement>
+			<if clause> ::= 'IF' <Boolean expression> 'THEN'
+	<for statement> ::= <for clause> <statement> | <label>: <for statement>
+		<for clause> ::= 'FOR' <variable> := <for list> 'DO'
+			<for list> ::= <for list element> | <for list> , <for list element>
+				<for list element> ::= <arithmetic expression> |
+				                       <arithmetic expression> 'STEP' <arithmetic expression> 'UNTIL' <arithmetic expression> |
+				                       <arithmetic expression> 'WHILE' <Boolean expression>
+
+<expression> ::= <arithmetic expression> | <Boolean expression> | <designational expression>
+	<arithmetic expression> ::= <simple arithmetic expression> | <if clause> <simple arithmetic expression> 'ELSE' <arithmetic expression>
+		<simple arithmetic expression> ::= <term> | <adding operator> <term> | <simple arithmetic expression> <adding operator> <term>
+			<adding operator> ::= + | -
+			<term> ::= <factor> | <term> <multiplying operator> <factor>
+				<multiplying operator> ::= * | / | ÷
+				<factor> ::= <primary> | <factor> | <factor> 'POWER' <primary>
+					<primary> ::= <unsigned number> | <variable> | <function designator> | ( <arithmetic expression> )
+						<unsigned number> ::= <decimal number> | <exponential part> | <decimal number> <exponential part>
+							<decimal number> ::= <unsigned integer> | <decimal fraction> | <unsigned integer> <decimal fraction>
+								<unsigned integer> ::= <digit> | <unsigned integer> <digit>
+								<decimal fraction> ::= . <unsigned integer>
+							<exponential part> ::= E <integer>
+								<integer> ::= <unsigned integer> | + <unsigned integer> | - <unsigned integer>
+	<Boolean expression> ::= <simple Boolean> | <if clause> <simple Boolean> 'ELSE' <Boolean expression>
+		<simple Boolean> ::= <implication> | <simple Boolean> 'EQUIV' <implication>
+			<implication> ::= <Boolean term> | <implication> 'IMPL' <Boolean term>
+				<Boolean term> ::= <Boolean factor> | <Boolean term> 'OR' <Boolean factor>
+				<Boolean factor> ::= <Boolean secondary> | <Boolean factor> 'AND' <Boolean secondary>
+					<Boolean secondary> ::= <Boolean primary> | 'NOT' <Boolean primary>
+						<Boolean primary> ::= <logical value> | <variable> | <function designator> | <relation> | ( <Boolean expression> )
+							<relation> ::= <simple arithmetic expression> <relational operator> <simple arithmetic expression>
+								<relational operator> ::= < | ¾ | = | „ | > | ‚ |
+								                          'LESS' | 'NOTGREATER' | 'EQUAL' | 'NOTLESS' | 'GREATER' | 'NOTEQUAL'
+							<function designator> ::= <procedure identifier> <actual parameter part>
+
+<variable> ::= <simple variable> | <subscripted variable>
+	<simple variable> ::= <variable identifier>
+			<variable identifier> ::= <identifier>
+<subscripted variable> ::= <array identifier> [ <subscript list> ]
+	<subscript list> ::= <subscript expression> | <subscript list> , <subscript expression>
+		<subscript expression> ::= <arithmetic expression>
+
+<string> ::= "<open string>"
+	<open string> ::= <proper string> "<open string>" | <open string><open string>
+	<proper string> ::= <any sequence of symbols not containing " > | <empty>
+
+<letter string> ::= <letter> | <letter string> <letter>
+
+<identifier> ::= letter> | <identifier> <letter> | <identifier> <digit>
+
+<basic symbol> ::= <letter> | <digit> | <logical value> | <delimiter>
+
+<letter> ::= a | b | c | d | e | f | g | h | i | j | k | l |
+             m | n | o | p | q | r | s | t | u | v | w | x | y | z | A |
+             B | C | D | E | F | G | H | I | J | K | L | M | N | O | P |
+             Q | R | S | T | U | V | W | X | Y | Z
+<digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 
+<logical value> ::= 'TRUE' | 'FALSE'
+
+<delimiter> ::= <operator> | <separator> | <bracket> | <declarator> | <specificator>
+
+<operator> ::= <arithmetic operator> | <relational operator> | <logical operator> | <sequential operator>
+<arithmetic operator> ::= + | - | * | / | ÷ | 'POWER'
+<relational operator> ::= < | ¾ | = | „ | > | ‚ |
+                          'LESS' | 'NOTGREATER' | 'EQUAL' | 'NOTLESS' | 'GREATER' | 'NOTEQUAL'
+<logical operator> ::= 'EQUIV' | 'IMPL' | 'OR' | 'AND' | 'NOT'
+<sequential operator> ::= 'GOTO' | 'IF' | 'THEN' | 'ELSE' | 'FOR' | 'DO'
+
+<separator> ::= , | . | E | : | ; | := | _ | 'STEP' | 'UNTIL' | 'WHILE' | 'COMMENT'
+<bracket> ::= ( | ) | [ | ] | ` | ' | 'BEGIN' | 'END'
+<declarator> ::= 'OWN' | 'BOOLEAN' | 'INTEGER' | 'REAL' | 'ARRAY' | 'SWITCH' | 'PROCEDURE'
+<specificator> ::= 'STRING' | 'LABEL' | 'VALUE'
+
+
