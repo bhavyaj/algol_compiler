@@ -1,0 +1,7 @@
+Take care of TOKEN_LABEL_IDENTIFIER and TOKEN_ASSIGN_IDENTIFIER for semantic analysis as the definition of label and assignmentStatement has been changed.
+Changed Statement definition as I think  the expression part is already being covered in arithmetic and boolean expression.
+Changed Statement definition in declaration part because in algol a block is declaration followed by statement ie declaration cannot be statement.<http://www.csci.csusb.edu/dick/samples/algol60.syntax.html>
+Changed the actual definition for a boolean variable to bool_{identifier}
+Changed statement's or part of empty as I think it is being handles in the dummyStatement in unlabelledBasicStatement.
+Changed the procedure heading defination(the or part) problem is similar to the dangling else problem.
+

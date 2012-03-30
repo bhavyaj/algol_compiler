@@ -142,8 +142,10 @@ value		{return TOKEN_TYPE_VALUE;}
 
 
 {library}	{return TOKEN_LIBRARY;}
-[a-zA-Z]+/":="			{return TOKEN_IDENTIFIER;}
-[a-zA-Z]+/":"			{return TOKEN_LTRSTRING;}
+"bool_"{identifier}	{return TOKEN_BOOL_IDENTIFIER;}
+[a-zA-Z]+/":="		{return TOKEN_ASSIGN_IDENTIFIER;}
+[a-zA-Z]+/":"		{return TOKEN_LABEL_IDENTIFIER;}
+{identifier}		{return TOKEN_IDENTIFIER;}
 
 
 {integer}		{return TOKEN_INTEGER;}

@@ -201,7 +201,6 @@ main(int argc, char* argv[])
 %token TOKEN_SWITCH
 %token TOKEN_VALUE
 %token TOKEN_BOOLEAN
-%token TOKEN_LABEL
 %token TOKEN_TYPE_OWN
 %token TOKEN_TYPE_INTEGER
 %token TOKEN_TYPE_REAL
@@ -219,6 +218,9 @@ main(int argc, char* argv[])
 %token TOKEN_TINTEGER
 %token TOKEN_TREAL
 %token TOKEN_RETURN
+%token TOKEN_ASSIGN_IDENTIFIER
+%token TOKEN_LABEL_IDENTIFIER
+%token TOKEN_BOOL_IDENTIFIER
 %right	TOKEN_ASSIGN
 %left	TOKEN_EQUIV
 %left	TOKEN_EQUAL
@@ -234,7 +236,7 @@ main(int argc, char* argv[])
 %%
 
 blockHead :
-	TOKEN_BEGIN
+	TOKEN_BEGIN declaration
 	|blockHead TOKEN_SEMICOLON declaration;
 
 unlabelledBlock :
@@ -253,7 +255,7 @@ block :
 		newNode->pt0 = $1;
 		$$ = newNode;
 	}
-/*	|
+	|
 	label
 	{
 		Node* newNode = createNode();
@@ -262,13 +264,13 @@ block :
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
 	}
-	TOKEN_COLON block 
+	/*TOKEN_COLON*/ block 
 	{
 		Node *newNode = createNode();
-		newNode->pt0 = $4;
+		newNode->pt0 = $3;
 		$$ = newNode;
 	}
-*/	|
+	|
 	error
 	{
 		printf("Syntax error in block containing line num %d\n",lineNo);
@@ -276,7 +278,7 @@ block :
 	;
 
 label : 
-	TOKEN_LTRSTRING
+	TOKEN_LABEL_IDENTIFIER
 	{
 		Node *new = createNode();         	
                 new->type = label;
@@ -296,8 +298,8 @@ unlabelledCompound :
 
 compoundStatement :
 	unlabelledCompound
-	|
-	label TOKEN_COLON compoundStatement
+//	|
+//	label /*TOKEN_COLON*/ compoundStatement
 	;
 
 compoundTail :
@@ -1094,7 +1096,7 @@ booleanPrimary :
 		$$ = newNode;
 	}
 	|
-	variable
+	boolVariable
 	{
 		Node *newNode = createNode();
 		newNode->type = booleanPrimary;
@@ -1222,7 +1224,27 @@ relation :
 		$$=newNode;
 	};
 	        
+boolVariable : boolSimpleVariable
+	{
+		Node* newNode = createNode();
+		newNode->type = boolVariable;
+		newNode->pt0 = $1;
+		Node* tempNode = (Node*)$1;
+		newNode->boolValue = tempNode->boolValue;
+		newNode->semTypeDef=tempNode->semTypeDef;
+		strcpy(newNode->identLex, tempNode->identLex);
+		$$ = newNode;
+	}; /*{////printf("Variable Parsed \n");}*/
 
+boolSimpleVariable :
+	TOKEN_BOOL_IDENTIFIER
+	{
+		Node *newNode = createNode();
+		newNode->type = boolSimpleVariable;
+		strcpy(newNode->identLex, yytext);
+		$$ = newNode;
+	} /*{////printf("Identifier parsed\n");}*/
+	;
 
 relationalOperator :
 	TOKEN_REL_OP
@@ -1337,23 +1359,6 @@ varIdentifier :
 		$$ = new;
 	}
 	;
-
-identifier :
-	TOKEN_IDENTIFIER
-	{
-		Node *new = createNode();
-		new->type = identifier;
-		strcpy(new->identLex, yytext);
-		$$ = new;
-	}
-	;
-
-
-
-
-
-
-
 
 unconditionalStatement :
 	basicStatement
@@ -1513,8 +1518,8 @@ basicStatement :
 
 
 
-	/*|
-        label TCOLON basic_statement*/
+	//|
+    //    label /*TCOLON*/ basicStatement
 	;
 
 unlabelledBasicStatement :
@@ -1586,16 +1591,16 @@ returnStatement :
 	};
 
 assignmentStatement :
-	variable TOKEN_ASSIGN arithmeticExpression  
+	TOKEN_ASSIGN_IDENTIFIER arithmeticExpression  
 	{
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
         	new->pt0 = $1;
-		new->pt2 = $3;
+		new->pt2 = $2;
 		$$ = new;
 		Symbol *symbol1;	
 		Node *tmp1=$1;
-		Node *tmp2=$3;
+		Node *tmp2=$2;
 		new->semTypeDef=storeVoid;		
   		symbol1=lookUp(tmp1->identLex,currentScope);
 		if (symbol1==NULL){
@@ -1609,22 +1614,16 @@ assignmentStatement :
 		}
 	}
 	|
-	variable arithmeticExpression  
-	{
-
-	}
-	
-	|
-	variable TOKEN_ASSIGN booleanExpression
+	TOKEN_ASSIGN_IDENTIFIER booleanExpression
 	{
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
         	new->pt0 = $1;
-		new->pt2 = $3;
+		new->pt2 = $2;
 		$$ = new;
 	
 		Node *temp1=$1;
-		Node *temp2=$3;
+		Node *temp2=$2;
 		Symbol *symbol2=lookUp(temp1->identLex,currentScope);
 		new->semTypeDef=storeVoid ;  
 		
@@ -1979,39 +1978,40 @@ actualParameter :
 parameterDelimiter : TOKEN_COMMA;
 
 statement :
-	unconditionalStatement TOKEN_SEMICOLON statement {
-		Node* new=createNode();
-		Node *temp1=$1;
-		Node *temp2=$3;
-		$$=new;
-	}
-	|
-        conditionalStatement TOKEN_SEMICOLON statement 
+	unconditionalStatement //TOKEN_SEMICOLON statement 
 	{
 		Node* new=createNode();
 		Node *temp1=$1;
-		Node *temp2=$3;
+//		Node *temp2=$3;
+		$$=new;
+	}
+	|
+        conditionalStatement //TOKEN_SEMICOLON statement 
+	{
+		Node* new=createNode();
+		Node *temp1=$1;
+//		Node *temp2=$3;
 		$$=new;
 
 	}
 	|
-	forStatement TOKEN_SEMICOLON statement
+	forStatement //TOKEN_SEMICOLON statement
 	{	Node* new=createNode();
 		Node *temp1=$1;
-		Node *temp2=$3;
+//		Node *temp2=$3;
 		$$=new;
 	}
 	|
-	declaration TOKEN_SEMICOLON statement
+/*	declaration //TOKEN_SEMICOLON statement
 	{
 		Node* new=createNode();
 		Node *temp1=$1;
-		Node *temp2=$3;
+//		Node *temp2=$3;
 		$$=new;
 	}
-	|
-	expression TOKEN_SEMICOLON statement 
-	|
+	|*/
+//	expression //TOKEN_SEMICOLON statement 
+//	|
 	TOKEN_PRINT expression
 	{
 		Node* new=createNode();
@@ -2019,12 +2019,12 @@ statement :
 
 		$$=new;
 	}
-	|
-	empty
+/*	|
+	dummyStatement
 	{
 		Node* new=createNode();
 		$$=new;
-	}
+	}*/
 	;
 
 
@@ -2076,7 +2076,7 @@ valuePart : empty | TOKEN_VALUE identifierList TOKEN_SEMICOLON{
 specifier :
 	type 
 	| type TOKEN_ARRAY
-	| TOKEN_LABEL 
+	| TOKEN_TYPE_LABEL 
 	| TOKEN_SWITCH 
 	| type TOKEN_PROCEDURE;
 specificationPart : specifier identifierList TOKEN_SEMICOLON{
@@ -2101,7 +2101,7 @@ procedureHeading :
 	formalParameterPart TOKEN_SEMICOLON {
 		$3 = $1;
 	} valuePart specificationPart
-	| procedureIdentifier {
+	/*| procedureIdentifier {
 		Node *node = createNode();
 		node->type = procedureHeading;
 		node->pt0 = $1;
@@ -2115,7 +2115,7 @@ procedureHeading :
 	}
 	formalParameterPart TOKEN_SEMICOLON {
 		$3 = $1;
-	} valuePart;
+	} valuePart*/;
 
 procedureBody :
 	TOKEN_BEGIN TOKEN_SEMICOLON statement{
