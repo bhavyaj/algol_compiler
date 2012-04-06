@@ -8,7 +8,7 @@
 
 int lineNo = 1;
 extern int globalLevel;
-//#define YY_DECL extern "C" int yylex()
+
 
 %}
 

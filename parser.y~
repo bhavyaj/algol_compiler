@@ -11,9 +11,8 @@
 #include "tree.c"
 #include <stdbool.h>
 #include "symbolTable.h"
-//extern "C" int yylex();
-//extern "C" int yyparse();
-//extern "C" FILE *yyin
+#include "lex.yy.c"
+
 int globalLevel=0;
 int yylval;
 extern char* yytext;
@@ -24,7 +23,6 @@ int scopeStackTop = 0;
 
 int scopeId = 0;
 int tableStackTop=0;		// scope label
-
 
 void push(int num){
 	if(scopeStackTop<100){
@@ -133,11 +131,34 @@ int yywrap()
 {
         return 1;
 } */
-%} 
+ 
+main(int argc, char* argv[])
+{
+    FILE *fp;
+    int i;
+    
+    for(i=1;i < argc;i++)
+    {
+		if (argc > 1){
+			fp = fopen(argv[i], "r");
+			yyrestart(fp);
+			yylex();
+		}
+		else printf("please enter a file in the argument....\n USAGE :>> ./algolLexer test");
+	}
+    return 0;
+       /*do
+	{
+		
+		yyparse();
+	}
+	while(!feof(yyin));
+*/
+} 
  
 
 
-
+%}
 %token TOKEN_PRINT
 %token TOKEN_IDENTIFIER
 %token TOKEN_BEGIN 
@@ -218,18 +239,13 @@ int yywrap()
 %left	TOKEN_RELOP
 %left	TOKEN_PLUS TOKEN_MINUS
 %right	TOKEN_POWER
-%start program
+
 %%
 
 blockHead :
 	TOKEN_BEGIN declaration
-	{
-		printf("blockhead");
-	}
-	|blockHead TOKEN_SEMICOLON declaration
-	{
-		printf("blockhead");
-	};
+	|blockHead TOKEN_SEMICOLON declaration;
+
 unlabelledBlock :
 	blockHead TOKEN_SEMICOLON compoundTail
 	{
@@ -276,13 +292,13 @@ label :
 		strcpy(new->identLex, yytext);
 		$$ = new;
 	};
-
+/*
 program :
 	block
 	|
 	compoundStatement
 	;
-
+*/
 unlabelledCompound :
 	TOKEN_BEGIN compoundTail
 	;
@@ -2162,26 +2178,4 @@ procedureDeclaration :
 
 
 %%
-int main(int argc, char* argv[])
-{
-    FILE *fp;
-    int i;
- 	if (argc==2){
-		fp = fopen(argv[1], "r");
-		printf("%s\n",argv[1]);
-		yyrestart(fp);
-		yylex();
-		}
-	else {
-		printf("please enter a file in the argument....\n USAGE :>> ./algolLexer test");
-		return 0;
-		}
-    do
-	{
-		
-		yyparse();
-	}
-	while(!feof(yyin));
-
-} 
 
