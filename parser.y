@@ -118,7 +118,7 @@ void displayNode(Node *node){
 	if(node->semTypeDef != NULL){
 		printf("SEMTYPEDEF: %d",node->semTypeDef);}
 	if(node->intValue != NULL){
-		printf("INTERGER VALUE: %d",node->intValue);}
+		printf("INTEGER VALUE: %d",node->intValue);}
 	if(!(node->realValue)){
 		printf("REAL VALUE: %f",node->realValue);}
 	if(node->boolValue){
@@ -128,11 +128,11 @@ void displayNode(Node *node){
 	if(node->track != NULL){
 		printf("Track: %d",node->track);}
 }
-/* 
+ 
 int yywrap()
 {
         return 1;
-} */
+}
 %} 
  
 
@@ -224,11 +224,11 @@ int yywrap()
 blockHead :
 	TOKEN_BEGIN declaration
 	{
-		printf("blockhead");
+		printf("block");
 	}
 	|blockHead TOKEN_SEMICOLON declaration
 	{
-		printf("blockhead");
+		printf("block");
 	};
 unlabelledBlock :
 	blockHead TOKEN_SEMICOLON compoundTail
@@ -258,14 +258,14 @@ block :
 	/*TOKEN_COLON*/ block 
 	{
 		Node *newNode = createNode();
-		newNode->pt0 = $3;
+		newNode->pt0 = $3;						// $2
 		$$ = newNode;
 	}
-	|
+	/*|
 	error
 	{
 		printf("Syntax error in block containing line num %d\n",lineNo);
-	}
+	}*/
 	;
 
 label : 
@@ -278,7 +278,11 @@ label :
 	};
 
 program :
+	
 	block
+	{
+		printf("blockhead\n");
+	}
 	|
 	compoundStatement
 	;
@@ -1862,6 +1866,7 @@ forStatement :
 
 empty :	
 	{	
+		printf("empty reached");
 		Node *new = createNode();         	            	  
         	new->type =empty;
 		$$ = new;
@@ -2176,12 +2181,9 @@ int main(int argc, char* argv[])
 		printf("please enter a file in the argument....\n USAGE :>> ./algolLexer test");
 		return 0;
 		}
-    do
-	{
-		
-		yyparse();
-	}
-	while(!feof(yyin));
+    
+	while(!yyparse());
+	return 0;
 
 } 
 

@@ -1161,7 +1161,7 @@ case 3:
 YY_RULE_SETUP
 #line 57 "lexer.l"
 {
-					globalLevel++;
+					printf("begin reached");globalLevel++;
 					push(globalLevel);
 			return TOKEN_BEGIN ;}
 	YY_BREAK
@@ -1254,7 +1254,7 @@ YY_RULE_SETUP
 case 19:
 YY_RULE_SETUP
 #line 95 "lexer.l"
-{return TOKEN_SEMICOLON ;}
+{printf("semicolon reached");return TOKEN_SEMICOLON ;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
@@ -2478,7 +2478,5 @@ void yyfree (void * ptr )
 #line 155 "lexer.l"
 
 
-yywrap() {
-    return 1;
-}
+
 

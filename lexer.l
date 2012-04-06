@@ -55,7 +55,7 @@ COMMENT[^.;]*;	{char *tempString = (char *)yytext;
 				}
 				printf(" COMMENT FOUND "); 			}
 'begin'		{
-					globalLevel++;
+					printf("begin reached");globalLevel++;
 					push(globalLevel);
 			return TOKEN_BEGIN ;}
 			
@@ -92,7 +92,7 @@ COMMENT[^.;]*;	{char *tempString = (char *)yytext;
 
 
 \,		{return TOKEN_COMMA ;}
-\;		{return TOKEN_SEMICOLON ;}
+\;		{printf("semicolon reached");return TOKEN_SEMICOLON ;}
 ":="		{return TOKEN_ASSIGN ;}
 ":"		{return TOKEN_COLON ;}
 "_"		{return TOKEN_UNDERSCORE ;}
@@ -153,6 +153,4 @@ value		{return TOKEN_TYPE_VALUE;}
 
 .			{}
 %%
-yywrap() {
-    return 1;
-}
+
