@@ -1,8 +1,3 @@
-//globalLevel
-//%token %left %right
-// remove--redn, dimension
-
-
 %{
 #include <stdio.h>
 #include <ctype.h>
@@ -11,11 +6,8 @@
 #include "tree.c"
 #include <stdbool.h>
 #include "symbolTable.h"
-//extern "C" int yylex();
-//extern "C" int yyparse();
-//extern "C" FILE *yyin
 int globalLevel=0;
-int yylval;
+extern int yylval;
 extern char* yytext;
 int numOfErrors=0;
 
@@ -35,13 +27,13 @@ void push(int num){
 		printf("Scope stack overflow\n");
 	}
 }
+
 int pop(){
 	if(scopeStackTop){
 		scopeStackTop--;
 		return scopeStack[tableStackTop];
 	}
 	else{
-		//printf("Scope stack is empty\n");
 		return -1;
 	}
 }
@@ -55,10 +47,14 @@ SymbolTable symbolTable[1000];		// array of symbol tables for different scopes
 int tempNodeScope;
 int currentScope;
 extern FILE *yyin;
+
+
 void yyerror(const char *str)
 {
-        fprintf(stderr,"error: %s\n",str);
+        fprintf(stderr,"error: encountered on this token->%s\n",yytext);
 }
+
+
 
 Symbol* lookUp(char *lexm,int scope){
 	Symbol *symbolEntry = symbolTable[scope].head;
@@ -78,6 +74,7 @@ Symbol* lookUp(char *lexm,int scope){
 	else
 		return lookUp(lexm,symbolTable[scope].parent);
 }
+
 
 Symbol* lookUpInCurrentScope(char *lexm){
 	Symbol* symbolEntry = symbolTable[currentScope].head;
@@ -136,7 +133,7 @@ int yywrap()
 %} 
  
 
-
+////////////TOKEN DEFINITIONS/////////////
 
 %token TOKEN_PRINT
 %token TOKEN_IDENTIFIER
@@ -218,18 +215,54 @@ int yywrap()
 %left	TOKEN_RELOP
 %left	TOKEN_PLUS TOKEN_MINUS
 %right	TOKEN_POWER
-%start program
+
+%start  program
+
+%union {
+	//float fvalue;
+	int integerVal; 		/* integer value */
+	char* symbolIndex; 		/* symbol table index */
+	Node *pt; 			/* node pointer */
+};
+
+
+/*
+%type <tree> program block unlabelledBlock
+%type <tree> unlabelledBasicStatement compoundStatement unlabelledCompound compoundTail
+%type <tree> basicStatement unconditionalStatement
+%type <tree> statement conditionalStatement forStatement gotoStatement assignmentStatement
+%type <tree> ifStatement tlabel procedureStatement procedureBody
+
+%type <sym> declaration typeDeclaration arrayDeclaration switchDeclaration procedureDeclaration listType
+%type <sym> procedureHeading formalParameterPart formalParameterList identifierList formalParameter
+%type <sym> valuePart specificationPart specificationIdentifierList
+%type <sym> arraySegment arrayList
+
+%type <typ> type 
+
+%type <expr> arithmeticExpression simpleArithmeticExpression
+%type <expr> subscriptedExpression relation booleanExpression functionDesigntor
+%type <expr> designationExpression simpleDesigntionalExpression 
+%type <expr> ifClause actualParameterPart actualParameterList actualParameter
+
+%type <bound> boundPair boundPairList 
+%type <mindex> subscriptedList
+*/
+
 %%
 
+
 blockHead :
-	TOKEN_BEGIN declaration
+	tbegin declaration
 	{
 		printf("block");
 	}
 	|blockHead TOKEN_SEMICOLON declaration
 	{
 		printf("block");
-	};
+	}
+	;
+
 unlabelledBlock :
 	blockHead TOKEN_SEMICOLON compoundTail
 	{
@@ -247,18 +280,18 @@ block :
 		$$ = newNode;
 	}
 	|
-	label
-	{
+	tlabel
+	/*{
 		Node* newNode = createNode();
 		newNode->pt0 = $1;
 		Node *tempNode = $1;
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
 	}
-	/*TOKEN_COLON*/ block 
+	TOKEN_COLON*/ block 
 	{
 		Node *newNode = createNode();
-		newNode->pt0 = $3;						// $2
+		newNode->pt0 = $2;						// $2
 		$$ = newNode;
 	}
 	/*|
@@ -268,7 +301,7 @@ block :
 	}*/
 	;
 
-label : 
+/*label :    ////check////
 	TOKEN_LABEL_IDENTIFIER
 	{
 		Node *new = createNode();         	
@@ -276,30 +309,47 @@ label :
 		strcpy(new->identLex, yytext);
 		$$ = new;
 	};
+*/
+
+tlabel: label TOKEN_COLON;
+
+label :
+	identifier
+	| integer
+	;
 
 program :
-	
-	block
-	{
-		printf("blockhead\n");
-	}
-	|
 	compoundStatement
+	{
+		printf("compundStatement\n");
+	}
+	
+	| block
+	{
+		printf("blockhead belu\n");
+	}
+	
+	
 	;
 
 unlabelledCompound :
-	TOKEN_BEGIN compoundTail
+	TOKEN_BEGIN compoundTail{
+		printf("unlabelled compund belu");
+	}
 	;
+
+tbegin: TOKEN_BEGIN
 
 compoundStatement :
 	unlabelledCompound
-//	|
-//	label /*TOKEN_COLON*/ compoundStatement
+	|
+	tlabel /*TOKEN_COLON*/ compoundStatement
 	;
 
 compoundTail :
 	statement TOKEN_END
 	{
+		printf("compound tail belu");
 		Node *newNode = createNode();
 		newNode->pt0 = $1;
 		$$ = newNode;
@@ -326,6 +376,10 @@ declaration :
 		$$=$1;
 	}
 	|
+	/*switchDeclaration{
+		$$=$1;
+	}
+	|*/
 	procedureDeclaration
 	{
 		$$=$1;
@@ -370,8 +424,8 @@ boundPair :
 	lowerBound TOKEN_COLON upperBound
 	{
 		Node* newNode = createNode();         	  
-    	newNode->type = boundPair;
-    	newNode->pt0 = $1;
+    		newNode->type = boundPair;
+    		newNode->pt0 = $1;
 		newNode->pt2 = $3;
 		Node* tempNodeOne = $1;
 		Node* tempNodeTwo = $3;
@@ -443,7 +497,9 @@ arraySegment :
 		newNode->track = tempNodeTwo->track;
 		newNode->identLex = tempNodeOne->identLex;
 		$$ = newNode;
-	};
+	}
+	| arrayIdentifier TOKEN_COMMA arraySegment////check////
+	;
 
 arrayList :
 	arraySegment 
@@ -462,7 +518,7 @@ arrayList :
 		}
 	}
 	|
-	arraySegment TOKEN_COMMA  
+	arrayList TOKEN_COMMA////check////  
 	{
 		Node* tempNode0=$0;
 		Node* tempNode1=$1;
@@ -477,11 +533,11 @@ arrayList :
 			$$=$0;
 		}
 	}
-	arrayList;
+	arraySegment;
 
 arrayDeclaration :
-//	TOKEN_ARRAY arrayList
-//	|
+	TOKEN_ARRAY arrayList////check////
+	|
 	type TOKEN_ARRAY arrayList
 	;
 
@@ -506,7 +562,12 @@ expression :
 		Node *tempNode = $1;
 		newNode->semTypeDef = tempNode->semTypeDef;
 		$$ = newNode;
-} ;
+	}
+	/*|
+	designationalExpression////check////
+	{
+		
+	}*/;
 
 arithmeticExpression :
 	simpleArithmeticExpression
@@ -552,6 +613,12 @@ simpleArithmeticExpression :
 		newNode->realValue = tempNode->realValue;
 		newNode->semTypeDef=tempNode->semTypeDef ; 
 		$$ = newNode;
+	}
+	| TOKEN_PLUS term ////check////
+	{
+	}
+	| TOKEN_MINUS term ////check////
+	{
 	}
 	|
 	simpleArithmeticExpression TOKEN_PLUS term
@@ -725,7 +792,7 @@ factor :
 		$$ = newNode;
 		
 	}
-	|
+	/*| ////check////
 	procedureStatement
 	{
 		Node *newNode = createNode();
@@ -734,7 +801,7 @@ factor :
 		newNode->intValue = tempNode->intValue;
 		newNode->semTypeDef=tempNode->semTypeDef;
 		$$ = newNode;
-	};
+	}*/;
 
 primary :
 	realNumber
@@ -760,14 +827,17 @@ primary :
 		newNode->semTypeDef=storeInteger;
 		$$ = newNode;
 	}
-	|
+	/*|
+	functionDesignator{
+	}*/
+	/*   ////check////
 	variable
 	{
 		Node *tempNode=$1;
 		Symbol* foundEntry = lookUp(tempNode->identLex,currentScope);
 		tempNode->semTypeDef=foundEntry->type ;
 		$$=tempNode;	
-	}
+	}*/
 	|
 	TOKEN_OPEN_BRACKET arithmeticExpression TOKEN_CLOSE_BRACKET
 	{
@@ -932,7 +1002,7 @@ booleanExpression:
 		}
 		$$ = newNode;
 	}
-	|
+	/*|   ////check////
 	ifClause simpleBoolean TOKEN_ELSE booleanExpression
 	{
 		Node* newNode = createNode();
@@ -950,7 +1020,7 @@ booleanExpression:
 			newNode->semTypeDef = storeError;
 		}
 		$$ = newNode;
-	};
+	}*/;
 
 simpleBoolean:
 	implication
@@ -1094,7 +1164,7 @@ booleanPrimary :
 		newNode->semTypeDef=tempNode->semTypeDef;
 		$$ = newNode;
 	}
-	|
+	/*|    ////check////
 	boolVariable
 	{
 		Node *newNode = createNode();
@@ -1105,7 +1175,7 @@ booleanPrimary :
 		tempNode->semTypeDef = entry->type;
 		newNode->semTypeDef = tempNode->semTypeDef;
 		$$=newNode;
-	}
+	}*/
 	|
 	relation
 	{
@@ -1223,7 +1293,7 @@ relation :
 		$$=newNode;
 	};
 	        
-boolVariable : boolSimpleVariable
+/*boolVariable : boolSimpleVariable    ////check////
 	{
 		Node* newNode = createNode();
 		newNode->type = boolVariable;
@@ -1233,7 +1303,7 @@ boolVariable : boolSimpleVariable
 		newNode->semTypeDef=tempNode->semTypeDef;
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
-	}; /*{////printf("Variable Parsed \n");}*/
+	}; {////printf("Variable Parsed \n");}
 
 boolSimpleVariable :
 	TOKEN_BOOL_IDENTIFIER
@@ -1242,9 +1312,9 @@ boolSimpleVariable :
 		newNode->type = boolSimpleVariable;
 		strcpy(newNode->identLex, yytext);
 		$$ = newNode;
-	} /*{////printf("Identifier parsed\n");}*/
+	} {////printf("Identifier parsed\n");}
 	;
-
+*/
 relationalOperator :
 	TOKEN_REL_OP
 	{	
@@ -1277,7 +1347,7 @@ listType :
 
 	}
 	|
-	varIdentifier TOKEN_COMMA 
+	listType TOKEN_COMMA  ////check////
 	{
 		Node *temp2=$0;
 		Node *temp1=$1;
@@ -1292,7 +1362,7 @@ listType :
 
 		
 	}
-	listType	
+	varIdentifier
 
 	;
 
@@ -1456,8 +1526,8 @@ conditionalStatement :
 	}
 
 
-	/*|
-        label TCOLON conditional_statement*/
+	|
+        tlabel /*TOKEN_COLON*/ conditionalStatement////check////
 	;
 
 ifStatement :
@@ -1517,8 +1587,8 @@ basicStatement :
 
 
 
-	//|
-    //    label /*TCOLON*/ basicStatement
+	|
+        label basicStatement ////check////
 	;
 
 unlabelledBasicStatement :
@@ -1534,7 +1604,7 @@ unlabelledBasicStatement :
 	}
 
 
-	|
+	| ////check//////
 	dummyStatement
 	{
 
@@ -1560,15 +1630,14 @@ unlabelledBasicStatement :
 		$$ = new;
 
 	}
-	|
+	
 	returnStatement
 	{
 		$$ = $1;
 	}
 
 	;
-
-dummyStatement :
+dummyStatement :	///check////
 	empty
 	;
 	
@@ -1871,7 +1940,7 @@ empty :
         	new->type =empty;
 		$$ = new;
 	}
-	 ;
+	;
 procedureStatement :
 	procedureIdentifier actualParameterPart {
 		Node *new = createNode();
@@ -1914,7 +1983,8 @@ procedureIdentifier :
 	}
 	;
 actualParameterPart :
-	TOKEN_OPEN_BRACKET actualParameterList TOKEN_CLOSE_BRACKET
+	empty
+	| TOKEN_OPEN_BRACKET actualParameterList TOKEN_CLOSE_BRACKET
 	{
 		$$=$2;
 		Node *temp = $2;
@@ -1975,7 +2045,8 @@ actualParameter :
 		$$ = new;
 	};
 
-parameterDelimiter : TOKEN_COMMA;
+parameterDelimiter : TOKEN_COMMA
+	| TOKEN_CLOSE_SQUARE_BRACKET identifier TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET;
 
 statement :
 	unconditionalStatement //TOKEN_SEMICOLON statement 
@@ -2045,11 +2116,11 @@ formalParameter :
 	
 formalParameterList :
 	formalParameter
-	| formalParameter TOKEN_COMMA{
-		$1 = $0;
+	| formalParameterList parameterDelimiter{   ////check/////
+		$1 = $0; 
 		$2 = $0;
 	}
-	formalParameterList;
+	formalParameter;
 
 formalParameterPart :
 	empty {
@@ -2070,20 +2141,25 @@ identifierList :
 		$2 = $0;
 	};
 
-valuePart : empty | TOKEN_VALUE identifierList TOKEN_SEMICOLON{
+valuePart :  TOKEN_VALUE identifierList TOKEN_SEMICOLON{
 		$3 = $0;
-	};
+	}
+	| empty;
 specifier :
 	type 
 	| type TOKEN_ARRAY
 	| TOKEN_TYPE_LABEL 
 	| TOKEN_SWITCH 
 	| type TOKEN_PROCEDURE;
-specificationPart : specifier identifierList TOKEN_SEMICOLON{
+
+specificationPart : empty
+	| specificationIdentifierList;
+
+specificationIdentifierList : specifier identifierList TOKEN_SEMICOLON{
 		$3 = $0;
 		Node *node1 = $1;
 	}
-	| specificationPart specifier identifierList TOKEN_SEMICOLON;
+	| specificationIdentifierList specifier identifierList TOKEN_SEMICOLON;
 
 procedureHeading :
 	procedureIdentifier {
@@ -2097,11 +2173,11 @@ procedureHeading :
 			Symbol * index = addEntry(node1->identLex);
 		}
 		$$ = node;
-	}
-	formalParameterPart TOKEN_SEMICOLON {
+	} formalParameterPart TOKEN_SEMICOLON {
 		$3 = $1;
 	} valuePart specificationPart
-	/*| procedureIdentifier {
+	/*
+	| procedureIdentifier {
 		Node *node = createNode();
 		node->type = procedureHeading;
 		node->pt0 = $1;
@@ -2112,20 +2188,20 @@ procedureHeading :
 			Symbol * index = addEntry(node1->identLex);
 		}
 		$$ = node;
-	}
-	formalParameterPart TOKEN_SEMICOLON {
+	} formalParameterPart TOKEN_SEMICOLON {
 		$3 = $1;
-	} valuePart*/;
+	} valuePart;
+	*/
 
 procedureBody :
-	TOKEN_BEGIN TOKEN_SEMICOLON statement{
+	statement{
 		Node *new = createNode();
 		
 		new->type = procedureBody;
-		Node *temp = $3;
+		Node *temp = $1;
 		new->semTypeDef = temp->semTypeDef;
 		$$ = new;
-	} TOKEN_END;
+	};
 
 procedureDeclaration : 
 	TOKEN_PROCEDURE procedureHeading procedureBody {
@@ -2169,21 +2245,15 @@ procedureDeclaration :
 %%
 int main(int argc, char* argv[])
 {
-    FILE *fp;
-    int i;
- 	if (argc==2){
-		fp = fopen(argv[1], "r");
-		printf("%s\n",argv[1]);
-		yyrestart(fp);
-		yylex();
-		}
-	else {
-		printf("please enter a file in the argument....\n USAGE :>> ./algolLexer test");
-		return 0;
-		}
-    
-	while(!yyparse());
+   	int i = 1;
+	for(i=1;i<argc;i++)
+	{
+	    FILE* fp;
+	    fp = fopen(argv[i], "r");
+	    yyin = fp;
+	    while(yyparse() != 0)
+		;
+	}
 	return 0;
-
-} 
+}
 
