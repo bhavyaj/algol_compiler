@@ -3,7 +3,7 @@ typedef struct{
 	char *lexeme;
 	int token;
 	int value;
-	float realValue;
+	float realVal;
 	int type;
 	bool boolean;
 	int track; 

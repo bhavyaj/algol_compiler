@@ -30,311 +30,326 @@ Terminals unused in grammar
    TOKEN_RELOP
 
 
+State 84 conflicts: 6 reduce/reduce
+
+
 Grammar
 
     0 $accept: program $end
 
-    1 blockHead: TOKEN_BEGIN declaration
-    2          | blockHead TOKEN_SEMICOLON declaration
+    1 $@1: /* empty */
 
-    3 unlabelledBlock: blockHead TOKEN_SEMICOLON compoundTail
+    2 blockHead: TOKEN_BEGIN $@1 declaration
+    3          | blockHead TOKEN_SEMICOLON declaration
 
-    4 block: unlabelledBlock
-    5      | tlabel block
+    4 unlabelledBlock: blockHead TOKEN_SEMICOLON compoundTail
 
-    6 tlabel: label TOKEN_COLON
+    5 block: unlabelledBlock
+    6      | tlabel block
 
-    7 label: identifier
-    8      | integer
+    7 tlabel: label TOKEN_COLON
 
-    9 program: compoundStatement
-   10        | block
+    8 label: identifier
+    9      | integer
 
-   11 unlabelledCompound: TOKEN_BEGIN compoundTail
+   10 program: compoundStatement
+   11        | block
 
-   12 compoundStatement: unlabelledCompound
-   13                  | tlabel compoundStatement
+   12 $@2: /* empty */
 
-   14 compoundTail: statement TOKEN_END
-   15             | statement TOKEN_SEMICOLON compoundTail
+   13 unlabelledCompound: TOKEN_BEGIN $@2 compoundTail
 
-   16 declaration: typeDeclaration
-   17            | arrayDeclaration
-   18            | procedureDeclaration
+   14 compoundStatement: unlabelledCompound
+   15                  | tlabel compoundStatement
 
-   19 lowerBound: arithmeticExpression
+   16 compoundTail: statement TOKEN_END
+   17             | statement TOKEN_SEMICOLON compoundTail
 
-   20 upperBound: arithmeticExpression
+   18 declaration: typeDeclaration
+   19            | arrayDeclaration
+   20            | procedureDeclaration
 
-   21 boundPair: lowerBound TOKEN_COLON upperBound
+   21 lowerBound: arithmeticExpression
 
-   22 boundPairList: boundPair
-   23              | boundPairList TOKEN_COMMA boundPair
+   22 upperBound: arithmeticExpression
 
-   24 arrayIdentifier: identifier
+   23 boundPair: lowerBound TOKEN_COLON upperBound
 
-   25 arraySegment: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET boundPairList TOKEN_CLOSE_SQUARE_BRACKET
-   26             | arrayIdentifier TOKEN_COMMA arraySegment
+   24 boundPairList: boundPair
+   25              | boundPairList TOKEN_COMMA boundPair
 
-   27 arrayList: arraySegment
+   26 arrayIdentifier: identifier
 
-   28 @1: /* empty */
+   27 arraySegment: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET boundPairList TOKEN_CLOSE_SQUARE_BRACKET
+   28             | arrayIdentifier TOKEN_COMMA arraySegment
 
-   29 arrayList: arrayList TOKEN_COMMA @1 arraySegment
+   29 arrayList: arraySegment
 
-   30 arrayDeclaration: TOKEN_ARRAY arrayList
-   31                 | type TOKEN_ARRAY arrayList
+   30 @3: /* empty */
 
-   32 expression: arithmeticExpression
-   33           | booleanExpression
+   31 arrayList: arrayList TOKEN_COMMA @3 arraySegment
 
-   34 arithmeticExpression: simpleArithmeticExpression
-   35                     | ifClause simpleArithmeticExpression TOKEN_ELSE arithmeticExpression
+   32 arrayDeclaration: TOKEN_ARRAY arrayList
+   33                 | type TOKEN_ARRAY arrayList
 
-   36 simpleArithmeticExpression: term
-   37                           | TOKEN_PLUS term
-   38                           | TOKEN_MINUS term
-   39                           | simpleArithmeticExpression TOKEN_PLUS term
-   40                           | simpleArithmeticExpression TOKEN_MINUS term
+   34 expression: arithmeticExpression
+   35           | booleanExpression
 
-   41 term: factor
-   42     | term TOKEN_MULTIPLY factor
-   43     | term TOKEN_DIVIDE factor
+   36 arithmeticExpression: simpleArithmeticExpression
+   37                     | ifClause simpleArithmeticExpression TOKEN_ELSE arithmeticExpression
 
-   44 factor: primary
-   45       | factor TOKEN_POWER primary
+   38 simpleArithmeticExpression: term
+   39                           | TOKEN_PLUS term
+   40                           | TOKEN_MINUS term
+   41                           | simpleArithmeticExpression TOKEN_PLUS term
+   42                           | simpleArithmeticExpression TOKEN_MINUS term
 
-   46 primary: realNumber
-   47        | integer
-   48        | TOKEN_OPEN_BRACKET arithmeticExpression TOKEN_CLOSE_BRACKET
+   43 term: factor
+   44     | term TOKEN_MULTIPLY factor
+   45     | term TOKEN_DIVIDE factor
 
-   49 realNumber: TOKEN_REAL_NUM
+   46 factor: primary
+   47       | factor TOKEN_POWER primary
 
-   50 integer: TOKEN_INTEGER
+   48 primary: unsignedNumber
+   49        | variable
+   50        | TOKEN_OPEN_BRACKET arithmeticExpression TOKEN_CLOSE_BRACKET
 
-   51 variable: identifier
-   52         | subscriptedVariable
+   51 unsignedNumber: realNumber
+   52               | integer
 
-   53 subscriptedVariable: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET subscriptList TOKEN_CLOSE_SQUARE_BRACKET
+   53 realNumber: TOKEN_REAL_NUM
 
-   54 subscriptList: subscriptExpression
-   55              | subscriptList TOKEN_COMMA subscriptExpression
+   54 integer: TOKEN_INTEGER
 
-   56 subscriptExpression: arithmeticExpression
+   55 simpleVariable: varIdentifier
 
-   57 identifier: TOKEN_IDENTIFIER
+   56 variable: simpleVariable
+   57         | subscriptedVariable
 
-   58 booleanExpression: simpleBoolean
+   58 subscriptedVariable: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET subscriptList TOKEN_CLOSE_SQUARE_BRACKET
 
-   59 simpleBoolean: implication
-   60              | simpleBoolean TOKEN_EQUIV implication
+   59 subscriptList: subscriptExpression
+   60              | subscriptList TOKEN_COMMA subscriptExpression
 
-   61 implication: booleanTerm
-   62            | implication TOKEN_IMPLY booleanTerm
+   61 subscriptExpression: arithmeticExpression
 
-   63 booleanTerm: booleanFactor
-   64            | booleanTerm TOKEN_OR_OP booleanFactor
+   62 identifier: TOKEN_IDENTIFIER
 
-   65 booleanFactor: booleanSecondary
-   66              | booleanFactor TOKEN_AND_OP booleanSecondary
+   63 booleanExpression: simpleBoolean
 
-   67 booleanSecondary: booleanPrimary
-   68                 | TOKEN_NOT_OP booleanPrimary
+   64 simpleBoolean: implication
+   65              | simpleBoolean TOKEN_EQUIV implication
 
-   69 booleanPrimary: logicalValue
-   70               | relation
-   71               | TOKEN_OPEN_BRACKET booleanExpression TOKEN_CLOSE_BRACKET
+   66 implication: booleanTerm
+   67            | implication TOKEN_IMPLY booleanTerm
 
-   72 logicalValue: TOKEN_LOGICAL_VALUE
+   68 booleanTerm: booleanFactor
+   69            | booleanTerm TOKEN_OR_OP booleanFactor
 
-   73 relation: simpleArithmeticExpression relationalOperator simpleArithmeticExpression
+   70 booleanFactor: booleanSecondary
+   71              | booleanFactor TOKEN_AND_OP booleanSecondary
 
-   74 relationalOperator: TOKEN_REL_OP
+   72 booleanSecondary: booleanPrimary
+   73                 | TOKEN_NOT_OP booleanPrimary
 
-   75 listType: varIdentifier
+   74 booleanPrimary: logicalValue
+   75               | boolVariable
+   76               | relation
+   77               | TOKEN_OPEN_BRACKET booleanExpression TOKEN_CLOSE_BRACKET
 
-   76 @2: /* empty */
+   78 logicalValue: TOKEN_LOGICAL_VALUE
 
-   77 listType: listType TOKEN_COMMA @2 varIdentifier
+   79 relation: simpleArithmeticExpression relationalOperator simpleArithmeticExpression
 
-   78 type: TOKEN_TYPE_REAL
-   79     | TOKEN_TYPE_INTEGER
-   80     | TOKEN_TYPE_BOOLEAN
+   80 boolVariable: variable
 
-   81 typeDeclaration: type listType
+   81 relationalOperator: TOKEN_REL_OP
 
-   82 varIdentifier: identifier
+   82 listType: varIdentifier
 
-   83 unconditionalStatement: basicStatement
-   84                       | compoundStatement
-   85                       | block
+   83 @4: /* empty */
 
-   86 conditionalStatement: ifStatement
-   87                     | ifClause unconditionalStatement TOKEN_ELSE statement
-   88                     | ifClause forStatement
-   89                     | tlabel conditionalStatement
+   84 listType: listType TOKEN_COMMA @4 varIdentifier
 
-   90 ifStatement: ifClause unconditionalStatement
+   85 type: TOKEN_TYPE_REAL
+   86     | TOKEN_TYPE_INTEGER
+   87     | TOKEN_TYPE_BOOLEAN
 
-   91 ifClause: TOKEN_IF booleanExpression TOKEN_THEN
+   88 typeDeclaration: type listType
 
-   92 basicStatement: unlabelledBasicStatement
-   93               | label basicStatement
+   89 varIdentifier: identifier
 
-   94 unlabelledBasicStatement: assignmentStatement
-   95                         | dummyStatement
+   90 unconditionalStatement: basicStatement
+   91                       | compoundStatement
+   92                       | block
 
-   96 @3: /* empty */
+   93 conditionalStatement: ifStatement
+   94                     | ifClause unconditionalStatement TOKEN_ELSE statement
+   95                     | ifClause forStatement
+   96                     | tlabel conditionalStatement
 
-   97 unlabelledBasicStatement: procedureStatement @3 returnStatement
+   97 ifStatement: ifClause unconditionalStatement
 
-   98 dummyStatement: empty
+   98 ifClause: TOKEN_IF booleanExpression TOKEN_THEN
 
-   99 returnStatement: TOKEN_RETURN expression
+   99 basicStatement: unlabelledBasicStatement
+  100               | label basicStatement
 
-  100 assignmentStatement: identifier TOKEN_ASSIGN arithmeticExpression
-  101                    | identifier TOKEN_ASSIGN booleanExpression
+  101 unlabelledBasicStatement: assignmentStatement
+  102                         | dummyStatement
 
-  102 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
+  103 @5: /* empty */
 
-  103 empty: /* empty */
+  104 unlabelledBasicStatement: procedureStatement @5 returnStatement
 
-  104 procedureStatement: procedureIdentifier actualParameterPart
+  105 dummyStatement: empty
 
-  105 procedureIdentifier: identifier
+  106 returnStatement: TOKEN_RETURN expression
 
-  106 actualParameterPart: empty
-  107                    | TOKEN_OPEN_BRACKET actualParameterList TOKEN_CLOSE_BRACKET
+  107 assignmentStatement: identifier TOKEN_ASSIGN arithmeticExpression
+  108                    | identifier TOKEN_ASSIGN booleanExpression
 
-  108 actualParameterList: actualParameter
-  109                    | actualParameterList parameterDelimiter actualParameter
+  109 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
 
-  110 actualParameter: expression
+  110 empty: /* empty */
 
-  111 parameterDelimiter: TOKEN_COMMA
-  112                   | TOKEN_CLOSE_SQUARE_BRACKET identifier TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET
+  111 procedureStatement: procedureIdentifier actualParameterPart
 
-  113 statement: unconditionalStatement
-  114          | conditionalStatement
-  115          | forStatement
-  116          | TOKEN_PRINT expression
+  112 procedureIdentifier: identifier
 
-  117 formalParameter: identifier
+  113 actualParameterPart: empty
+  114                    | TOKEN_OPEN_BRACKET actualParameterList TOKEN_CLOSE_BRACKET
 
-  118 formalParameterList: formalParameter
+  115 actualParameterList: actualParameter
+  116                    | actualParameterList parameterDelimiter actualParameter
 
-  119 $@4: /* empty */
+  117 actualParameter: expression
 
-  120 formalParameterList: formalParameterList parameterDelimiter $@4 formalParameter
+  118 parameterDelimiter: TOKEN_COMMA
+  119                   | TOKEN_CLOSE_SQUARE_BRACKET identifier TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET
 
-  121 formalParameterPart: empty
+  120 statement: unconditionalStatement
+  121          | conditionalStatement
+  122          | forStatement
+  123          | TOKEN_PRINT expression
 
-  122 $@5: /* empty */
+  124 formalParameter: identifier
 
-  123 formalParameterPart: TOKEN_OPEN_BRACKET $@5 formalParameterList TOKEN_CLOSE_BRACKET
+  125 formalParameterList: formalParameter
 
-  124 identifierList: identifier
-  125               | identifierList TOKEN_COMMA identifier
+  126 $@6: /* empty */
 
-  126 valuePart: TOKEN_VALUE identifierList TOKEN_SEMICOLON
-  127          | empty
+  127 formalParameterList: formalParameterList parameterDelimiter $@6 formalParameter
 
-  128 specifier: type
-  129          | type TOKEN_ARRAY
-  130          | TOKEN_TYPE_LABEL
-  131          | TOKEN_SWITCH
-  132          | type TOKEN_PROCEDURE
+  128 formalParameterPart: empty
 
-  133 specificationPart: empty
-  134                  | specificationIdentifierList
+  129 $@7: /* empty */
 
-  135 specificationIdentifierList: specifier identifierList TOKEN_SEMICOLON
-  136                            | specificationIdentifierList specifier identifierList TOKEN_SEMICOLON
+  130 formalParameterPart: TOKEN_OPEN_BRACKET $@7 formalParameterList TOKEN_CLOSE_BRACKET
 
-  137 @6: /* empty */
+  131 identifierList: identifier
+  132               | identifierList TOKEN_COMMA identifier
 
-  138 $@7: /* empty */
+  133 valuePart: TOKEN_VALUE identifierList TOKEN_SEMICOLON
+  134          | empty
 
-  139 procedureHeading: procedureIdentifier @6 formalParameterPart TOKEN_SEMICOLON $@7 valuePart specificationPart
+  135 specifier: type
+  136          | type TOKEN_ARRAY
+  137          | TOKEN_TYPE_LABEL
+  138          | TOKEN_SWITCH
+  139          | type TOKEN_PROCEDURE
 
-  140 procedureBody: statement
+  140 specificationPart: empty
+  141                  | specificationIdentifierList
 
-  141 procedureDeclaration: TOKEN_PROCEDURE procedureHeading procedureBody
-  142                     | type TOKEN_PROCEDURE procedureHeading procedureBody
+  142 specificationIdentifierList: specifier identifierList TOKEN_SEMICOLON
+  143                            | specificationIdentifierList specifier identifierList TOKEN_SEMICOLON
+
+  144 @8: /* empty */
+
+  145 $@9: /* empty */
+
+  146 procedureHeading: procedureIdentifier @8 formalParameterPart TOKEN_SEMICOLON $@9 valuePart specificationPart
+
+  147 procedureBody: statement
+
+  148 procedureDeclaration: TOKEN_PROCEDURE procedureHeading procedureBody
+  149                     | type TOKEN_PROCEDURE procedureHeading procedureBody
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
 error (256)
-TOKEN_PRINT (258) 116
-TOKEN_IDENTIFIER (259) 57
-TOKEN_BEGIN (260) 1 11
-TOKEN_END (261) 14
-TOKEN_LOGICAL_VALUE (262) 72
+TOKEN_PRINT (258) 123
+TOKEN_IDENTIFIER (259) 62
+TOKEN_BEGIN (260) 2 13
+TOKEN_END (261) 16
+TOKEN_LOGICAL_VALUE (262) 78
 TOKEN_OPERATOR (263)
 TOKEN_OR (264)
-TOKEN_PROCEDURE (265) 132 141 142
-TOKEN_PLUS (266) 37 39
-TOKEN_MINUS (267) 38 40
-TOKEN_DIVIDE (268) 43
-TOKEN_POWER (269) 45
-TOKEN_MULTIPLY (270) 42
-TOKEN_COMMA (271) 23 26 29 55 77 111 125
+TOKEN_PROCEDURE (265) 139 148 149
+TOKEN_PLUS (266) 39 41
+TOKEN_MINUS (267) 40 42
+TOKEN_DIVIDE (268) 45
+TOKEN_POWER (269) 47
+TOKEN_MULTIPLY (270) 44
+TOKEN_COMMA (271) 25 28 31 60 84 118 132
 TOKEN_UNDERSCORE (272)
 TOKEN_SPECIFIER (273)
 TOKEN_LIBRARY (274)
 TOKEN_BRACKET (275)
-TOKEN_OPEN_BRACKET (276) 48 71 107 123
-TOKEN_CLOSE_BRACKET (277) 48 71 107 123
-TOKEN_OPEN_SQUARE_BRACKET (278) 25 53 112
-TOKEN_CLOSE_SQUARE_BRACKET (279) 25 53 112
+TOKEN_OPEN_BRACKET (276) 50 77 114 130
+TOKEN_CLOSE_BRACKET (277) 50 77 114 130
+TOKEN_OPEN_SQUARE_BRACKET (278) 27 58 119
+TOKEN_CLOSE_SQUARE_BRACKET (279) 27 58 119
 TOKEN_CONTINUE (280)
-TOKEN_REAL_NUM (281) 49
-TOKEN_INTEGER (282) 50
-TOKEN_COLON (283) 6 21 112
-TOKEN_REL_OP (284) 74
+TOKEN_REAL_NUM (281) 53
+TOKEN_INTEGER (282) 54
+TOKEN_COLON (283) 7 23 119
+TOKEN_REL_OP (284) 81
 TOKEN_LESS_EQUAL (285)
 TOKEN_GREATER (286)
 TOKEN_GREATER_EQUAL (287)
 TOKEN_EQUAL (288)
 TOKEN_LESS (289)
 TOKEN_NOTEQUAL (290)
-TOKEN_EQUIV (291) 60
-TOKEN_AND_OP (292) 66
-TOKEN_OR_OP (293) 64
-TOKEN_NOT_OP (294) 68
+TOKEN_EQUIV (291) 65
+TOKEN_AND_OP (292) 71
+TOKEN_OR_OP (293) 69
+TOKEN_NOT_OP (294) 73
 TOKEN_GOTO (295)
-TOKEN_FOR (296) 102
-TOKEN_DO (297) 102
+TOKEN_FOR (296) 109
+TOKEN_DO (297) 109
 TOKEN_WHILE (298)
-TOKEN_STEP (299) 102
-TOKEN_UNTIL (300) 102
-TOKEN_IF (301) 91
-TOKEN_THEN (302) 91
-TOKEN_ELSE (303) 35 87
-TOKEN_SWITCH (304) 131
-TOKEN_VALUE (305) 126
+TOKEN_STEP (299) 109
+TOKEN_UNTIL (300) 109
+TOKEN_IF (301) 98
+TOKEN_THEN (302) 98
+TOKEN_ELSE (303) 37 94
+TOKEN_SWITCH (304) 138
+TOKEN_VALUE (305) 133
 TOKEN_BOOLEAN (306)
 TOKEN_TYPE_OWN (307)
-TOKEN_TYPE_INTEGER (308) 79
-TOKEN_TYPE_REAL (309) 78
-TOKEN_TYPE_BOOLEAN (310) 80
+TOKEN_TYPE_INTEGER (308) 86
+TOKEN_TYPE_REAL (309) 85
+TOKEN_TYPE_BOOLEAN (310) 87
 TOKEN_TYPE_ARRAY (311)
 TOKEN_TYPE_SWITCH (312)
 TOKEN_TYPE_PROCEDURE (313)
 TOKEN_TYPE_STRING (314)
-TOKEN_TYPE_LABEL (315) 130
+TOKEN_TYPE_LABEL (315) 137
 TOKEN_TYPE_VALUE (316)
-TOKEN_ARRAY (317) 30 31 129
-TOKEN_IMPLY (318) 62
-TOKEN_SEMICOLON (319) 2 3 15 126 135 136 139
+TOKEN_ARRAY (317) 32 33 136
+TOKEN_IMPLY (318) 67
+TOKEN_SEMICOLON (319) 3 4 17 133 142 143 146
 TOKEN_LTRSTRING (320)
-TOKEN_RETURN (321) 99
+TOKEN_RETURN (321) 106
 TOKEN_ASSIGN_IDENTIFIER (322)
 TOKEN_LABEL_IDENTIFIER (323)
 TOKEN_BOOL_IDENTIFIER (324)
-TOKEN_ASSIGN (325) 100 101 102
+TOKEN_ASSIGN (325) 107 108 109
 TOKEN_NOT_EQUAL (326)
 TOKEN_RELOP (327)
 
@@ -344,167 +359,177 @@ Nonterminals, with rules where they appear
 $accept (73)
     on left: 0
 blockHead (74)
-    on left: 1 2, on right: 2 3
-unlabelledBlock (75)
-    on left: 3, on right: 4
-block (76)
-    on left: 4 5, on right: 5 10 85
-tlabel (77)
-    on left: 6, on right: 5 13 89
-label (78)
-    on left: 7 8, on right: 6 93
-program (79)
-    on left: 9 10, on right: 0
-unlabelledCompound (80)
-    on left: 11, on right: 12
-compoundStatement (81)
-    on left: 12 13, on right: 9 13 84
-compoundTail (82)
-    on left: 14 15, on right: 3 11 15
-declaration (83)
-    on left: 16 17 18, on right: 1 2
-lowerBound (84)
-    on left: 19, on right: 21
-upperBound (85)
-    on left: 20, on right: 21
-boundPair (86)
-    on left: 21, on right: 22 23
-boundPairList (87)
-    on left: 22 23, on right: 23 25
-arrayIdentifier (88)
-    on left: 24, on right: 25 26 53
-arraySegment (89)
-    on left: 25 26, on right: 26 27 29
-arrayList (90)
-    on left: 27 29, on right: 29 30 31
-@1 (91)
-    on left: 28, on right: 29
-arrayDeclaration (92)
-    on left: 30 31, on right: 17
-expression (93)
-    on left: 32 33, on right: 99 110 116
-arithmeticExpression (94)
-    on left: 34 35, on right: 19 20 32 35 48 56 100 102
-simpleArithmeticExpression (95)
-    on left: 36 37 38 39 40, on right: 34 35 39 40 73
-term (96)
-    on left: 41 42 43, on right: 36 37 38 39 40 42 43
-factor (97)
-    on left: 44 45, on right: 41 42 43 45
-primary (98)
-    on left: 46 47 48, on right: 44 45
-realNumber (99)
-    on left: 49, on right: 46
-integer (100)
-    on left: 50, on right: 8 47
-variable (101)
-    on left: 51 52, on right: 102
-subscriptedVariable (102)
-    on left: 53, on right: 52
-subscriptList (103)
-    on left: 54 55, on right: 53 55
-subscriptExpression (104)
-    on left: 56, on right: 54 55
-identifier (105)
-    on left: 57, on right: 7 24 51 82 100 101 105 112 117 124 125
-booleanExpression (106)
-    on left: 58, on right: 33 71 91 101
-simpleBoolean (107)
+    on left: 2 3, on right: 3 4
+$@1 (75)
+    on left: 1, on right: 2
+unlabelledBlock (76)
+    on left: 4, on right: 5
+block (77)
+    on left: 5 6, on right: 6 11 92
+tlabel (78)
+    on left: 7, on right: 6 15 96
+label (79)
+    on left: 8 9, on right: 7 100
+program (80)
+    on left: 10 11, on right: 0
+unlabelledCompound (81)
+    on left: 13, on right: 14
+$@2 (82)
+    on left: 12, on right: 13
+compoundStatement (83)
+    on left: 14 15, on right: 10 15 91
+compoundTail (84)
+    on left: 16 17, on right: 4 13 17
+declaration (85)
+    on left: 18 19 20, on right: 2 3
+lowerBound (86)
+    on left: 21, on right: 23
+upperBound (87)
+    on left: 22, on right: 23
+boundPair (88)
+    on left: 23, on right: 24 25
+boundPairList (89)
+    on left: 24 25, on right: 25 27
+arrayIdentifier (90)
+    on left: 26, on right: 27 28 58
+arraySegment (91)
+    on left: 27 28, on right: 28 29 31
+arrayList (92)
+    on left: 29 31, on right: 31 32 33
+@3 (93)
+    on left: 30, on right: 31
+arrayDeclaration (94)
+    on left: 32 33, on right: 19
+expression (95)
+    on left: 34 35, on right: 106 117 123
+arithmeticExpression (96)
+    on left: 36 37, on right: 21 22 34 37 50 61 107 109
+simpleArithmeticExpression (97)
+    on left: 38 39 40 41 42, on right: 36 37 41 42 79
+term (98)
+    on left: 43 44 45, on right: 38 39 40 41 42 44 45
+factor (99)
+    on left: 46 47, on right: 43 44 45 47
+primary (100)
+    on left: 48 49 50, on right: 46 47
+unsignedNumber (101)
+    on left: 51 52, on right: 48
+realNumber (102)
+    on left: 53, on right: 51
+integer (103)
+    on left: 54, on right: 9 52
+simpleVariable (104)
+    on left: 55, on right: 56
+variable (105)
+    on left: 56 57, on right: 49 80 109
+subscriptedVariable (106)
+    on left: 58, on right: 57
+subscriptList (107)
     on left: 59 60, on right: 58 60
-implication (108)
-    on left: 61 62, on right: 59 60 62
-booleanTerm (109)
-    on left: 63 64, on right: 61 62 64
-booleanFactor (110)
-    on left: 65 66, on right: 63 64 66
-booleanSecondary (111)
-    on left: 67 68, on right: 65 66
-booleanPrimary (112)
-    on left: 69 70 71, on right: 67 68
-logicalValue (113)
-    on left: 72, on right: 69
-relation (114)
-    on left: 73, on right: 70
-relationalOperator (115)
-    on left: 74, on right: 73
-listType (116)
-    on left: 75 77, on right: 77 81
-@2 (117)
-    on left: 76, on right: 77
-type (118)
-    on left: 78 79 80, on right: 31 81 128 129 132 142
-typeDeclaration (119)
-    on left: 81, on right: 16
-varIdentifier (120)
-    on left: 82, on right: 75 77
-unconditionalStatement (121)
-    on left: 83 84 85, on right: 87 90 113
-conditionalStatement (122)
-    on left: 86 87 88 89, on right: 89 114
-ifStatement (123)
-    on left: 90, on right: 86
-ifClause (124)
-    on left: 91, on right: 35 87 88 90
-basicStatement (125)
-    on left: 92 93, on right: 83 93
-unlabelledBasicStatement (126)
-    on left: 94 95 97, on right: 92
-@3 (127)
-    on left: 96, on right: 97
-dummyStatement (128)
-    on left: 98, on right: 95
-returnStatement (129)
-    on left: 99, on right: 97
-assignmentStatement (130)
-    on left: 100 101, on right: 94
-forStatement (131)
-    on left: 102, on right: 88 115
-empty (132)
-    on left: 103, on right: 98 106 121 127 133
-procedureStatement (133)
-    on left: 104, on right: 97
-procedureIdentifier (134)
-    on left: 105, on right: 104 139
-actualParameterPart (135)
-    on left: 106 107, on right: 104
-actualParameterList (136)
-    on left: 108 109, on right: 107 109
-actualParameter (137)
-    on left: 110, on right: 108 109
-parameterDelimiter (138)
-    on left: 111 112, on right: 109 120
-statement (139)
-    on left: 113 114 115 116, on right: 14 15 87 102 140
-formalParameter (140)
-    on left: 117, on right: 118 120
-formalParameterList (141)
-    on left: 118 120, on right: 120 123
-$@4 (142)
-    on left: 119, on right: 120
-formalParameterPart (143)
-    on left: 121 123, on right: 139
-$@5 (144)
-    on left: 122, on right: 123
-identifierList (145)
-    on left: 124 125, on right: 125 126 135 136
-valuePart (146)
-    on left: 126 127, on right: 139
-specifier (147)
-    on left: 128 129 130 131 132, on right: 135 136
-specificationPart (148)
-    on left: 133 134, on right: 139
-specificationIdentifierList (149)
-    on left: 135 136, on right: 134 136
-procedureHeading (150)
-    on left: 139, on right: 141 142
-@6 (151)
-    on left: 137, on right: 139
-$@7 (152)
-    on left: 138, on right: 139
-procedureBody (153)
-    on left: 140, on right: 141 142
-procedureDeclaration (154)
-    on left: 141 142, on right: 18
+subscriptExpression (108)
+    on left: 61, on right: 59 60
+identifier (109)
+    on left: 62, on right: 8 26 89 107 108 112 119 124 131 132
+booleanExpression (110)
+    on left: 63, on right: 35 77 98 108
+simpleBoolean (111)
+    on left: 64 65, on right: 63 65
+implication (112)
+    on left: 66 67, on right: 64 65 67
+booleanTerm (113)
+    on left: 68 69, on right: 66 67 69
+booleanFactor (114)
+    on left: 70 71, on right: 68 69 71
+booleanSecondary (115)
+    on left: 72 73, on right: 70 71
+booleanPrimary (116)
+    on left: 74 75 76 77, on right: 72 73
+logicalValue (117)
+    on left: 78, on right: 74
+relation (118)
+    on left: 79, on right: 76
+boolVariable (119)
+    on left: 80, on right: 75
+relationalOperator (120)
+    on left: 81, on right: 79
+listType (121)
+    on left: 82 84, on right: 84 88
+@4 (122)
+    on left: 83, on right: 84
+type (123)
+    on left: 85 86 87, on right: 33 88 135 136 139 149
+typeDeclaration (124)
+    on left: 88, on right: 18
+varIdentifier (125)
+    on left: 89, on right: 55 82 84
+unconditionalStatement (126)
+    on left: 90 91 92, on right: 94 97 120
+conditionalStatement (127)
+    on left: 93 94 95 96, on right: 96 121
+ifStatement (128)
+    on left: 97, on right: 93
+ifClause (129)
+    on left: 98, on right: 37 94 95 97
+basicStatement (130)
+    on left: 99 100, on right: 90 100
+unlabelledBasicStatement (131)
+    on left: 101 102 104, on right: 99
+@5 (132)
+    on left: 103, on right: 104
+dummyStatement (133)
+    on left: 105, on right: 102
+returnStatement (134)
+    on left: 106, on right: 104
+assignmentStatement (135)
+    on left: 107 108, on right: 101
+forStatement (136)
+    on left: 109, on right: 95 122
+empty (137)
+    on left: 110, on right: 105 113 128 134 140
+procedureStatement (138)
+    on left: 111, on right: 104
+procedureIdentifier (139)
+    on left: 112, on right: 111 146
+actualParameterPart (140)
+    on left: 113 114, on right: 111
+actualParameterList (141)
+    on left: 115 116, on right: 114 116
+actualParameter (142)
+    on left: 117, on right: 115 116
+parameterDelimiter (143)
+    on left: 118 119, on right: 116 127
+statement (144)
+    on left: 120 121 122 123, on right: 16 17 94 109 147
+formalParameter (145)
+    on left: 124, on right: 125 127
+formalParameterList (146)
+    on left: 125 127, on right: 127 130
+$@6 (147)
+    on left: 126, on right: 127
+formalParameterPart (148)
+    on left: 128 130, on right: 146
+$@7 (149)
+    on left: 129, on right: 130
+identifierList (150)
+    on left: 131 132, on right: 132 133 142 143
+valuePart (151)
+    on left: 133 134, on right: 146
+specifier (152)
+    on left: 135 136 137 138 139, on right: 142 143
+specificationPart (153)
+    on left: 140 141, on right: 146
+specificationIdentifierList (154)
+    on left: 142 143, on right: 141 143
+procedureHeading (155)
+    on left: 146, on right: 148 149
+@8 (156)
+    on left: 144, on right: 146
+$@9 (157)
+    on left: 145, on right: 146
+procedureBody (158)
+    on left: 147, on right: 148 149
+procedureDeclaration (159)
+    on left: 148 149, on right: 20
 
 
 state 0
@@ -529,93 +554,60 @@ state 0
 
 state 1
 
-   57 identifier: TOKEN_IDENTIFIER .
+   62 identifier: TOKEN_IDENTIFIER .
 
-    $default  reduce using rule 57 (identifier)
+    $default  reduce using rule 62 (identifier)
 
 
 state 2
 
-    1 blockHead: TOKEN_BEGIN . declaration
-   11 unlabelledCompound: TOKEN_BEGIN . compoundTail
+    2 blockHead: TOKEN_BEGIN . $@1 declaration
+   13 unlabelledCompound: TOKEN_BEGIN . $@2 compoundTail
 
-    TOKEN_PRINT         shift, and go to state 14
-    TOKEN_IDENTIFIER    shift, and go to state 1
-    TOKEN_BEGIN         shift, and go to state 2
-    TOKEN_PROCEDURE     shift, and go to state 15
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_FOR           shift, and go to state 16
-    TOKEN_IF            shift, and go to state 17
-    TOKEN_TYPE_INTEGER  shift, and go to state 18
-    TOKEN_TYPE_REAL     shift, and go to state 19
-    TOKEN_TYPE_BOOLEAN  shift, and go to state 20
-    TOKEN_ARRAY         shift, and go to state 21
+    TOKEN_PROCEDURE     reduce using rule 1 ($@1)
+    TOKEN_TYPE_INTEGER  reduce using rule 1 ($@1)
+    TOKEN_TYPE_REAL     reduce using rule 1 ($@1)
+    TOKEN_TYPE_BOOLEAN  reduce using rule 1 ($@1)
+    TOKEN_ARRAY         reduce using rule 1 ($@1)
+    $default            reduce using rule 12 ($@2)
 
-    $default  reduce using rule 103 (empty)
-
-    blockHead                 go to state 4
-    unlabelledBlock           go to state 5
-    block                     go to state 22
-    tlabel                    go to state 23
-    label                     go to state 24
-    unlabelledCompound        go to state 10
-    compoundStatement         go to state 25
-    compoundTail              go to state 26
-    declaration               go to state 27
-    arrayDeclaration          go to state 28
-    integer                   go to state 12
-    identifier                go to state 29
-    type                      go to state 30
-    typeDeclaration           go to state 31
-    unconditionalStatement    go to state 32
-    conditionalStatement      go to state 33
-    ifStatement               go to state 34
-    ifClause                  go to state 35
-    basicStatement            go to state 36
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    forStatement              go to state 40
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-    statement                 go to state 44
-    procedureDeclaration      go to state 45
+    $@1  go to state 14
+    $@2  go to state 15
 
 
 state 3
 
-   50 integer: TOKEN_INTEGER .
+   54 integer: TOKEN_INTEGER .
 
-    $default  reduce using rule 50 (integer)
+    $default  reduce using rule 54 (integer)
 
 
 state 4
 
-    2 blockHead: blockHead . TOKEN_SEMICOLON declaration
-    3 unlabelledBlock: blockHead . TOKEN_SEMICOLON compoundTail
+    3 blockHead: blockHead . TOKEN_SEMICOLON declaration
+    4 unlabelledBlock: blockHead . TOKEN_SEMICOLON compoundTail
 
-    TOKEN_SEMICOLON  shift, and go to state 46
+    TOKEN_SEMICOLON  shift, and go to state 16
 
 
 state 5
 
-    4 block: unlabelledBlock .
+    5 block: unlabelledBlock .
 
-    $default  reduce using rule 4 (block)
+    $default  reduce using rule 5 (block)
 
 
 state 6
 
-   10 program: block .
+   11 program: block .
 
-    $default  reduce using rule 10 (program)
+    $default  reduce using rule 11 (program)
 
 
 state 7
 
-    5 block: tlabel . block
-   13 compoundStatement: tlabel . compoundStatement
+    6 block: tlabel . block
+   15 compoundStatement: tlabel . compoundStatement
 
     TOKEN_IDENTIFIER  shift, and go to state 1
     TOKEN_BEGIN       shift, and go to state 2
@@ -623,2610 +615,2987 @@ state 7
 
     blockHead           go to state 4
     unlabelledBlock     go to state 5
-    block               go to state 47
+    block               go to state 17
     tlabel              go to state 7
     label               go to state 8
     unlabelledCompound  go to state 10
-    compoundStatement   go to state 48
+    compoundStatement   go to state 18
     integer             go to state 12
     identifier          go to state 13
 
 
 state 8
 
-    6 tlabel: label . TOKEN_COLON
+    7 tlabel: label . TOKEN_COLON
 
-    TOKEN_COLON  shift, and go to state 49
+    TOKEN_COLON  shift, and go to state 19
 
 
 state 9
 
     0 $accept: program . $end
 
-    $end  shift, and go to state 50
+    $end  shift, and go to state 20
 
 
 state 10
 
-   12 compoundStatement: unlabelledCompound .
+   14 compoundStatement: unlabelledCompound .
 
-    $default  reduce using rule 12 (compoundStatement)
+    $default  reduce using rule 14 (compoundStatement)
 
 
 state 11
 
-    9 program: compoundStatement .
+   10 program: compoundStatement .
 
-    $default  reduce using rule 9 (program)
+    $default  reduce using rule 10 (program)
 
 
 state 12
 
-    8 label: integer .
+    9 label: integer .
 
-    $default  reduce using rule 8 (label)
+    $default  reduce using rule 9 (label)
 
 
 state 13
 
-    7 label: identifier .
+    8 label: identifier .
 
-    $default  reduce using rule 7 (label)
+    $default  reduce using rule 8 (label)
 
 
 state 14
 
-  116 statement: TOKEN_PRINT . expression
+    2 blockHead: TOKEN_BEGIN $@1 . declaration
 
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-    TOKEN_IF             shift, and go to state 17
+    TOKEN_PROCEDURE     shift, and go to state 21
+    TOKEN_TYPE_INTEGER  shift, and go to state 22
+    TOKEN_TYPE_REAL     shift, and go to state 23
+    TOKEN_TYPE_BOOLEAN  shift, and go to state 24
+    TOKEN_ARRAY         shift, and go to state 25
 
-    expression                  go to state 57
-    arithmeticExpression        go to state 58
-    simpleArithmeticExpression  go to state 59
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanExpression           go to state 65
-    simpleBoolean               go to state 66
-    implication                 go to state 67
-    booleanTerm                 go to state 68
-    booleanFactor               go to state 69
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
-    ifClause                    go to state 74
+    declaration           go to state 26
+    arrayDeclaration      go to state 27
+    type                  go to state 28
+    typeDeclaration       go to state 29
+    procedureDeclaration  go to state 30
 
 
 state 15
 
-  141 procedureDeclaration: TOKEN_PROCEDURE . procedureHeading procedureBody
+   13 unlabelledCompound: TOKEN_BEGIN $@2 . compoundTail
 
+    TOKEN_PRINT       shift, and go to state 31
     TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_BEGIN       shift, and go to state 2
+    TOKEN_INTEGER     shift, and go to state 3
+    TOKEN_FOR         shift, and go to state 32
+    TOKEN_IF          shift, and go to state 33
 
-    identifier           go to state 75
-    procedureIdentifier  go to state 76
-    procedureHeading     go to state 77
+    $default  reduce using rule 110 (empty)
+
+    blockHead                 go to state 4
+    unlabelledBlock           go to state 5
+    block                     go to state 34
+    tlabel                    go to state 35
+    label                     go to state 36
+    unlabelledCompound        go to state 10
+    compoundStatement         go to state 37
+    compoundTail              go to state 38
+    integer                   go to state 12
+    identifier                go to state 39
+    unconditionalStatement    go to state 40
+    conditionalStatement      go to state 41
+    ifStatement               go to state 42
+    ifClause                  go to state 43
+    basicStatement            go to state 44
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    forStatement              go to state 48
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
+    statement                 go to state 52
 
 
 state 16
 
-  102 forStatement: TOKEN_FOR . variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
+    3 blockHead: blockHead TOKEN_SEMICOLON . declaration
+    4 unlabelledBlock: blockHead TOKEN_SEMICOLON . compoundTail
 
-    TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_PRINT         shift, and go to state 31
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_BEGIN         shift, and go to state 2
+    TOKEN_PROCEDURE     shift, and go to state 21
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_FOR           shift, and go to state 32
+    TOKEN_IF            shift, and go to state 33
+    TOKEN_TYPE_INTEGER  shift, and go to state 22
+    TOKEN_TYPE_REAL     shift, and go to state 23
+    TOKEN_TYPE_BOOLEAN  shift, and go to state 24
+    TOKEN_ARRAY         shift, and go to state 25
 
-    arrayIdentifier      go to state 78
-    variable             go to state 79
-    subscriptedVariable  go to state 80
-    identifier           go to state 81
+    $default  reduce using rule 110 (empty)
+
+    blockHead                 go to state 4
+    unlabelledBlock           go to state 5
+    block                     go to state 34
+    tlabel                    go to state 35
+    label                     go to state 36
+    unlabelledCompound        go to state 10
+    compoundStatement         go to state 37
+    compoundTail              go to state 53
+    declaration               go to state 54
+    arrayDeclaration          go to state 27
+    integer                   go to state 12
+    identifier                go to state 39
+    type                      go to state 28
+    typeDeclaration           go to state 29
+    unconditionalStatement    go to state 40
+    conditionalStatement      go to state 41
+    ifStatement               go to state 42
+    ifClause                  go to state 43
+    basicStatement            go to state 44
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    forStatement              go to state 48
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
+    statement                 go to state 52
+    procedureDeclaration      go to state 30
 
 
 state 17
 
-   91 ifClause: TOKEN_IF . booleanExpression TOKEN_THEN
+    6 block: tlabel block .
 
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-
-    simpleArithmeticExpression  go to state 82
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanExpression           go to state 83
-    simpleBoolean               go to state 66
-    implication                 go to state 67
-    booleanTerm                 go to state 68
-    booleanFactor               go to state 69
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
+    $default  reduce using rule 6 (block)
 
 
 state 18
 
-   79 type: TOKEN_TYPE_INTEGER .
+   15 compoundStatement: tlabel compoundStatement .
 
-    $default  reduce using rule 79 (type)
+    $default  reduce using rule 15 (compoundStatement)
 
 
 state 19
 
-   78 type: TOKEN_TYPE_REAL .
+    7 tlabel: label TOKEN_COLON .
 
-    $default  reduce using rule 78 (type)
+    $default  reduce using rule 7 (tlabel)
 
 
 state 20
-
-   80 type: TOKEN_TYPE_BOOLEAN .
-
-    $default  reduce using rule 80 (type)
-
-
-state 21
-
-   30 arrayDeclaration: TOKEN_ARRAY . arrayList
-
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    arrayIdentifier  go to state 84
-    arraySegment     go to state 85
-    arrayList        go to state 86
-    identifier       go to state 87
-
-
-state 22
-
-   85 unconditionalStatement: block .
-
-    $default  reduce using rule 85 (unconditionalStatement)
-
-
-state 23
-
-    5 block: tlabel . block
-   13 compoundStatement: tlabel . compoundStatement
-   89 conditionalStatement: tlabel . conditionalStatement
-
-    TOKEN_IDENTIFIER  shift, and go to state 1
-    TOKEN_BEGIN       shift, and go to state 2
-    TOKEN_INTEGER     shift, and go to state 3
-    TOKEN_IF          shift, and go to state 17
-
-    blockHead             go to state 4
-    unlabelledBlock       go to state 5
-    block                 go to state 47
-    tlabel                go to state 23
-    label                 go to state 8
-    unlabelledCompound    go to state 10
-    compoundStatement     go to state 48
-    integer               go to state 12
-    identifier            go to state 13
-    conditionalStatement  go to state 88
-    ifStatement           go to state 34
-    ifClause              go to state 35
-
-
-state 24
-
-    6 tlabel: label . TOKEN_COLON
-   93 basicStatement: label . basicStatement
-
-    TOKEN_IDENTIFIER  shift, and go to state 1
-    TOKEN_INTEGER     shift, and go to state 3
-    TOKEN_COLON       shift, and go to state 49
-
-    $default  reduce using rule 103 (empty)
-
-    label                     go to state 89
-    integer                   go to state 12
-    identifier                go to state 29
-    basicStatement            go to state 90
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-
-
-state 25
-
-   84 unconditionalStatement: compoundStatement .
-
-    $default  reduce using rule 84 (unconditionalStatement)
-
-
-state 26
-
-   11 unlabelledCompound: TOKEN_BEGIN compoundTail .
-
-    $default  reduce using rule 11 (unlabelledCompound)
-
-
-state 27
-
-    1 blockHead: TOKEN_BEGIN declaration .
-
-    $default  reduce using rule 1 (blockHead)
-
-
-state 28
-
-   17 declaration: arrayDeclaration .
-
-    $default  reduce using rule 17 (declaration)
-
-
-state 29
-
-    7 label: identifier .
-  100 assignmentStatement: identifier . TOKEN_ASSIGN arithmeticExpression
-  101                    | identifier . TOKEN_ASSIGN booleanExpression
-  105 procedureIdentifier: identifier .
-
-    TOKEN_ASSIGN  shift, and go to state 91
-
-    TOKEN_OPEN_BRACKET  reduce using rule 105 (procedureIdentifier)
-    TOKEN_RETURN        reduce using rule 105 (procedureIdentifier)
-    $default            reduce using rule 7 (label)
-
-
-state 30
-
-   31 arrayDeclaration: type . TOKEN_ARRAY arrayList
-   81 typeDeclaration: type . listType
-  142 procedureDeclaration: type . TOKEN_PROCEDURE procedureHeading procedureBody
-
-    TOKEN_IDENTIFIER  shift, and go to state 1
-    TOKEN_PROCEDURE   shift, and go to state 92
-    TOKEN_ARRAY       shift, and go to state 93
-
-    identifier     go to state 94
-    listType       go to state 95
-    varIdentifier  go to state 96
-
-
-state 31
-
-   16 declaration: typeDeclaration .
-
-    $default  reduce using rule 16 (declaration)
-
-
-state 32
-
-  113 statement: unconditionalStatement .
-
-    $default  reduce using rule 113 (statement)
-
-
-state 33
-
-  114 statement: conditionalStatement .
-
-    $default  reduce using rule 114 (statement)
-
-
-state 34
-
-   86 conditionalStatement: ifStatement .
-
-    $default  reduce using rule 86 (conditionalStatement)
-
-
-state 35
-
-   87 conditionalStatement: ifClause . unconditionalStatement TOKEN_ELSE statement
-   88                     | ifClause . forStatement
-   90 ifStatement: ifClause . unconditionalStatement
-
-    TOKEN_IDENTIFIER  shift, and go to state 1
-    TOKEN_BEGIN       shift, and go to state 2
-    TOKEN_INTEGER     shift, and go to state 3
-    TOKEN_FOR         shift, and go to state 16
-
-    $default  reduce using rule 103 (empty)
-
-    blockHead                 go to state 4
-    unlabelledBlock           go to state 5
-    block                     go to state 22
-    tlabel                    go to state 7
-    label                     go to state 24
-    unlabelledCompound        go to state 10
-    compoundStatement         go to state 25
-    integer                   go to state 12
-    identifier                go to state 29
-    unconditionalStatement    go to state 97
-    basicStatement            go to state 36
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    forStatement              go to state 98
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-
-
-state 36
-
-   83 unconditionalStatement: basicStatement .
-
-    $default  reduce using rule 83 (unconditionalStatement)
-
-
-state 37
-
-   92 basicStatement: unlabelledBasicStatement .
-
-    $default  reduce using rule 92 (basicStatement)
-
-
-state 38
-
-   95 unlabelledBasicStatement: dummyStatement .
-
-    $default  reduce using rule 95 (unlabelledBasicStatement)
-
-
-state 39
-
-   94 unlabelledBasicStatement: assignmentStatement .
-
-    $default  reduce using rule 94 (unlabelledBasicStatement)
-
-
-state 40
-
-  115 statement: forStatement .
-
-    $default  reduce using rule 115 (statement)
-
-
-state 41
-
-   98 dummyStatement: empty .
-
-    $default  reduce using rule 98 (dummyStatement)
-
-
-state 42
-
-   97 unlabelledBasicStatement: procedureStatement . @3 returnStatement
-
-    $default  reduce using rule 96 (@3)
-
-    @3  go to state 99
-
-
-state 43
-
-  104 procedureStatement: procedureIdentifier . actualParameterPart
-
-    TOKEN_OPEN_BRACKET  shift, and go to state 100
-
-    $default  reduce using rule 103 (empty)
-
-    empty                go to state 101
-    actualParameterPart  go to state 102
-
-
-state 44
-
-   14 compoundTail: statement . TOKEN_END
-   15             | statement . TOKEN_SEMICOLON compoundTail
-
-    TOKEN_END        shift, and go to state 103
-    TOKEN_SEMICOLON  shift, and go to state 104
-
-
-state 45
-
-   18 declaration: procedureDeclaration .
-
-    $default  reduce using rule 18 (declaration)
-
-
-state 46
-
-    2 blockHead: blockHead TOKEN_SEMICOLON . declaration
-    3 unlabelledBlock: blockHead TOKEN_SEMICOLON . compoundTail
-
-    TOKEN_PRINT         shift, and go to state 14
-    TOKEN_IDENTIFIER    shift, and go to state 1
-    TOKEN_BEGIN         shift, and go to state 2
-    TOKEN_PROCEDURE     shift, and go to state 15
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_FOR           shift, and go to state 16
-    TOKEN_IF            shift, and go to state 17
-    TOKEN_TYPE_INTEGER  shift, and go to state 18
-    TOKEN_TYPE_REAL     shift, and go to state 19
-    TOKEN_TYPE_BOOLEAN  shift, and go to state 20
-    TOKEN_ARRAY         shift, and go to state 21
-
-    $default  reduce using rule 103 (empty)
-
-    blockHead                 go to state 4
-    unlabelledBlock           go to state 5
-    block                     go to state 22
-    tlabel                    go to state 23
-    label                     go to state 24
-    unlabelledCompound        go to state 10
-    compoundStatement         go to state 25
-    compoundTail              go to state 105
-    declaration               go to state 106
-    arrayDeclaration          go to state 28
-    integer                   go to state 12
-    identifier                go to state 29
-    type                      go to state 30
-    typeDeclaration           go to state 31
-    unconditionalStatement    go to state 32
-    conditionalStatement      go to state 33
-    ifStatement               go to state 34
-    ifClause                  go to state 35
-    basicStatement            go to state 36
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    forStatement              go to state 40
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-    statement                 go to state 44
-    procedureDeclaration      go to state 45
-
-
-state 47
-
-    5 block: tlabel block .
-
-    $default  reduce using rule 5 (block)
-
-
-state 48
-
-   13 compoundStatement: tlabel compoundStatement .
-
-    $default  reduce using rule 13 (compoundStatement)
-
-
-state 49
-
-    6 tlabel: label TOKEN_COLON .
-
-    $default  reduce using rule 6 (tlabel)
-
-
-state 50
 
     0 $accept: program $end .
 
     $default  accept
 
 
-state 51
+state 21
 
-   72 logicalValue: TOKEN_LOGICAL_VALUE .
-
-    $default  reduce using rule 72 (logicalValue)
-
-
-state 52
-
-   37 simpleArithmeticExpression: TOKEN_PLUS . term
-
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-
-    term        go to state 108
-    factor      go to state 61
-    primary     go to state 62
-    realNumber  go to state 63
-    integer     go to state 64
-
-
-state 53
-
-   38 simpleArithmeticExpression: TOKEN_MINUS . term
-
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-
-    term        go to state 109
-    factor      go to state 61
-    primary     go to state 62
-    realNumber  go to state 63
-    integer     go to state 64
-
-
-state 54
-
-   48 primary: TOKEN_OPEN_BRACKET . arithmeticExpression TOKEN_CLOSE_BRACKET
-   71 booleanPrimary: TOKEN_OPEN_BRACKET . booleanExpression TOKEN_CLOSE_BRACKET
-
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-    TOKEN_IF             shift, and go to state 17
-
-    arithmeticExpression        go to state 110
-    simpleArithmeticExpression  go to state 59
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanExpression           go to state 111
-    simpleBoolean               go to state 66
-    implication                 go to state 67
-    booleanTerm                 go to state 68
-    booleanFactor               go to state 69
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
-    ifClause                    go to state 74
-
-
-state 55
-
-   49 realNumber: TOKEN_REAL_NUM .
-
-    $default  reduce using rule 49 (realNumber)
-
-
-state 56
-
-   68 booleanSecondary: TOKEN_NOT_OP . booleanPrimary
-
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-
-    simpleArithmeticExpression  go to state 82
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanPrimary              go to state 112
-    logicalValue                go to state 72
-    relation                    go to state 73
-
-
-state 57
-
-  116 statement: TOKEN_PRINT expression .
-
-    $default  reduce using rule 116 (statement)
-
-
-state 58
-
-   32 expression: arithmeticExpression .
-
-    $default  reduce using rule 32 (expression)
-
-
-state 59
-
-   34 arithmeticExpression: simpleArithmeticExpression .
-   39 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
-   40                           | simpleArithmeticExpression . TOKEN_MINUS term
-   73 relation: simpleArithmeticExpression . relationalOperator simpleArithmeticExpression
-
-    TOKEN_PLUS    shift, and go to state 113
-    TOKEN_MINUS   shift, and go to state 114
-    TOKEN_REL_OP  shift, and go to state 115
-
-    $default  reduce using rule 34 (arithmeticExpression)
-
-    relationalOperator  go to state 116
-
-
-state 60
-
-   36 simpleArithmeticExpression: term .
-   42 term: term . TOKEN_MULTIPLY factor
-   43     | term . TOKEN_DIVIDE factor
-
-    TOKEN_DIVIDE    shift, and go to state 117
-    TOKEN_MULTIPLY  shift, and go to state 118
-
-    $default  reduce using rule 36 (simpleArithmeticExpression)
-
-
-state 61
-
-   41 term: factor .
-   45 factor: factor . TOKEN_POWER primary
-
-    TOKEN_POWER  shift, and go to state 119
-
-    $default  reduce using rule 41 (term)
-
-
-state 62
-
-   44 factor: primary .
-
-    $default  reduce using rule 44 (factor)
-
-
-state 63
-
-   46 primary: realNumber .
-
-    $default  reduce using rule 46 (primary)
-
-
-state 64
-
-   47 primary: integer .
-
-    $default  reduce using rule 47 (primary)
-
-
-state 65
-
-   33 expression: booleanExpression .
-
-    $default  reduce using rule 33 (expression)
-
-
-state 66
-
-   58 booleanExpression: simpleBoolean .
-   60 simpleBoolean: simpleBoolean . TOKEN_EQUIV implication
-
-    TOKEN_EQUIV  shift, and go to state 120
-
-    $default  reduce using rule 58 (booleanExpression)
-
-
-state 67
-
-   59 simpleBoolean: implication .
-   62 implication: implication . TOKEN_IMPLY booleanTerm
-
-    TOKEN_IMPLY  shift, and go to state 121
-
-    $default  reduce using rule 59 (simpleBoolean)
-
-
-state 68
-
-   61 implication: booleanTerm .
-   64 booleanTerm: booleanTerm . TOKEN_OR_OP booleanFactor
-
-    TOKEN_OR_OP  shift, and go to state 122
-
-    $default  reduce using rule 61 (implication)
-
-
-state 69
-
-   63 booleanTerm: booleanFactor .
-   66 booleanFactor: booleanFactor . TOKEN_AND_OP booleanSecondary
-
-    TOKEN_AND_OP  shift, and go to state 123
-
-    $default  reduce using rule 63 (booleanTerm)
-
-
-state 70
-
-   65 booleanFactor: booleanSecondary .
-
-    $default  reduce using rule 65 (booleanFactor)
-
-
-state 71
-
-   67 booleanSecondary: booleanPrimary .
-
-    $default  reduce using rule 67 (booleanSecondary)
-
-
-state 72
-
-   69 booleanPrimary: logicalValue .
-
-    $default  reduce using rule 69 (booleanPrimary)
-
-
-state 73
-
-   70 booleanPrimary: relation .
-
-    $default  reduce using rule 70 (booleanPrimary)
-
-
-state 74
-
-   35 arithmeticExpression: ifClause . simpleArithmeticExpression TOKEN_ELSE arithmeticExpression
-
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-
-    simpleArithmeticExpression  go to state 124
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-
-
-state 75
-
-  105 procedureIdentifier: identifier .
-
-    $default  reduce using rule 105 (procedureIdentifier)
-
-
-state 76
-
-  139 procedureHeading: procedureIdentifier . @6 formalParameterPart TOKEN_SEMICOLON $@7 valuePart specificationPart
-
-    $default  reduce using rule 137 (@6)
-
-    @6  go to state 125
-
-
-state 77
-
-  141 procedureDeclaration: TOKEN_PROCEDURE procedureHeading . procedureBody
-
-    TOKEN_PRINT       shift, and go to state 14
-    TOKEN_IDENTIFIER  shift, and go to state 1
-    TOKEN_BEGIN       shift, and go to state 2
-    TOKEN_INTEGER     shift, and go to state 3
-    TOKEN_FOR         shift, and go to state 16
-    TOKEN_IF          shift, and go to state 17
-
-    $default  reduce using rule 103 (empty)
-
-    blockHead                 go to state 4
-    unlabelledBlock           go to state 5
-    block                     go to state 22
-    tlabel                    go to state 23
-    label                     go to state 24
-    unlabelledCompound        go to state 10
-    compoundStatement         go to state 25
-    integer                   go to state 12
-    identifier                go to state 29
-    unconditionalStatement    go to state 32
-    conditionalStatement      go to state 33
-    ifStatement               go to state 34
-    ifClause                  go to state 35
-    basicStatement            go to state 36
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    forStatement              go to state 40
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-    statement                 go to state 126
-    procedureBody             go to state 127
-
-
-state 78
-
-   53 subscriptedVariable: arrayIdentifier . TOKEN_OPEN_SQUARE_BRACKET subscriptList TOKEN_CLOSE_SQUARE_BRACKET
-
-    TOKEN_OPEN_SQUARE_BRACKET  shift, and go to state 128
-
-
-state 79
-
-  102 forStatement: TOKEN_FOR variable . TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
-
-    TOKEN_ASSIGN  shift, and go to state 129
-
-
-state 80
-
-   52 variable: subscriptedVariable .
-
-    $default  reduce using rule 52 (variable)
-
-
-state 81
-
-   24 arrayIdentifier: identifier .
-   51 variable: identifier .
-
-    TOKEN_ASSIGN  reduce using rule 51 (variable)
-    $default      reduce using rule 24 (arrayIdentifier)
-
-
-state 82
-
-   39 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
-   40                           | simpleArithmeticExpression . TOKEN_MINUS term
-   73 relation: simpleArithmeticExpression . relationalOperator simpleArithmeticExpression
-
-    TOKEN_PLUS    shift, and go to state 113
-    TOKEN_MINUS   shift, and go to state 114
-    TOKEN_REL_OP  shift, and go to state 115
-
-    relationalOperator  go to state 116
-
-
-state 83
-
-   91 ifClause: TOKEN_IF booleanExpression . TOKEN_THEN
-
-    TOKEN_THEN  shift, and go to state 130
-
-
-state 84
-
-   25 arraySegment: arrayIdentifier . TOKEN_OPEN_SQUARE_BRACKET boundPairList TOKEN_CLOSE_SQUARE_BRACKET
-   26             | arrayIdentifier . TOKEN_COMMA arraySegment
-
-    TOKEN_COMMA                shift, and go to state 131
-    TOKEN_OPEN_SQUARE_BRACKET  shift, and go to state 132
-
-
-state 85
-
-   27 arrayList: arraySegment .
-
-    $default  reduce using rule 27 (arrayList)
-
-
-state 86
-
-   29 arrayList: arrayList . TOKEN_COMMA @1 arraySegment
-   30 arrayDeclaration: TOKEN_ARRAY arrayList .
-
-    TOKEN_COMMA  shift, and go to state 133
-
-    $default  reduce using rule 30 (arrayDeclaration)
-
-
-state 87
-
-   24 arrayIdentifier: identifier .
-
-    $default  reduce using rule 24 (arrayIdentifier)
-
-
-state 88
-
-   89 conditionalStatement: tlabel conditionalStatement .
-
-    $default  reduce using rule 89 (conditionalStatement)
-
-
-state 89
-
-   93 basicStatement: label . basicStatement
-
-    TOKEN_IDENTIFIER  shift, and go to state 1
-    TOKEN_INTEGER     shift, and go to state 3
-
-    $default  reduce using rule 103 (empty)
-
-    label                     go to state 89
-    integer                   go to state 12
-    identifier                go to state 29
-    basicStatement            go to state 90
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-
-
-state 90
-
-   93 basicStatement: label basicStatement .
-
-    $default  reduce using rule 93 (basicStatement)
-
-
-state 91
-
-  100 assignmentStatement: identifier TOKEN_ASSIGN . arithmeticExpression
-  101                    | identifier TOKEN_ASSIGN . booleanExpression
-
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-    TOKEN_IF             shift, and go to state 17
-
-    arithmeticExpression        go to state 134
-    simpleArithmeticExpression  go to state 59
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanExpression           go to state 135
-    simpleBoolean               go to state 66
-    implication                 go to state 67
-    booleanTerm                 go to state 68
-    booleanFactor               go to state 69
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
-    ifClause                    go to state 74
-
-
-state 92
-
-  142 procedureDeclaration: type TOKEN_PROCEDURE . procedureHeading procedureBody
+  148 procedureDeclaration: TOKEN_PROCEDURE . procedureHeading procedureBody
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
-    identifier           go to state 75
-    procedureIdentifier  go to state 76
-    procedureHeading     go to state 136
+    identifier           go to state 55
+    procedureIdentifier  go to state 56
+    procedureHeading     go to state 57
 
 
-state 93
+state 22
 
-   31 arrayDeclaration: type TOKEN_ARRAY . arrayList
+   86 type: TOKEN_TYPE_INTEGER .
+
+    $default  reduce using rule 86 (type)
+
+
+state 23
+
+   85 type: TOKEN_TYPE_REAL .
+
+    $default  reduce using rule 85 (type)
+
+
+state 24
+
+   87 type: TOKEN_TYPE_BOOLEAN .
+
+    $default  reduce using rule 87 (type)
+
+
+state 25
+
+   32 arrayDeclaration: TOKEN_ARRAY . arrayList
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
-    arrayIdentifier  go to state 84
-    arraySegment     go to state 85
-    arrayList        go to state 137
-    identifier       go to state 87
+    arrayIdentifier  go to state 58
+    arraySegment     go to state 59
+    arrayList        go to state 60
+    identifier       go to state 61
 
 
-state 94
+state 26
 
-   82 varIdentifier: identifier .
-
-    $default  reduce using rule 82 (varIdentifier)
-
-
-state 95
-
-   77 listType: listType . TOKEN_COMMA @2 varIdentifier
-   81 typeDeclaration: type listType .
-
-    TOKEN_COMMA  shift, and go to state 138
-
-    $default  reduce using rule 81 (typeDeclaration)
-
-
-state 96
-
-   75 listType: varIdentifier .
-
-    $default  reduce using rule 75 (listType)
-
-
-state 97
-
-   87 conditionalStatement: ifClause unconditionalStatement . TOKEN_ELSE statement
-   90 ifStatement: ifClause unconditionalStatement .
-
-    TOKEN_ELSE  shift, and go to state 139
-
-    $default  reduce using rule 90 (ifStatement)
-
-
-state 98
-
-   88 conditionalStatement: ifClause forStatement .
-
-    $default  reduce using rule 88 (conditionalStatement)
-
-
-state 99
-
-   97 unlabelledBasicStatement: procedureStatement @3 . returnStatement
-
-    TOKEN_RETURN  shift, and go to state 140
-
-    returnStatement  go to state 141
-
-
-state 100
-
-  107 actualParameterPart: TOKEN_OPEN_BRACKET . actualParameterList TOKEN_CLOSE_BRACKET
-
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-    TOKEN_IF             shift, and go to state 17
-
-    expression                  go to state 142
-    arithmeticExpression        go to state 58
-    simpleArithmeticExpression  go to state 59
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanExpression           go to state 65
-    simpleBoolean               go to state 66
-    implication                 go to state 67
-    booleanTerm                 go to state 68
-    booleanFactor               go to state 69
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
-    ifClause                    go to state 74
-    actualParameterList         go to state 143
-    actualParameter             go to state 144
-
-
-state 101
-
-  106 actualParameterPart: empty .
-
-    $default  reduce using rule 106 (actualParameterPart)
-
-
-state 102
-
-  104 procedureStatement: procedureIdentifier actualParameterPart .
-
-    $default  reduce using rule 104 (procedureStatement)
-
-
-state 103
-
-   14 compoundTail: statement TOKEN_END .
-
-    $default  reduce using rule 14 (compoundTail)
-
-
-state 104
-
-   15 compoundTail: statement TOKEN_SEMICOLON . compoundTail
-
-    TOKEN_PRINT       shift, and go to state 14
-    TOKEN_IDENTIFIER  shift, and go to state 1
-    TOKEN_BEGIN       shift, and go to state 2
-    TOKEN_INTEGER     shift, and go to state 3
-    TOKEN_FOR         shift, and go to state 16
-    TOKEN_IF          shift, and go to state 17
-
-    $default  reduce using rule 103 (empty)
-
-    blockHead                 go to state 4
-    unlabelledBlock           go to state 5
-    block                     go to state 22
-    tlabel                    go to state 23
-    label                     go to state 24
-    unlabelledCompound        go to state 10
-    compoundStatement         go to state 25
-    compoundTail              go to state 145
-    integer                   go to state 12
-    identifier                go to state 29
-    unconditionalStatement    go to state 32
-    conditionalStatement      go to state 33
-    ifStatement               go to state 34
-    ifClause                  go to state 35
-    basicStatement            go to state 36
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    forStatement              go to state 40
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-    statement                 go to state 44
-
-
-state 105
-
-    3 unlabelledBlock: blockHead TOKEN_SEMICOLON compoundTail .
-
-    $default  reduce using rule 3 (unlabelledBlock)
-
-
-state 106
-
-    2 blockHead: blockHead TOKEN_SEMICOLON declaration .
+    2 blockHead: TOKEN_BEGIN $@1 declaration .
 
     $default  reduce using rule 2 (blockHead)
 
 
-state 107
+state 27
 
-   48 primary: TOKEN_OPEN_BRACKET . arithmeticExpression TOKEN_CLOSE_BRACKET
+   19 declaration: arrayDeclaration .
 
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
-
-    arithmeticExpression        go to state 110
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    ifClause                    go to state 74
+    $default  reduce using rule 19 (declaration)
 
 
-state 108
+state 28
 
-   37 simpleArithmeticExpression: TOKEN_PLUS term .
-   42 term: term . TOKEN_MULTIPLY factor
-   43     | term . TOKEN_DIVIDE factor
+   33 arrayDeclaration: type . TOKEN_ARRAY arrayList
+   88 typeDeclaration: type . listType
+  149 procedureDeclaration: type . TOKEN_PROCEDURE procedureHeading procedureBody
 
-    TOKEN_DIVIDE    shift, and go to state 117
-    TOKEN_MULTIPLY  shift, and go to state 118
+    TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_PROCEDURE   shift, and go to state 62
+    TOKEN_ARRAY       shift, and go to state 63
 
-    $default  reduce using rule 37 (simpleArithmeticExpression)
-
-
-state 109
-
-   38 simpleArithmeticExpression: TOKEN_MINUS term .
-   42 term: term . TOKEN_MULTIPLY factor
-   43     | term . TOKEN_DIVIDE factor
-
-    TOKEN_DIVIDE    shift, and go to state 117
-    TOKEN_MULTIPLY  shift, and go to state 118
-
-    $default  reduce using rule 38 (simpleArithmeticExpression)
+    identifier     go to state 64
+    listType       go to state 65
+    varIdentifier  go to state 66
 
 
-state 110
+state 29
 
-   48 primary: TOKEN_OPEN_BRACKET arithmeticExpression . TOKEN_CLOSE_BRACKET
+   18 declaration: typeDeclaration .
 
-    TOKEN_CLOSE_BRACKET  shift, and go to state 147
-
-
-state 111
-
-   71 booleanPrimary: TOKEN_OPEN_BRACKET booleanExpression . TOKEN_CLOSE_BRACKET
-
-    TOKEN_CLOSE_BRACKET  shift, and go to state 148
+    $default  reduce using rule 18 (declaration)
 
 
-state 112
+state 30
 
-   68 booleanSecondary: TOKEN_NOT_OP booleanPrimary .
+   20 declaration: procedureDeclaration .
 
-    $default  reduce using rule 68 (booleanSecondary)
-
-
-state 113
-
-   39 simpleArithmeticExpression: simpleArithmeticExpression TOKEN_PLUS . term
-
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-
-    term        go to state 149
-    factor      go to state 61
-    primary     go to state 62
-    realNumber  go to state 63
-    integer     go to state 64
+    $default  reduce using rule 20 (declaration)
 
 
-state 114
+state 31
 
-   40 simpleArithmeticExpression: simpleArithmeticExpression TOKEN_MINUS . term
+  123 statement: TOKEN_PRINT . expression
 
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-
-    term        go to state 150
-    factor      go to state 61
-    primary     go to state 62
-    realNumber  go to state 63
-    integer     go to state 64
-
-
-state 115
-
-   74 relationalOperator: TOKEN_REL_OP .
-
-    $default  reduce using rule 74 (relationalOperator)
-
-
-state 116
-
-   73 relation: simpleArithmeticExpression relationalOperator . simpleArithmeticExpression
-
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-
-    simpleArithmeticExpression  go to state 151
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-
-
-state 117
-
-   43 term: term TOKEN_DIVIDE . factor
-
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-
-    factor      go to state 152
-    primary     go to state 62
-    realNumber  go to state 63
-    integer     go to state 64
-
-
-state 118
-
-   42 term: term TOKEN_MULTIPLY . factor
-
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-
-    factor      go to state 153
-    primary     go to state 62
-    realNumber  go to state 63
-    integer     go to state 64
-
-
-state 119
-
-   45 factor: factor TOKEN_POWER . primary
-
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-
-    primary     go to state 154
-    realNumber  go to state 63
-    integer     go to state 64
-
-
-state 120
-
-   60 simpleBoolean: simpleBoolean TOKEN_EQUIV . implication
-
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
     TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
+    TOKEN_NOT_OP         shift, and go to state 72
+    TOKEN_IF             shift, and go to state 33
 
-    simpleArithmeticExpression  go to state 82
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    implication                 go to state 155
-    booleanTerm                 go to state 68
-    booleanFactor               go to state 69
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
-
-
-state 121
-
-   62 implication: implication TOKEN_IMPLY . booleanTerm
-
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-
-    simpleArithmeticExpression  go to state 82
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanTerm                 go to state 156
-    booleanFactor               go to state 69
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
+    arrayIdentifier             go to state 73
+    expression                  go to state 74
+    arithmeticExpression        go to state 75
+    simpleArithmeticExpression  go to state 76
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanExpression           go to state 87
+    simpleBoolean               go to state 88
+    implication                 go to state 89
+    booleanTerm                 go to state 90
+    booleanFactor               go to state 91
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
 
 
-state 122
+state 32
 
-   64 booleanTerm: booleanTerm TOKEN_OR_OP . booleanFactor
-
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-
-    simpleArithmeticExpression  go to state 82
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanFactor               go to state 157
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
-
-
-state 123
-
-   66 booleanFactor: booleanFactor TOKEN_AND_OP . booleanSecondary
-
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-
-    simpleArithmeticExpression  go to state 82
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanSecondary            go to state 158
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
-
-
-state 124
-
-   35 arithmeticExpression: ifClause simpleArithmeticExpression . TOKEN_ELSE arithmeticExpression
-   39 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
-   40                           | simpleArithmeticExpression . TOKEN_MINUS term
-
-    TOKEN_PLUS   shift, and go to state 113
-    TOKEN_MINUS  shift, and go to state 114
-    TOKEN_ELSE   shift, and go to state 159
-
-
-state 125
-
-  139 procedureHeading: procedureIdentifier @6 . formalParameterPart TOKEN_SEMICOLON $@7 valuePart specificationPart
-
-    TOKEN_OPEN_BRACKET  shift, and go to state 160
-
-    $default  reduce using rule 103 (empty)
-
-    empty                go to state 161
-    formalParameterPart  go to state 162
-
-
-state 126
-
-  140 procedureBody: statement .
-
-    $default  reduce using rule 140 (procedureBody)
-
-
-state 127
-
-  141 procedureDeclaration: TOKEN_PROCEDURE procedureHeading procedureBody .
-
-    $default  reduce using rule 141 (procedureDeclaration)
-
-
-state 128
-
-   53 subscriptedVariable: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET . subscriptList TOKEN_CLOSE_SQUARE_BRACKET
-
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
-
-    arithmeticExpression        go to state 163
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    subscriptList               go to state 164
-    subscriptExpression         go to state 165
-    ifClause                    go to state 74
-
-
-state 129
-
-  102 forStatement: TOKEN_FOR variable TOKEN_ASSIGN . arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
-
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
-
-    arithmeticExpression        go to state 166
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    ifClause                    go to state 74
-
-
-state 130
-
-   91 ifClause: TOKEN_IF booleanExpression TOKEN_THEN .
-
-    $default  reduce using rule 91 (ifClause)
-
-
-state 131
-
-   26 arraySegment: arrayIdentifier TOKEN_COMMA . arraySegment
+  109 forStatement: TOKEN_FOR . variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
-    arrayIdentifier  go to state 84
-    arraySegment     go to state 167
-    identifier       go to state 87
+    arrayIdentifier      go to state 73
+    simpleVariable       go to state 83
+    variable             go to state 99
+    subscriptedVariable  go to state 85
+    identifier           go to state 86
+    varIdentifier        go to state 97
 
 
-state 132
+state 33
 
-   25 arraySegment: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET . boundPairList TOKEN_CLOSE_SQUARE_BRACKET
+   98 ifClause: TOKEN_IF . booleanExpression TOKEN_THEN
 
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
 
-    lowerBound                  go to state 168
-    boundPair                   go to state 169
-    boundPairList               go to state 170
-    arithmeticExpression        go to state 171
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    ifClause                    go to state 74
-
-
-state 133
-
-   29 arrayList: arrayList TOKEN_COMMA . @1 arraySegment
-
-    $default  reduce using rule 28 (@1)
-
-    @1  go to state 172
-
-
-state 134
-
-  100 assignmentStatement: identifier TOKEN_ASSIGN arithmeticExpression .
-
-    $default  reduce using rule 100 (assignmentStatement)
+    arrayIdentifier             go to state 73
+    simpleArithmeticExpression  go to state 100
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanExpression           go to state 101
+    simpleBoolean               go to state 88
+    implication                 go to state 89
+    booleanTerm                 go to state 90
+    booleanFactor               go to state 91
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
 
 
-state 135
+state 34
 
-  101 assignmentStatement: identifier TOKEN_ASSIGN booleanExpression .
+   92 unconditionalStatement: block .
 
-    $default  reduce using rule 101 (assignmentStatement)
+    $default  reduce using rule 92 (unconditionalStatement)
 
 
-state 136
+state 35
 
-  142 procedureDeclaration: type TOKEN_PROCEDURE procedureHeading . procedureBody
+    6 block: tlabel . block
+   15 compoundStatement: tlabel . compoundStatement
+   96 conditionalStatement: tlabel . conditionalStatement
 
-    TOKEN_PRINT       shift, and go to state 14
     TOKEN_IDENTIFIER  shift, and go to state 1
     TOKEN_BEGIN       shift, and go to state 2
     TOKEN_INTEGER     shift, and go to state 3
-    TOKEN_FOR         shift, and go to state 16
-    TOKEN_IF          shift, and go to state 17
+    TOKEN_IF          shift, and go to state 33
 
-    $default  reduce using rule 103 (empty)
+    blockHead             go to state 4
+    unlabelledBlock       go to state 5
+    block                 go to state 17
+    tlabel                go to state 35
+    label                 go to state 8
+    unlabelledCompound    go to state 10
+    compoundStatement     go to state 18
+    integer               go to state 12
+    identifier            go to state 13
+    conditionalStatement  go to state 102
+    ifStatement           go to state 42
+    ifClause              go to state 43
 
-    blockHead                 go to state 4
-    unlabelledBlock           go to state 5
-    block                     go to state 22
-    tlabel                    go to state 23
-    label                     go to state 24
-    unlabelledCompound        go to state 10
-    compoundStatement         go to state 25
+
+state 36
+
+    7 tlabel: label . TOKEN_COLON
+  100 basicStatement: label . basicStatement
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_INTEGER     shift, and go to state 3
+    TOKEN_COLON       shift, and go to state 19
+
+    $default  reduce using rule 110 (empty)
+
+    label                     go to state 103
     integer                   go to state 12
-    identifier                go to state 29
-    unconditionalStatement    go to state 32
-    conditionalStatement      go to state 33
-    ifStatement               go to state 34
-    ifClause                  go to state 35
-    basicStatement            go to state 36
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    forStatement              go to state 40
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-    statement                 go to state 126
-    procedureBody             go to state 173
+    identifier                go to state 39
+    basicStatement            go to state 104
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
 
 
-state 137
+state 37
 
-   29 arrayList: arrayList . TOKEN_COMMA @1 arraySegment
-   31 arrayDeclaration: type TOKEN_ARRAY arrayList .
+   91 unconditionalStatement: compoundStatement .
 
-    TOKEN_COMMA  shift, and go to state 133
-
-    $default  reduce using rule 31 (arrayDeclaration)
+    $default  reduce using rule 91 (unconditionalStatement)
 
 
-state 138
+state 38
 
-   77 listType: listType TOKEN_COMMA . @2 varIdentifier
+   13 unlabelledCompound: TOKEN_BEGIN $@2 compoundTail .
 
-    $default  reduce using rule 76 (@2)
-
-    @2  go to state 174
+    $default  reduce using rule 13 (unlabelledCompound)
 
 
-state 139
+state 39
 
-   87 conditionalStatement: ifClause unconditionalStatement TOKEN_ELSE . statement
+    8 label: identifier .
+  107 assignmentStatement: identifier . TOKEN_ASSIGN arithmeticExpression
+  108                    | identifier . TOKEN_ASSIGN booleanExpression
+  112 procedureIdentifier: identifier .
 
-    TOKEN_PRINT       shift, and go to state 14
+    TOKEN_ASSIGN  shift, and go to state 105
+
+    TOKEN_OPEN_BRACKET  reduce using rule 112 (procedureIdentifier)
+    TOKEN_RETURN        reduce using rule 112 (procedureIdentifier)
+    $default            reduce using rule 8 (label)
+
+
+state 40
+
+  120 statement: unconditionalStatement .
+
+    $default  reduce using rule 120 (statement)
+
+
+state 41
+
+  121 statement: conditionalStatement .
+
+    $default  reduce using rule 121 (statement)
+
+
+state 42
+
+   93 conditionalStatement: ifStatement .
+
+    $default  reduce using rule 93 (conditionalStatement)
+
+
+state 43
+
+   94 conditionalStatement: ifClause . unconditionalStatement TOKEN_ELSE statement
+   95                     | ifClause . forStatement
+   97 ifStatement: ifClause . unconditionalStatement
+
     TOKEN_IDENTIFIER  shift, and go to state 1
     TOKEN_BEGIN       shift, and go to state 2
     TOKEN_INTEGER     shift, and go to state 3
-    TOKEN_FOR         shift, and go to state 16
-    TOKEN_IF          shift, and go to state 17
+    TOKEN_FOR         shift, and go to state 32
 
-    $default  reduce using rule 103 (empty)
+    $default  reduce using rule 110 (empty)
 
     blockHead                 go to state 4
     unlabelledBlock           go to state 5
-    block                     go to state 22
-    tlabel                    go to state 23
-    label                     go to state 24
+    block                     go to state 34
+    tlabel                    go to state 7
+    label                     go to state 36
     unlabelledCompound        go to state 10
-    compoundStatement         go to state 25
+    compoundStatement         go to state 37
     integer                   go to state 12
-    identifier                go to state 29
-    unconditionalStatement    go to state 32
-    conditionalStatement      go to state 33
-    ifStatement               go to state 34
-    ifClause                  go to state 35
-    basicStatement            go to state 36
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    forStatement              go to state 40
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-    statement                 go to state 175
+    identifier                go to state 39
+    unconditionalStatement    go to state 106
+    basicStatement            go to state 44
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    forStatement              go to state 107
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
 
 
-state 140
+state 44
 
-   99 returnStatement: TOKEN_RETURN . expression
+   90 unconditionalStatement: basicStatement .
 
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-    TOKEN_IF             shift, and go to state 17
+    $default  reduce using rule 90 (unconditionalStatement)
 
-    expression                  go to state 176
-    arithmeticExpression        go to state 58
-    simpleArithmeticExpression  go to state 59
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanExpression           go to state 65
-    simpleBoolean               go to state 66
-    implication                 go to state 67
-    booleanTerm                 go to state 68
-    booleanFactor               go to state 69
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
-    ifClause                    go to state 74
 
+state 45
 
-state 141
+   99 basicStatement: unlabelledBasicStatement .
 
-   97 unlabelledBasicStatement: procedureStatement @3 returnStatement .
+    $default  reduce using rule 99 (basicStatement)
 
-    $default  reduce using rule 97 (unlabelledBasicStatement)
 
+state 46
 
-state 142
+  102 unlabelledBasicStatement: dummyStatement .
 
-  110 actualParameter: expression .
+    $default  reduce using rule 102 (unlabelledBasicStatement)
 
-    $default  reduce using rule 110 (actualParameter)
 
+state 47
 
-state 143
+  101 unlabelledBasicStatement: assignmentStatement .
 
-  107 actualParameterPart: TOKEN_OPEN_BRACKET actualParameterList . TOKEN_CLOSE_BRACKET
-  109 actualParameterList: actualParameterList . parameterDelimiter actualParameter
+    $default  reduce using rule 101 (unlabelledBasicStatement)
 
-    TOKEN_COMMA                 shift, and go to state 177
-    TOKEN_CLOSE_BRACKET         shift, and go to state 178
-    TOKEN_CLOSE_SQUARE_BRACKET  shift, and go to state 179
 
-    parameterDelimiter  go to state 180
+state 48
 
+  122 statement: forStatement .
 
-state 144
+    $default  reduce using rule 122 (statement)
 
-  108 actualParameterList: actualParameter .
 
-    $default  reduce using rule 108 (actualParameterList)
+state 49
 
+  105 dummyStatement: empty .
 
-state 145
+    $default  reduce using rule 105 (dummyStatement)
 
-   15 compoundTail: statement TOKEN_SEMICOLON compoundTail .
 
-    $default  reduce using rule 15 (compoundTail)
+state 50
 
+  104 unlabelledBasicStatement: procedureStatement . @5 returnStatement
 
-state 146
+    $default  reduce using rule 103 (@5)
 
-   34 arithmeticExpression: simpleArithmeticExpression .
-   39 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
-   40                           | simpleArithmeticExpression . TOKEN_MINUS term
+    @5  go to state 108
 
-    TOKEN_PLUS   shift, and go to state 113
-    TOKEN_MINUS  shift, and go to state 114
 
-    $default  reduce using rule 34 (arithmeticExpression)
+state 51
 
+  111 procedureStatement: procedureIdentifier . actualParameterPart
 
-state 147
+    TOKEN_OPEN_BRACKET  shift, and go to state 109
 
-   48 primary: TOKEN_OPEN_BRACKET arithmeticExpression TOKEN_CLOSE_BRACKET .
+    $default  reduce using rule 110 (empty)
 
-    $default  reduce using rule 48 (primary)
+    empty                go to state 110
+    actualParameterPart  go to state 111
 
 
-state 148
+state 52
 
-   71 booleanPrimary: TOKEN_OPEN_BRACKET booleanExpression TOKEN_CLOSE_BRACKET .
+   16 compoundTail: statement . TOKEN_END
+   17             | statement . TOKEN_SEMICOLON compoundTail
 
-    $default  reduce using rule 71 (booleanPrimary)
+    TOKEN_END        shift, and go to state 112
+    TOKEN_SEMICOLON  shift, and go to state 113
 
 
-state 149
+state 53
 
-   39 simpleArithmeticExpression: simpleArithmeticExpression TOKEN_PLUS term .
-   42 term: term . TOKEN_MULTIPLY factor
-   43     | term . TOKEN_DIVIDE factor
+    4 unlabelledBlock: blockHead TOKEN_SEMICOLON compoundTail .
 
-    TOKEN_DIVIDE    shift, and go to state 117
-    TOKEN_MULTIPLY  shift, and go to state 118
+    $default  reduce using rule 4 (unlabelledBlock)
 
-    $default  reduce using rule 39 (simpleArithmeticExpression)
 
+state 54
 
-state 150
+    3 blockHead: blockHead TOKEN_SEMICOLON declaration .
 
-   40 simpleArithmeticExpression: simpleArithmeticExpression TOKEN_MINUS term .
-   42 term: term . TOKEN_MULTIPLY factor
-   43     | term . TOKEN_DIVIDE factor
+    $default  reduce using rule 3 (blockHead)
 
-    TOKEN_DIVIDE    shift, and go to state 117
-    TOKEN_MULTIPLY  shift, and go to state 118
 
-    $default  reduce using rule 40 (simpleArithmeticExpression)
+state 55
 
+  112 procedureIdentifier: identifier .
 
-state 151
+    $default  reduce using rule 112 (procedureIdentifier)
 
-   39 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
-   40                           | simpleArithmeticExpression . TOKEN_MINUS term
-   73 relation: simpleArithmeticExpression relationalOperator simpleArithmeticExpression .
 
-    TOKEN_PLUS   shift, and go to state 113
-    TOKEN_MINUS  shift, and go to state 114
+state 56
 
-    $default  reduce using rule 73 (relation)
+  146 procedureHeading: procedureIdentifier . @8 formalParameterPart TOKEN_SEMICOLON $@9 valuePart specificationPart
 
+    $default  reduce using rule 144 (@8)
 
-state 152
+    @8  go to state 114
 
-   43 term: term TOKEN_DIVIDE factor .
-   45 factor: factor . TOKEN_POWER primary
 
-    TOKEN_POWER  shift, and go to state 119
+state 57
 
-    $default  reduce using rule 43 (term)
+  148 procedureDeclaration: TOKEN_PROCEDURE procedureHeading . procedureBody
 
-
-state 153
-
-   42 term: term TOKEN_MULTIPLY factor .
-   45 factor: factor . TOKEN_POWER primary
-
-    TOKEN_POWER  shift, and go to state 119
-
-    $default  reduce using rule 42 (term)
-
-
-state 154
-
-   45 factor: factor TOKEN_POWER primary .
-
-    $default  reduce using rule 45 (factor)
-
-
-state 155
-
-   60 simpleBoolean: simpleBoolean TOKEN_EQUIV implication .
-   62 implication: implication . TOKEN_IMPLY booleanTerm
-
-    TOKEN_IMPLY  shift, and go to state 121
-
-    $default  reduce using rule 60 (simpleBoolean)
-
-
-state 156
-
-   62 implication: implication TOKEN_IMPLY booleanTerm .
-   64 booleanTerm: booleanTerm . TOKEN_OR_OP booleanFactor
-
-    TOKEN_OR_OP  shift, and go to state 122
-
-    $default  reduce using rule 62 (implication)
-
-
-state 157
-
-   64 booleanTerm: booleanTerm TOKEN_OR_OP booleanFactor .
-   66 booleanFactor: booleanFactor . TOKEN_AND_OP booleanSecondary
-
-    TOKEN_AND_OP  shift, and go to state 123
-
-    $default  reduce using rule 64 (booleanTerm)
-
-
-state 158
-
-   66 booleanFactor: booleanFactor TOKEN_AND_OP booleanSecondary .
-
-    $default  reduce using rule 66 (booleanFactor)
-
-
-state 159
-
-   35 arithmeticExpression: ifClause simpleArithmeticExpression TOKEN_ELSE . arithmeticExpression
-
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
-
-    arithmeticExpression        go to state 181
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    ifClause                    go to state 74
-
-
-state 160
-
-  123 formalParameterPart: TOKEN_OPEN_BRACKET . $@5 formalParameterList TOKEN_CLOSE_BRACKET
-
-    $default  reduce using rule 122 ($@5)
-
-    $@5  go to state 182
-
-
-state 161
-
-  121 formalParameterPart: empty .
-
-    $default  reduce using rule 121 (formalParameterPart)
-
-
-state 162
-
-  139 procedureHeading: procedureIdentifier @6 formalParameterPart . TOKEN_SEMICOLON $@7 valuePart specificationPart
-
-    TOKEN_SEMICOLON  shift, and go to state 183
-
-
-state 163
-
-   56 subscriptExpression: arithmeticExpression .
-
-    $default  reduce using rule 56 (subscriptExpression)
-
-
-state 164
-
-   53 subscriptedVariable: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET subscriptList . TOKEN_CLOSE_SQUARE_BRACKET
-   55 subscriptList: subscriptList . TOKEN_COMMA subscriptExpression
-
-    TOKEN_COMMA                 shift, and go to state 184
-    TOKEN_CLOSE_SQUARE_BRACKET  shift, and go to state 185
-
-
-state 165
-
-   54 subscriptList: subscriptExpression .
-
-    $default  reduce using rule 54 (subscriptList)
-
-
-state 166
-
-  102 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression . TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
-
-    TOKEN_STEP  shift, and go to state 186
-
-
-state 167
-
-   26 arraySegment: arrayIdentifier TOKEN_COMMA arraySegment .
-
-    $default  reduce using rule 26 (arraySegment)
-
-
-state 168
-
-   21 boundPair: lowerBound . TOKEN_COLON upperBound
-
-    TOKEN_COLON  shift, and go to state 187
-
-
-state 169
-
-   22 boundPairList: boundPair .
-
-    $default  reduce using rule 22 (boundPairList)
-
-
-state 170
-
-   23 boundPairList: boundPairList . TOKEN_COMMA boundPair
-   25 arraySegment: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET boundPairList . TOKEN_CLOSE_SQUARE_BRACKET
-
-    TOKEN_COMMA                 shift, and go to state 188
-    TOKEN_CLOSE_SQUARE_BRACKET  shift, and go to state 189
-
-
-state 171
-
-   19 lowerBound: arithmeticExpression .
-
-    $default  reduce using rule 19 (lowerBound)
-
-
-state 172
-
-   29 arrayList: arrayList TOKEN_COMMA @1 . arraySegment
-
+    TOKEN_PRINT       shift, and go to state 31
     TOKEN_IDENTIFIER  shift, and go to state 1
-
-    arrayIdentifier  go to state 84
-    arraySegment     go to state 190
-    identifier       go to state 87
-
-
-state 173
-
-  142 procedureDeclaration: type TOKEN_PROCEDURE procedureHeading procedureBody .
-
-    $default  reduce using rule 142 (procedureDeclaration)
-
-
-state 174
-
-   77 listType: listType TOKEN_COMMA @2 . varIdentifier
-
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    identifier     go to state 94
-    varIdentifier  go to state 191
-
-
-state 175
-
-   87 conditionalStatement: ifClause unconditionalStatement TOKEN_ELSE statement .
-
-    $default  reduce using rule 87 (conditionalStatement)
-
-
-state 176
-
-   99 returnStatement: TOKEN_RETURN expression .
-
-    $default  reduce using rule 99 (returnStatement)
-
-
-state 177
-
-  111 parameterDelimiter: TOKEN_COMMA .
-
-    $default  reduce using rule 111 (parameterDelimiter)
-
-
-state 178
-
-  107 actualParameterPart: TOKEN_OPEN_BRACKET actualParameterList TOKEN_CLOSE_BRACKET .
-
-    $default  reduce using rule 107 (actualParameterPart)
-
-
-state 179
-
-  112 parameterDelimiter: TOKEN_CLOSE_SQUARE_BRACKET . identifier TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET
-
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    identifier  go to state 192
-
-
-state 180
-
-  109 actualParameterList: actualParameterList parameterDelimiter . actualParameter
-
-    TOKEN_LOGICAL_VALUE  shift, and go to state 51
-    TOKEN_PLUS           shift, and go to state 52
-    TOKEN_MINUS          shift, and go to state 53
-    TOKEN_OPEN_BRACKET   shift, and go to state 54
-    TOKEN_REAL_NUM       shift, and go to state 55
-    TOKEN_INTEGER        shift, and go to state 3
-    TOKEN_NOT_OP         shift, and go to state 56
-    TOKEN_IF             shift, and go to state 17
-
-    expression                  go to state 142
-    arithmeticExpression        go to state 58
-    simpleArithmeticExpression  go to state 59
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    booleanExpression           go to state 65
-    simpleBoolean               go to state 66
-    implication                 go to state 67
-    booleanTerm                 go to state 68
-    booleanFactor               go to state 69
-    booleanSecondary            go to state 70
-    booleanPrimary              go to state 71
-    logicalValue                go to state 72
-    relation                    go to state 73
-    ifClause                    go to state 74
-    actualParameter             go to state 193
-
-
-state 181
-
-   35 arithmeticExpression: ifClause simpleArithmeticExpression TOKEN_ELSE arithmeticExpression .
-
-    $default  reduce using rule 35 (arithmeticExpression)
-
-
-state 182
-
-  123 formalParameterPart: TOKEN_OPEN_BRACKET $@5 . formalParameterList TOKEN_CLOSE_BRACKET
-
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    identifier           go to state 194
-    formalParameter      go to state 195
-    formalParameterList  go to state 196
-
-
-state 183
-
-  139 procedureHeading: procedureIdentifier @6 formalParameterPart TOKEN_SEMICOLON . $@7 valuePart specificationPart
-
-    $default  reduce using rule 138 ($@7)
-
-    $@7  go to state 197
-
-
-state 184
-
-   55 subscriptList: subscriptList TOKEN_COMMA . subscriptExpression
-
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
-
-    arithmeticExpression        go to state 163
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    subscriptExpression         go to state 198
-    ifClause                    go to state 74
-
-
-state 185
-
-   53 subscriptedVariable: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET subscriptList TOKEN_CLOSE_SQUARE_BRACKET .
-
-    $default  reduce using rule 53 (subscriptedVariable)
-
-
-state 186
-
-  102 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP . arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
-
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
-
-    arithmeticExpression        go to state 199
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    ifClause                    go to state 74
-
-
-state 187
-
-   21 boundPair: lowerBound TOKEN_COLON . upperBound
-
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
-
-    upperBound                  go to state 200
-    arithmeticExpression        go to state 201
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    ifClause                    go to state 74
-
-
-state 188
-
-   23 boundPairList: boundPairList TOKEN_COMMA . boundPair
-
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
-
-    lowerBound                  go to state 168
-    boundPair                   go to state 202
-    arithmeticExpression        go to state 171
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    ifClause                    go to state 74
-
-
-state 189
-
-   25 arraySegment: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET boundPairList TOKEN_CLOSE_SQUARE_BRACKET .
-
-    $default  reduce using rule 25 (arraySegment)
-
-
-state 190
-
-   29 arrayList: arrayList TOKEN_COMMA @1 arraySegment .
+    TOKEN_BEGIN       shift, and go to state 2
+    TOKEN_INTEGER     shift, and go to state 3
+    TOKEN_FOR         shift, and go to state 32
+    TOKEN_IF          shift, and go to state 33
+
+    $default  reduce using rule 110 (empty)
+
+    blockHead                 go to state 4
+    unlabelledBlock           go to state 5
+    block                     go to state 34
+    tlabel                    go to state 35
+    label                     go to state 36
+    unlabelledCompound        go to state 10
+    compoundStatement         go to state 37
+    integer                   go to state 12
+    identifier                go to state 39
+    unconditionalStatement    go to state 40
+    conditionalStatement      go to state 41
+    ifStatement               go to state 42
+    ifClause                  go to state 43
+    basicStatement            go to state 44
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    forStatement              go to state 48
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
+    statement                 go to state 115
+    procedureBody             go to state 116
+
+
+state 58
+
+   27 arraySegment: arrayIdentifier . TOKEN_OPEN_SQUARE_BRACKET boundPairList TOKEN_CLOSE_SQUARE_BRACKET
+   28             | arrayIdentifier . TOKEN_COMMA arraySegment
+
+    TOKEN_COMMA                shift, and go to state 117
+    TOKEN_OPEN_SQUARE_BRACKET  shift, and go to state 118
+
+
+state 59
+
+   29 arrayList: arraySegment .
 
     $default  reduce using rule 29 (arrayList)
 
 
+state 60
+
+   31 arrayList: arrayList . TOKEN_COMMA @3 arraySegment
+   32 arrayDeclaration: TOKEN_ARRAY arrayList .
+
+    TOKEN_COMMA  shift, and go to state 119
+
+    $default  reduce using rule 32 (arrayDeclaration)
+
+
+state 61
+
+   26 arrayIdentifier: identifier .
+
+    $default  reduce using rule 26 (arrayIdentifier)
+
+
+state 62
+
+  149 procedureDeclaration: type TOKEN_PROCEDURE . procedureHeading procedureBody
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier           go to state 55
+    procedureIdentifier  go to state 56
+    procedureHeading     go to state 120
+
+
+state 63
+
+   33 arrayDeclaration: type TOKEN_ARRAY . arrayList
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    arrayIdentifier  go to state 58
+    arraySegment     go to state 59
+    arrayList        go to state 121
+    identifier       go to state 61
+
+
+state 64
+
+   89 varIdentifier: identifier .
+
+    $default  reduce using rule 89 (varIdentifier)
+
+
+state 65
+
+   84 listType: listType . TOKEN_COMMA @4 varIdentifier
+   88 typeDeclaration: type listType .
+
+    TOKEN_COMMA  shift, and go to state 122
+
+    $default  reduce using rule 88 (typeDeclaration)
+
+
+state 66
+
+   82 listType: varIdentifier .
+
+    $default  reduce using rule 82 (listType)
+
+
+state 67
+
+   78 logicalValue: TOKEN_LOGICAL_VALUE .
+
+    $default  reduce using rule 78 (logicalValue)
+
+
+state 68
+
+   39 simpleArithmeticExpression: TOKEN_PLUS . term
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+
+    arrayIdentifier      go to state 73
+    term                 go to state 124
+    factor               go to state 78
+    primary              go to state 79
+    unsignedNumber       go to state 80
+    realNumber           go to state 81
+    integer              go to state 82
+    simpleVariable       go to state 83
+    variable             go to state 125
+    subscriptedVariable  go to state 85
+    identifier           go to state 86
+    varIdentifier        go to state 97
+
+
+state 69
+
+   40 simpleArithmeticExpression: TOKEN_MINUS . term
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+
+    arrayIdentifier      go to state 73
+    term                 go to state 126
+    factor               go to state 78
+    primary              go to state 79
+    unsignedNumber       go to state 80
+    realNumber           go to state 81
+    integer              go to state 82
+    simpleVariable       go to state 83
+    variable             go to state 125
+    subscriptedVariable  go to state 85
+    identifier           go to state 86
+    varIdentifier        go to state 97
+
+
+state 70
+
+   50 primary: TOKEN_OPEN_BRACKET . arithmeticExpression TOKEN_CLOSE_BRACKET
+   77 booleanPrimary: TOKEN_OPEN_BRACKET . booleanExpression TOKEN_CLOSE_BRACKET
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
+    TOKEN_IF             shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 127
+    simpleArithmeticExpression  go to state 76
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanExpression           go to state 128
+    simpleBoolean               go to state 88
+    implication                 go to state 89
+    booleanTerm                 go to state 90
+    booleanFactor               go to state 91
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+
+
+state 71
+
+   53 realNumber: TOKEN_REAL_NUM .
+
+    $default  reduce using rule 53 (realNumber)
+
+
+state 72
+
+   73 booleanSecondary: TOKEN_NOT_OP . booleanPrimary
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+
+    arrayIdentifier             go to state 73
+    simpleArithmeticExpression  go to state 100
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanPrimary              go to state 129
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+
+
+state 73
+
+   58 subscriptedVariable: arrayIdentifier . TOKEN_OPEN_SQUARE_BRACKET subscriptList TOKEN_CLOSE_SQUARE_BRACKET
+
+    TOKEN_OPEN_SQUARE_BRACKET  shift, and go to state 130
+
+
+state 74
+
+  123 statement: TOKEN_PRINT expression .
+
+    $default  reduce using rule 123 (statement)
+
+
+state 75
+
+   34 expression: arithmeticExpression .
+
+    $default  reduce using rule 34 (expression)
+
+
+state 76
+
+   36 arithmeticExpression: simpleArithmeticExpression .
+   41 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
+   42                           | simpleArithmeticExpression . TOKEN_MINUS term
+   79 relation: simpleArithmeticExpression . relationalOperator simpleArithmeticExpression
+
+    TOKEN_PLUS    shift, and go to state 131
+    TOKEN_MINUS   shift, and go to state 132
+    TOKEN_REL_OP  shift, and go to state 133
+
+    $default  reduce using rule 36 (arithmeticExpression)
+
+    relationalOperator  go to state 134
+
+
+state 77
+
+   38 simpleArithmeticExpression: term .
+   44 term: term . TOKEN_MULTIPLY factor
+   45     | term . TOKEN_DIVIDE factor
+
+    TOKEN_DIVIDE    shift, and go to state 135
+    TOKEN_MULTIPLY  shift, and go to state 136
+
+    $default  reduce using rule 38 (simpleArithmeticExpression)
+
+
+state 78
+
+   43 term: factor .
+   47 factor: factor . TOKEN_POWER primary
+
+    TOKEN_POWER  shift, and go to state 137
+
+    $default  reduce using rule 43 (term)
+
+
+state 79
+
+   46 factor: primary .
+
+    $default  reduce using rule 46 (factor)
+
+
+state 80
+
+   48 primary: unsignedNumber .
+
+    $default  reduce using rule 48 (primary)
+
+
+state 81
+
+   51 unsignedNumber: realNumber .
+
+    $default  reduce using rule 51 (unsignedNumber)
+
+
+state 82
+
+   52 unsignedNumber: integer .
+
+    $default  reduce using rule 52 (unsignedNumber)
+
+
+state 83
+
+   56 variable: simpleVariable .
+
+    $default  reduce using rule 56 (variable)
+
+
+state 84
+
+   49 primary: variable .
+   80 boolVariable: variable .
+
+    TOKEN_END                   reduce using rule 49 (primary)
+    TOKEN_END                   [reduce using rule 80 (boolVariable)]
+    TOKEN_COMMA                 reduce using rule 49 (primary)
+    TOKEN_COMMA                 [reduce using rule 80 (boolVariable)]
+    TOKEN_CLOSE_BRACKET         reduce using rule 49 (primary)
+    TOKEN_CLOSE_BRACKET         [reduce using rule 80 (boolVariable)]
+    TOKEN_CLOSE_SQUARE_BRACKET  reduce using rule 49 (primary)
+    TOKEN_CLOSE_SQUARE_BRACKET  [reduce using rule 80 (boolVariable)]
+    TOKEN_EQUIV                 reduce using rule 80 (boolVariable)
+    TOKEN_AND_OP                reduce using rule 80 (boolVariable)
+    TOKEN_OR_OP                 reduce using rule 80 (boolVariable)
+    TOKEN_THEN                  reduce using rule 80 (boolVariable)
+    TOKEN_ELSE                  reduce using rule 49 (primary)
+    TOKEN_ELSE                  [reduce using rule 80 (boolVariable)]
+    TOKEN_IMPLY                 reduce using rule 80 (boolVariable)
+    TOKEN_SEMICOLON             reduce using rule 49 (primary)
+    TOKEN_SEMICOLON             [reduce using rule 80 (boolVariable)]
+    $default                    reduce using rule 49 (primary)
+
+
+state 85
+
+   57 variable: subscriptedVariable .
+
+    $default  reduce using rule 57 (variable)
+
+
+state 86
+
+   26 arrayIdentifier: identifier .
+   89 varIdentifier: identifier .
+
+    TOKEN_OPEN_SQUARE_BRACKET  reduce using rule 26 (arrayIdentifier)
+    $default                   reduce using rule 89 (varIdentifier)
+
+
+state 87
+
+   35 expression: booleanExpression .
+
+    $default  reduce using rule 35 (expression)
+
+
+state 88
+
+   63 booleanExpression: simpleBoolean .
+   65 simpleBoolean: simpleBoolean . TOKEN_EQUIV implication
+
+    TOKEN_EQUIV  shift, and go to state 138
+
+    $default  reduce using rule 63 (booleanExpression)
+
+
+state 89
+
+   64 simpleBoolean: implication .
+   67 implication: implication . TOKEN_IMPLY booleanTerm
+
+    TOKEN_IMPLY  shift, and go to state 139
+
+    $default  reduce using rule 64 (simpleBoolean)
+
+
+state 90
+
+   66 implication: booleanTerm .
+   69 booleanTerm: booleanTerm . TOKEN_OR_OP booleanFactor
+
+    TOKEN_OR_OP  shift, and go to state 140
+
+    $default  reduce using rule 66 (implication)
+
+
+state 91
+
+   68 booleanTerm: booleanFactor .
+   71 booleanFactor: booleanFactor . TOKEN_AND_OP booleanSecondary
+
+    TOKEN_AND_OP  shift, and go to state 141
+
+    $default  reduce using rule 68 (booleanTerm)
+
+
+state 92
+
+   70 booleanFactor: booleanSecondary .
+
+    $default  reduce using rule 70 (booleanFactor)
+
+
+state 93
+
+   72 booleanSecondary: booleanPrimary .
+
+    $default  reduce using rule 72 (booleanSecondary)
+
+
+state 94
+
+   74 booleanPrimary: logicalValue .
+
+    $default  reduce using rule 74 (booleanPrimary)
+
+
+state 95
+
+   76 booleanPrimary: relation .
+
+    $default  reduce using rule 76 (booleanPrimary)
+
+
+state 96
+
+   75 booleanPrimary: boolVariable .
+
+    $default  reduce using rule 75 (booleanPrimary)
+
+
+state 97
+
+   55 simpleVariable: varIdentifier .
+
+    $default  reduce using rule 55 (simpleVariable)
+
+
+state 98
+
+   37 arithmeticExpression: ifClause . simpleArithmeticExpression TOKEN_ELSE arithmeticExpression
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+
+    arrayIdentifier             go to state 73
+    simpleArithmeticExpression  go to state 142
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+
+
+state 99
+
+  109 forStatement: TOKEN_FOR variable . TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
+
+    TOKEN_ASSIGN  shift, and go to state 143
+
+
+state 100
+
+   41 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
+   42                           | simpleArithmeticExpression . TOKEN_MINUS term
+   79 relation: simpleArithmeticExpression . relationalOperator simpleArithmeticExpression
+
+    TOKEN_PLUS    shift, and go to state 131
+    TOKEN_MINUS   shift, and go to state 132
+    TOKEN_REL_OP  shift, and go to state 133
+
+    relationalOperator  go to state 134
+
+
+state 101
+
+   98 ifClause: TOKEN_IF booleanExpression . TOKEN_THEN
+
+    TOKEN_THEN  shift, and go to state 144
+
+
+state 102
+
+   96 conditionalStatement: tlabel conditionalStatement .
+
+    $default  reduce using rule 96 (conditionalStatement)
+
+
+state 103
+
+  100 basicStatement: label . basicStatement
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_INTEGER     shift, and go to state 3
+
+    $default  reduce using rule 110 (empty)
+
+    label                     go to state 103
+    integer                   go to state 12
+    identifier                go to state 39
+    basicStatement            go to state 104
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
+
+
+state 104
+
+  100 basicStatement: label basicStatement .
+
+    $default  reduce using rule 100 (basicStatement)
+
+
+state 105
+
+  107 assignmentStatement: identifier TOKEN_ASSIGN . arithmeticExpression
+  108                    | identifier TOKEN_ASSIGN . booleanExpression
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
+    TOKEN_IF             shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 145
+    simpleArithmeticExpression  go to state 76
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanExpression           go to state 146
+    simpleBoolean               go to state 88
+    implication                 go to state 89
+    booleanTerm                 go to state 90
+    booleanFactor               go to state 91
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+
+
+state 106
+
+   94 conditionalStatement: ifClause unconditionalStatement . TOKEN_ELSE statement
+   97 ifStatement: ifClause unconditionalStatement .
+
+    TOKEN_ELSE  shift, and go to state 147
+
+    $default  reduce using rule 97 (ifStatement)
+
+
+state 107
+
+   95 conditionalStatement: ifClause forStatement .
+
+    $default  reduce using rule 95 (conditionalStatement)
+
+
+state 108
+
+  104 unlabelledBasicStatement: procedureStatement @5 . returnStatement
+
+    TOKEN_RETURN  shift, and go to state 148
+
+    returnStatement  go to state 149
+
+
+state 109
+
+  114 actualParameterPart: TOKEN_OPEN_BRACKET . actualParameterList TOKEN_CLOSE_BRACKET
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
+    TOKEN_IF             shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    expression                  go to state 150
+    arithmeticExpression        go to state 75
+    simpleArithmeticExpression  go to state 76
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanExpression           go to state 87
+    simpleBoolean               go to state 88
+    implication                 go to state 89
+    booleanTerm                 go to state 90
+    booleanFactor               go to state 91
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+    actualParameterList         go to state 151
+    actualParameter             go to state 152
+
+
+state 110
+
+  113 actualParameterPart: empty .
+
+    $default  reduce using rule 113 (actualParameterPart)
+
+
+state 111
+
+  111 procedureStatement: procedureIdentifier actualParameterPart .
+
+    $default  reduce using rule 111 (procedureStatement)
+
+
+state 112
+
+   16 compoundTail: statement TOKEN_END .
+
+    $default  reduce using rule 16 (compoundTail)
+
+
+state 113
+
+   17 compoundTail: statement TOKEN_SEMICOLON . compoundTail
+
+    TOKEN_PRINT       shift, and go to state 31
+    TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_BEGIN       shift, and go to state 2
+    TOKEN_INTEGER     shift, and go to state 3
+    TOKEN_FOR         shift, and go to state 32
+    TOKEN_IF          shift, and go to state 33
+
+    $default  reduce using rule 110 (empty)
+
+    blockHead                 go to state 4
+    unlabelledBlock           go to state 5
+    block                     go to state 34
+    tlabel                    go to state 35
+    label                     go to state 36
+    unlabelledCompound        go to state 10
+    compoundStatement         go to state 37
+    compoundTail              go to state 153
+    integer                   go to state 12
+    identifier                go to state 39
+    unconditionalStatement    go to state 40
+    conditionalStatement      go to state 41
+    ifStatement               go to state 42
+    ifClause                  go to state 43
+    basicStatement            go to state 44
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    forStatement              go to state 48
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
+    statement                 go to state 52
+
+
+state 114
+
+  146 procedureHeading: procedureIdentifier @8 . formalParameterPart TOKEN_SEMICOLON $@9 valuePart specificationPart
+
+    TOKEN_OPEN_BRACKET  shift, and go to state 154
+
+    $default  reduce using rule 110 (empty)
+
+    empty                go to state 155
+    formalParameterPart  go to state 156
+
+
+state 115
+
+  147 procedureBody: statement .
+
+    $default  reduce using rule 147 (procedureBody)
+
+
+state 116
+
+  148 procedureDeclaration: TOKEN_PROCEDURE procedureHeading procedureBody .
+
+    $default  reduce using rule 148 (procedureDeclaration)
+
+
+state 117
+
+   28 arraySegment: arrayIdentifier TOKEN_COMMA . arraySegment
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    arrayIdentifier  go to state 58
+    arraySegment     go to state 157
+    identifier       go to state 61
+
+
+state 118
+
+   27 arraySegment: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET . boundPairList TOKEN_CLOSE_SQUARE_BRACKET
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
+
+    lowerBound                  go to state 158
+    boundPair                   go to state 159
+    boundPairList               go to state 160
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 161
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+
+
+state 119
+
+   31 arrayList: arrayList TOKEN_COMMA . @3 arraySegment
+
+    $default  reduce using rule 30 (@3)
+
+    @3  go to state 163
+
+
+state 120
+
+  149 procedureDeclaration: type TOKEN_PROCEDURE procedureHeading . procedureBody
+
+    TOKEN_PRINT       shift, and go to state 31
+    TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_BEGIN       shift, and go to state 2
+    TOKEN_INTEGER     shift, and go to state 3
+    TOKEN_FOR         shift, and go to state 32
+    TOKEN_IF          shift, and go to state 33
+
+    $default  reduce using rule 110 (empty)
+
+    blockHead                 go to state 4
+    unlabelledBlock           go to state 5
+    block                     go to state 34
+    tlabel                    go to state 35
+    label                     go to state 36
+    unlabelledCompound        go to state 10
+    compoundStatement         go to state 37
+    integer                   go to state 12
+    identifier                go to state 39
+    unconditionalStatement    go to state 40
+    conditionalStatement      go to state 41
+    ifStatement               go to state 42
+    ifClause                  go to state 43
+    basicStatement            go to state 44
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    forStatement              go to state 48
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
+    statement                 go to state 115
+    procedureBody             go to state 164
+
+
+state 121
+
+   31 arrayList: arrayList . TOKEN_COMMA @3 arraySegment
+   33 arrayDeclaration: type TOKEN_ARRAY arrayList .
+
+    TOKEN_COMMA  shift, and go to state 119
+
+    $default  reduce using rule 33 (arrayDeclaration)
+
+
+state 122
+
+   84 listType: listType TOKEN_COMMA . @4 varIdentifier
+
+    $default  reduce using rule 83 (@4)
+
+    @4  go to state 165
+
+
+state 123
+
+   50 primary: TOKEN_OPEN_BRACKET . arithmeticExpression TOKEN_CLOSE_BRACKET
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 127
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+
+
+state 124
+
+   39 simpleArithmeticExpression: TOKEN_PLUS term .
+   44 term: term . TOKEN_MULTIPLY factor
+   45     | term . TOKEN_DIVIDE factor
+
+    TOKEN_DIVIDE    shift, and go to state 135
+    TOKEN_MULTIPLY  shift, and go to state 136
+
+    $default  reduce using rule 39 (simpleArithmeticExpression)
+
+
+state 125
+
+   49 primary: variable .
+
+    $default  reduce using rule 49 (primary)
+
+
+state 126
+
+   40 simpleArithmeticExpression: TOKEN_MINUS term .
+   44 term: term . TOKEN_MULTIPLY factor
+   45     | term . TOKEN_DIVIDE factor
+
+    TOKEN_DIVIDE    shift, and go to state 135
+    TOKEN_MULTIPLY  shift, and go to state 136
+
+    $default  reduce using rule 40 (simpleArithmeticExpression)
+
+
+state 127
+
+   50 primary: TOKEN_OPEN_BRACKET arithmeticExpression . TOKEN_CLOSE_BRACKET
+
+    TOKEN_CLOSE_BRACKET  shift, and go to state 166
+
+
+state 128
+
+   77 booleanPrimary: TOKEN_OPEN_BRACKET booleanExpression . TOKEN_CLOSE_BRACKET
+
+    TOKEN_CLOSE_BRACKET  shift, and go to state 167
+
+
+state 129
+
+   73 booleanSecondary: TOKEN_NOT_OP booleanPrimary .
+
+    $default  reduce using rule 73 (booleanSecondary)
+
+
+state 130
+
+   58 subscriptedVariable: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET . subscriptList TOKEN_CLOSE_SQUARE_BRACKET
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 168
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    subscriptList               go to state 169
+    subscriptExpression         go to state 170
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+
+
+state 131
+
+   41 simpleArithmeticExpression: simpleArithmeticExpression TOKEN_PLUS . term
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+
+    arrayIdentifier      go to state 73
+    term                 go to state 171
+    factor               go to state 78
+    primary              go to state 79
+    unsignedNumber       go to state 80
+    realNumber           go to state 81
+    integer              go to state 82
+    simpleVariable       go to state 83
+    variable             go to state 125
+    subscriptedVariable  go to state 85
+    identifier           go to state 86
+    varIdentifier        go to state 97
+
+
+state 132
+
+   42 simpleArithmeticExpression: simpleArithmeticExpression TOKEN_MINUS . term
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+
+    arrayIdentifier      go to state 73
+    term                 go to state 172
+    factor               go to state 78
+    primary              go to state 79
+    unsignedNumber       go to state 80
+    realNumber           go to state 81
+    integer              go to state 82
+    simpleVariable       go to state 83
+    variable             go to state 125
+    subscriptedVariable  go to state 85
+    identifier           go to state 86
+    varIdentifier        go to state 97
+
+
+state 133
+
+   81 relationalOperator: TOKEN_REL_OP .
+
+    $default  reduce using rule 81 (relationalOperator)
+
+
+state 134
+
+   79 relation: simpleArithmeticExpression relationalOperator . simpleArithmeticExpression
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+
+    arrayIdentifier             go to state 73
+    simpleArithmeticExpression  go to state 173
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+
+
+state 135
+
+   45 term: term TOKEN_DIVIDE . factor
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+
+    arrayIdentifier      go to state 73
+    factor               go to state 174
+    primary              go to state 79
+    unsignedNumber       go to state 80
+    realNumber           go to state 81
+    integer              go to state 82
+    simpleVariable       go to state 83
+    variable             go to state 125
+    subscriptedVariable  go to state 85
+    identifier           go to state 86
+    varIdentifier        go to state 97
+
+
+state 136
+
+   44 term: term TOKEN_MULTIPLY . factor
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+
+    arrayIdentifier      go to state 73
+    factor               go to state 175
+    primary              go to state 79
+    unsignedNumber       go to state 80
+    realNumber           go to state 81
+    integer              go to state 82
+    simpleVariable       go to state 83
+    variable             go to state 125
+    subscriptedVariable  go to state 85
+    identifier           go to state 86
+    varIdentifier        go to state 97
+
+
+state 137
+
+   47 factor: factor TOKEN_POWER . primary
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+
+    arrayIdentifier      go to state 73
+    primary              go to state 176
+    unsignedNumber       go to state 80
+    realNumber           go to state 81
+    integer              go to state 82
+    simpleVariable       go to state 83
+    variable             go to state 125
+    subscriptedVariable  go to state 85
+    identifier           go to state 86
+    varIdentifier        go to state 97
+
+
+state 138
+
+   65 simpleBoolean: simpleBoolean TOKEN_EQUIV . implication
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
+
+    arrayIdentifier             go to state 73
+    simpleArithmeticExpression  go to state 100
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    implication                 go to state 177
+    booleanTerm                 go to state 90
+    booleanFactor               go to state 91
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+
+
+state 139
+
+   67 implication: implication TOKEN_IMPLY . booleanTerm
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
+
+    arrayIdentifier             go to state 73
+    simpleArithmeticExpression  go to state 100
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanTerm                 go to state 178
+    booleanFactor               go to state 91
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+
+
+state 140
+
+   69 booleanTerm: booleanTerm TOKEN_OR_OP . booleanFactor
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
+
+    arrayIdentifier             go to state 73
+    simpleArithmeticExpression  go to state 100
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanFactor               go to state 179
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+
+
+state 141
+
+   71 booleanFactor: booleanFactor TOKEN_AND_OP . booleanSecondary
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
+
+    arrayIdentifier             go to state 73
+    simpleArithmeticExpression  go to state 100
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanSecondary            go to state 180
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+
+
+state 142
+
+   37 arithmeticExpression: ifClause simpleArithmeticExpression . TOKEN_ELSE arithmeticExpression
+   41 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
+   42                           | simpleArithmeticExpression . TOKEN_MINUS term
+
+    TOKEN_PLUS   shift, and go to state 131
+    TOKEN_MINUS  shift, and go to state 132
+    TOKEN_ELSE   shift, and go to state 181
+
+
+state 143
+
+  109 forStatement: TOKEN_FOR variable TOKEN_ASSIGN . arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 182
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+
+
+state 144
+
+   98 ifClause: TOKEN_IF booleanExpression TOKEN_THEN .
+
+    $default  reduce using rule 98 (ifClause)
+
+
+state 145
+
+  107 assignmentStatement: identifier TOKEN_ASSIGN arithmeticExpression .
+
+    $default  reduce using rule 107 (assignmentStatement)
+
+
+state 146
+
+  108 assignmentStatement: identifier TOKEN_ASSIGN booleanExpression .
+
+    $default  reduce using rule 108 (assignmentStatement)
+
+
+state 147
+
+   94 conditionalStatement: ifClause unconditionalStatement TOKEN_ELSE . statement
+
+    TOKEN_PRINT       shift, and go to state 31
+    TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_BEGIN       shift, and go to state 2
+    TOKEN_INTEGER     shift, and go to state 3
+    TOKEN_FOR         shift, and go to state 32
+    TOKEN_IF          shift, and go to state 33
+
+    $default  reduce using rule 110 (empty)
+
+    blockHead                 go to state 4
+    unlabelledBlock           go to state 5
+    block                     go to state 34
+    tlabel                    go to state 35
+    label                     go to state 36
+    unlabelledCompound        go to state 10
+    compoundStatement         go to state 37
+    integer                   go to state 12
+    identifier                go to state 39
+    unconditionalStatement    go to state 40
+    conditionalStatement      go to state 41
+    ifStatement               go to state 42
+    ifClause                  go to state 43
+    basicStatement            go to state 44
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    forStatement              go to state 48
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
+    statement                 go to state 183
+
+
+state 148
+
+  106 returnStatement: TOKEN_RETURN . expression
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
+    TOKEN_IF             shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    expression                  go to state 184
+    arithmeticExpression        go to state 75
+    simpleArithmeticExpression  go to state 76
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanExpression           go to state 87
+    simpleBoolean               go to state 88
+    implication                 go to state 89
+    booleanTerm                 go to state 90
+    booleanFactor               go to state 91
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+
+
+state 149
+
+  104 unlabelledBasicStatement: procedureStatement @5 returnStatement .
+
+    $default  reduce using rule 104 (unlabelledBasicStatement)
+
+
+state 150
+
+  117 actualParameter: expression .
+
+    $default  reduce using rule 117 (actualParameter)
+
+
+state 151
+
+  114 actualParameterPart: TOKEN_OPEN_BRACKET actualParameterList . TOKEN_CLOSE_BRACKET
+  116 actualParameterList: actualParameterList . parameterDelimiter actualParameter
+
+    TOKEN_COMMA                 shift, and go to state 185
+    TOKEN_CLOSE_BRACKET         shift, and go to state 186
+    TOKEN_CLOSE_SQUARE_BRACKET  shift, and go to state 187
+
+    parameterDelimiter  go to state 188
+
+
+state 152
+
+  115 actualParameterList: actualParameter .
+
+    $default  reduce using rule 115 (actualParameterList)
+
+
+state 153
+
+   17 compoundTail: statement TOKEN_SEMICOLON compoundTail .
+
+    $default  reduce using rule 17 (compoundTail)
+
+
+state 154
+
+  130 formalParameterPart: TOKEN_OPEN_BRACKET . $@7 formalParameterList TOKEN_CLOSE_BRACKET
+
+    $default  reduce using rule 129 ($@7)
+
+    $@7  go to state 189
+
+
+state 155
+
+  128 formalParameterPart: empty .
+
+    $default  reduce using rule 128 (formalParameterPart)
+
+
+state 156
+
+  146 procedureHeading: procedureIdentifier @8 formalParameterPart . TOKEN_SEMICOLON $@9 valuePart specificationPart
+
+    TOKEN_SEMICOLON  shift, and go to state 190
+
+
+state 157
+
+   28 arraySegment: arrayIdentifier TOKEN_COMMA arraySegment .
+
+    $default  reduce using rule 28 (arraySegment)
+
+
+state 158
+
+   23 boundPair: lowerBound . TOKEN_COLON upperBound
+
+    TOKEN_COLON  shift, and go to state 191
+
+
+state 159
+
+   24 boundPairList: boundPair .
+
+    $default  reduce using rule 24 (boundPairList)
+
+
+state 160
+
+   25 boundPairList: boundPairList . TOKEN_COMMA boundPair
+   27 arraySegment: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET boundPairList . TOKEN_CLOSE_SQUARE_BRACKET
+
+    TOKEN_COMMA                 shift, and go to state 192
+    TOKEN_CLOSE_SQUARE_BRACKET  shift, and go to state 193
+
+
+state 161
+
+   21 lowerBound: arithmeticExpression .
+
+    $default  reduce using rule 21 (lowerBound)
+
+
+state 162
+
+   36 arithmeticExpression: simpleArithmeticExpression .
+   41 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
+   42                           | simpleArithmeticExpression . TOKEN_MINUS term
+
+    TOKEN_PLUS   shift, and go to state 131
+    TOKEN_MINUS  shift, and go to state 132
+
+    $default  reduce using rule 36 (arithmeticExpression)
+
+
+state 163
+
+   31 arrayList: arrayList TOKEN_COMMA @3 . arraySegment
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    arrayIdentifier  go to state 58
+    arraySegment     go to state 194
+    identifier       go to state 61
+
+
+state 164
+
+  149 procedureDeclaration: type TOKEN_PROCEDURE procedureHeading procedureBody .
+
+    $default  reduce using rule 149 (procedureDeclaration)
+
+
+state 165
+
+   84 listType: listType TOKEN_COMMA @4 . varIdentifier
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier     go to state 64
+    varIdentifier  go to state 195
+
+
+state 166
+
+   50 primary: TOKEN_OPEN_BRACKET arithmeticExpression TOKEN_CLOSE_BRACKET .
+
+    $default  reduce using rule 50 (primary)
+
+
+state 167
+
+   77 booleanPrimary: TOKEN_OPEN_BRACKET booleanExpression TOKEN_CLOSE_BRACKET .
+
+    $default  reduce using rule 77 (booleanPrimary)
+
+
+state 168
+
+   61 subscriptExpression: arithmeticExpression .
+
+    $default  reduce using rule 61 (subscriptExpression)
+
+
+state 169
+
+   58 subscriptedVariable: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET subscriptList . TOKEN_CLOSE_SQUARE_BRACKET
+   60 subscriptList: subscriptList . TOKEN_COMMA subscriptExpression
+
+    TOKEN_COMMA                 shift, and go to state 196
+    TOKEN_CLOSE_SQUARE_BRACKET  shift, and go to state 197
+
+
+state 170
+
+   59 subscriptList: subscriptExpression .
+
+    $default  reduce using rule 59 (subscriptList)
+
+
+state 171
+
+   41 simpleArithmeticExpression: simpleArithmeticExpression TOKEN_PLUS term .
+   44 term: term . TOKEN_MULTIPLY factor
+   45     | term . TOKEN_DIVIDE factor
+
+    TOKEN_DIVIDE    shift, and go to state 135
+    TOKEN_MULTIPLY  shift, and go to state 136
+
+    $default  reduce using rule 41 (simpleArithmeticExpression)
+
+
+state 172
+
+   42 simpleArithmeticExpression: simpleArithmeticExpression TOKEN_MINUS term .
+   44 term: term . TOKEN_MULTIPLY factor
+   45     | term . TOKEN_DIVIDE factor
+
+    TOKEN_DIVIDE    shift, and go to state 135
+    TOKEN_MULTIPLY  shift, and go to state 136
+
+    $default  reduce using rule 42 (simpleArithmeticExpression)
+
+
+state 173
+
+   41 simpleArithmeticExpression: simpleArithmeticExpression . TOKEN_PLUS term
+   42                           | simpleArithmeticExpression . TOKEN_MINUS term
+   79 relation: simpleArithmeticExpression relationalOperator simpleArithmeticExpression .
+
+    TOKEN_PLUS   shift, and go to state 131
+    TOKEN_MINUS  shift, and go to state 132
+
+    $default  reduce using rule 79 (relation)
+
+
+state 174
+
+   45 term: term TOKEN_DIVIDE factor .
+   47 factor: factor . TOKEN_POWER primary
+
+    TOKEN_POWER  shift, and go to state 137
+
+    $default  reduce using rule 45 (term)
+
+
+state 175
+
+   44 term: term TOKEN_MULTIPLY factor .
+   47 factor: factor . TOKEN_POWER primary
+
+    TOKEN_POWER  shift, and go to state 137
+
+    $default  reduce using rule 44 (term)
+
+
+state 176
+
+   47 factor: factor TOKEN_POWER primary .
+
+    $default  reduce using rule 47 (factor)
+
+
+state 177
+
+   65 simpleBoolean: simpleBoolean TOKEN_EQUIV implication .
+   67 implication: implication . TOKEN_IMPLY booleanTerm
+
+    TOKEN_IMPLY  shift, and go to state 139
+
+    $default  reduce using rule 65 (simpleBoolean)
+
+
+state 178
+
+   67 implication: implication TOKEN_IMPLY booleanTerm .
+   69 booleanTerm: booleanTerm . TOKEN_OR_OP booleanFactor
+
+    TOKEN_OR_OP  shift, and go to state 140
+
+    $default  reduce using rule 67 (implication)
+
+
+state 179
+
+   69 booleanTerm: booleanTerm TOKEN_OR_OP booleanFactor .
+   71 booleanFactor: booleanFactor . TOKEN_AND_OP booleanSecondary
+
+    TOKEN_AND_OP  shift, and go to state 141
+
+    $default  reduce using rule 69 (booleanTerm)
+
+
+state 180
+
+   71 booleanFactor: booleanFactor TOKEN_AND_OP booleanSecondary .
+
+    $default  reduce using rule 71 (booleanFactor)
+
+
+state 181
+
+   37 arithmeticExpression: ifClause simpleArithmeticExpression TOKEN_ELSE . arithmeticExpression
+
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 198
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+
+
+state 182
+
+  109 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression . TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
+
+    TOKEN_STEP  shift, and go to state 199
+
+
+state 183
+
+   94 conditionalStatement: ifClause unconditionalStatement TOKEN_ELSE statement .
+
+    $default  reduce using rule 94 (conditionalStatement)
+
+
+state 184
+
+  106 returnStatement: TOKEN_RETURN expression .
+
+    $default  reduce using rule 106 (returnStatement)
+
+
+state 185
+
+  118 parameterDelimiter: TOKEN_COMMA .
+
+    $default  reduce using rule 118 (parameterDelimiter)
+
+
+state 186
+
+  114 actualParameterPart: TOKEN_OPEN_BRACKET actualParameterList TOKEN_CLOSE_BRACKET .
+
+    $default  reduce using rule 114 (actualParameterPart)
+
+
+state 187
+
+  119 parameterDelimiter: TOKEN_CLOSE_SQUARE_BRACKET . identifier TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier  go to state 200
+
+
+state 188
+
+  116 actualParameterList: actualParameterList parameterDelimiter . actualParameter
+
+    TOKEN_IDENTIFIER     shift, and go to state 1
+    TOKEN_LOGICAL_VALUE  shift, and go to state 67
+    TOKEN_PLUS           shift, and go to state 68
+    TOKEN_MINUS          shift, and go to state 69
+    TOKEN_OPEN_BRACKET   shift, and go to state 70
+    TOKEN_REAL_NUM       shift, and go to state 71
+    TOKEN_INTEGER        shift, and go to state 3
+    TOKEN_NOT_OP         shift, and go to state 72
+    TOKEN_IF             shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    expression                  go to state 150
+    arithmeticExpression        go to state 75
+    simpleArithmeticExpression  go to state 76
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 84
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    booleanExpression           go to state 87
+    simpleBoolean               go to state 88
+    implication                 go to state 89
+    booleanTerm                 go to state 90
+    booleanFactor               go to state 91
+    booleanSecondary            go to state 92
+    booleanPrimary              go to state 93
+    logicalValue                go to state 94
+    relation                    go to state 95
+    boolVariable                go to state 96
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
+    actualParameter             go to state 201
+
+
+state 189
+
+  130 formalParameterPart: TOKEN_OPEN_BRACKET $@7 . formalParameterList TOKEN_CLOSE_BRACKET
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier           go to state 202
+    formalParameter      go to state 203
+    formalParameterList  go to state 204
+
+
+state 190
+
+  146 procedureHeading: procedureIdentifier @8 formalParameterPart TOKEN_SEMICOLON . $@9 valuePart specificationPart
+
+    $default  reduce using rule 145 ($@9)
+
+    $@9  go to state 205
+
+
 state 191
 
-   77 listType: listType TOKEN_COMMA @2 varIdentifier .
+   23 boundPair: lowerBound TOKEN_COLON . upperBound
 
-    $default  reduce using rule 77 (listType)
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
+
+    upperBound                  go to state 206
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 207
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
 
 
 state 192
 
-  112 parameterDelimiter: TOKEN_CLOSE_SQUARE_BRACKET identifier . TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET
+   25 boundPairList: boundPairList TOKEN_COMMA . boundPair
 
-    TOKEN_COLON  shift, and go to state 203
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
+
+    lowerBound                  go to state 158
+    boundPair                   go to state 208
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 161
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
 
 
 state 193
 
-  109 actualParameterList: actualParameterList parameterDelimiter actualParameter .
+   27 arraySegment: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET boundPairList TOKEN_CLOSE_SQUARE_BRACKET .
 
-    $default  reduce using rule 109 (actualParameterList)
+    $default  reduce using rule 27 (arraySegment)
 
 
 state 194
 
-  117 formalParameter: identifier .
+   31 arrayList: arrayList TOKEN_COMMA @3 arraySegment .
 
-    $default  reduce using rule 117 (formalParameter)
+    $default  reduce using rule 31 (arrayList)
 
 
 state 195
 
-  118 formalParameterList: formalParameter .
+   84 listType: listType TOKEN_COMMA @4 varIdentifier .
 
-    $default  reduce using rule 118 (formalParameterList)
+    $default  reduce using rule 84 (listType)
 
 
 state 196
 
-  120 formalParameterList: formalParameterList . parameterDelimiter $@4 formalParameter
-  123 formalParameterPart: TOKEN_OPEN_BRACKET $@5 formalParameterList . TOKEN_CLOSE_BRACKET
+   60 subscriptList: subscriptList TOKEN_COMMA . subscriptExpression
 
-    TOKEN_COMMA                 shift, and go to state 177
-    TOKEN_CLOSE_BRACKET         shift, and go to state 204
-    TOKEN_CLOSE_SQUARE_BRACKET  shift, and go to state 179
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
 
-    parameterDelimiter  go to state 205
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 168
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    subscriptExpression         go to state 209
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
 
 
 state 197
 
-  139 procedureHeading: procedureIdentifier @6 formalParameterPart TOKEN_SEMICOLON $@7 . valuePart specificationPart
+   58 subscriptedVariable: arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET subscriptList TOKEN_CLOSE_SQUARE_BRACKET .
 
-    TOKEN_VALUE  shift, and go to state 206
-
-    $default  reduce using rule 103 (empty)
-
-    empty      go to state 207
-    valuePart  go to state 208
+    $default  reduce using rule 58 (subscriptedVariable)
 
 
 state 198
 
-   55 subscriptList: subscriptList TOKEN_COMMA subscriptExpression .
+   37 arithmeticExpression: ifClause simpleArithmeticExpression TOKEN_ELSE arithmeticExpression .
 
-    $default  reduce using rule 55 (subscriptList)
+    $default  reduce using rule 37 (arithmeticExpression)
 
 
 state 199
 
-  102 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression . TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
+  109 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP . arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
 
-    TOKEN_UNTIL  shift, and go to state 209
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 210
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
 
 
 state 200
 
-   21 boundPair: lowerBound TOKEN_COLON upperBound .
+  119 parameterDelimiter: TOKEN_CLOSE_SQUARE_BRACKET identifier . TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET
 
-    $default  reduce using rule 21 (boundPair)
+    TOKEN_COLON  shift, and go to state 211
 
 
 state 201
 
-   20 upperBound: arithmeticExpression .
+  116 actualParameterList: actualParameterList parameterDelimiter actualParameter .
 
-    $default  reduce using rule 20 (upperBound)
+    $default  reduce using rule 116 (actualParameterList)
 
 
 state 202
 
-   23 boundPairList: boundPairList TOKEN_COMMA boundPair .
+  124 formalParameter: identifier .
 
-    $default  reduce using rule 23 (boundPairList)
+    $default  reduce using rule 124 (formalParameter)
 
 
 state 203
 
-  112 parameterDelimiter: TOKEN_CLOSE_SQUARE_BRACKET identifier TOKEN_COLON . TOKEN_OPEN_SQUARE_BRACKET
+  125 formalParameterList: formalParameter .
 
-    TOKEN_OPEN_SQUARE_BRACKET  shift, and go to state 210
+    $default  reduce using rule 125 (formalParameterList)
 
 
 state 204
 
-  123 formalParameterPart: TOKEN_OPEN_BRACKET $@5 formalParameterList TOKEN_CLOSE_BRACKET .
+  127 formalParameterList: formalParameterList . parameterDelimiter $@6 formalParameter
+  130 formalParameterPart: TOKEN_OPEN_BRACKET $@7 formalParameterList . TOKEN_CLOSE_BRACKET
 
-    $default  reduce using rule 123 (formalParameterPart)
+    TOKEN_COMMA                 shift, and go to state 185
+    TOKEN_CLOSE_BRACKET         shift, and go to state 212
+    TOKEN_CLOSE_SQUARE_BRACKET  shift, and go to state 187
+
+    parameterDelimiter  go to state 213
 
 
 state 205
 
-  120 formalParameterList: formalParameterList parameterDelimiter . $@4 formalParameter
+  146 procedureHeading: procedureIdentifier @8 formalParameterPart TOKEN_SEMICOLON $@9 . valuePart specificationPart
 
-    $default  reduce using rule 119 ($@4)
+    TOKEN_VALUE  shift, and go to state 214
 
-    $@4  go to state 211
+    $default  reduce using rule 110 (empty)
+
+    empty      go to state 215
+    valuePart  go to state 216
 
 
 state 206
 
-  126 valuePart: TOKEN_VALUE . identifierList TOKEN_SEMICOLON
+   23 boundPair: lowerBound TOKEN_COLON upperBound .
 
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    identifier      go to state 212
-    identifierList  go to state 213
+    $default  reduce using rule 23 (boundPair)
 
 
 state 207
 
-  127 valuePart: empty .
+   22 upperBound: arithmeticExpression .
 
-    $default  reduce using rule 127 (valuePart)
+    $default  reduce using rule 22 (upperBound)
 
 
 state 208
 
-  139 procedureHeading: procedureIdentifier @6 formalParameterPart TOKEN_SEMICOLON $@7 valuePart . specificationPart
+   25 boundPairList: boundPairList TOKEN_COMMA boundPair .
 
-    TOKEN_SWITCH        shift, and go to state 214
-    TOKEN_TYPE_INTEGER  shift, and go to state 18
-    TOKEN_TYPE_REAL     shift, and go to state 19
-    TOKEN_TYPE_BOOLEAN  shift, and go to state 20
-    TOKEN_TYPE_LABEL    shift, and go to state 215
-
-    $default  reduce using rule 103 (empty)
-
-    type                         go to state 216
-    empty                        go to state 217
-    specifier                    go to state 218
-    specificationPart            go to state 219
-    specificationIdentifierList  go to state 220
+    $default  reduce using rule 25 (boundPairList)
 
 
 state 209
 
-  102 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL . arithmeticExpression TOKEN_DO statement
+   60 subscriptList: subscriptList TOKEN_COMMA subscriptExpression .
 
-    TOKEN_PLUS          shift, and go to state 52
-    TOKEN_MINUS         shift, and go to state 53
-    TOKEN_OPEN_BRACKET  shift, and go to state 107
-    TOKEN_REAL_NUM      shift, and go to state 55
-    TOKEN_INTEGER       shift, and go to state 3
-    TOKEN_IF            shift, and go to state 17
-
-    arithmeticExpression        go to state 221
-    simpleArithmeticExpression  go to state 146
-    term                        go to state 60
-    factor                      go to state 61
-    primary                     go to state 62
-    realNumber                  go to state 63
-    integer                     go to state 64
-    ifClause                    go to state 74
+    $default  reduce using rule 60 (subscriptList)
 
 
 state 210
 
-  112 parameterDelimiter: TOKEN_CLOSE_SQUARE_BRACKET identifier TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET .
+  109 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression . TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
 
-    $default  reduce using rule 112 (parameterDelimiter)
+    TOKEN_UNTIL  shift, and go to state 217
 
 
 state 211
 
-  120 formalParameterList: formalParameterList parameterDelimiter $@4 . formalParameter
+  119 parameterDelimiter: TOKEN_CLOSE_SQUARE_BRACKET identifier TOKEN_COLON . TOKEN_OPEN_SQUARE_BRACKET
 
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    identifier       go to state 194
-    formalParameter  go to state 222
+    TOKEN_OPEN_SQUARE_BRACKET  shift, and go to state 218
 
 
 state 212
 
-  124 identifierList: identifier .
+  130 formalParameterPart: TOKEN_OPEN_BRACKET $@7 formalParameterList TOKEN_CLOSE_BRACKET .
 
-    $default  reduce using rule 124 (identifierList)
+    $default  reduce using rule 130 (formalParameterPart)
 
 
 state 213
 
-  125 identifierList: identifierList . TOKEN_COMMA identifier
-  126 valuePart: TOKEN_VALUE identifierList . TOKEN_SEMICOLON
+  127 formalParameterList: formalParameterList parameterDelimiter . $@6 formalParameter
 
-    TOKEN_COMMA      shift, and go to state 223
-    TOKEN_SEMICOLON  shift, and go to state 224
+    $default  reduce using rule 126 ($@6)
+
+    $@6  go to state 219
 
 
 state 214
 
-  131 specifier: TOKEN_SWITCH .
+  133 valuePart: TOKEN_VALUE . identifierList TOKEN_SEMICOLON
 
-    $default  reduce using rule 131 (specifier)
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier      go to state 220
+    identifierList  go to state 221
 
 
 state 215
 
-  130 specifier: TOKEN_TYPE_LABEL .
+  134 valuePart: empty .
 
-    $default  reduce using rule 130 (specifier)
+    $default  reduce using rule 134 (valuePart)
 
 
 state 216
 
-  128 specifier: type .
-  129          | type . TOKEN_ARRAY
-  132          | type . TOKEN_PROCEDURE
+  146 procedureHeading: procedureIdentifier @8 formalParameterPart TOKEN_SEMICOLON $@9 valuePart . specificationPart
 
-    TOKEN_PROCEDURE  shift, and go to state 225
-    TOKEN_ARRAY      shift, and go to state 226
+    TOKEN_SWITCH        shift, and go to state 222
+    TOKEN_TYPE_INTEGER  shift, and go to state 22
+    TOKEN_TYPE_REAL     shift, and go to state 23
+    TOKEN_TYPE_BOOLEAN  shift, and go to state 24
+    TOKEN_TYPE_LABEL    shift, and go to state 223
 
-    $default  reduce using rule 128 (specifier)
+    $default  reduce using rule 110 (empty)
+
+    type                         go to state 224
+    empty                        go to state 225
+    specifier                    go to state 226
+    specificationPart            go to state 227
+    specificationIdentifierList  go to state 228
 
 
 state 217
 
-  133 specificationPart: empty .
+  109 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL . arithmeticExpression TOKEN_DO statement
 
-    $default  reduce using rule 133 (specificationPart)
+    TOKEN_IDENTIFIER    shift, and go to state 1
+    TOKEN_PLUS          shift, and go to state 68
+    TOKEN_MINUS         shift, and go to state 69
+    TOKEN_OPEN_BRACKET  shift, and go to state 123
+    TOKEN_REAL_NUM      shift, and go to state 71
+    TOKEN_INTEGER       shift, and go to state 3
+    TOKEN_IF            shift, and go to state 33
+
+    arrayIdentifier             go to state 73
+    arithmeticExpression        go to state 229
+    simpleArithmeticExpression  go to state 162
+    term                        go to state 77
+    factor                      go to state 78
+    primary                     go to state 79
+    unsignedNumber              go to state 80
+    realNumber                  go to state 81
+    integer                     go to state 82
+    simpleVariable              go to state 83
+    variable                    go to state 125
+    subscriptedVariable         go to state 85
+    identifier                  go to state 86
+    varIdentifier               go to state 97
+    ifClause                    go to state 98
 
 
 state 218
 
-  135 specificationIdentifierList: specifier . identifierList TOKEN_SEMICOLON
+  119 parameterDelimiter: TOKEN_CLOSE_SQUARE_BRACKET identifier TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET .
 
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    identifier      go to state 212
-    identifierList  go to state 227
+    $default  reduce using rule 119 (parameterDelimiter)
 
 
 state 219
 
-  139 procedureHeading: procedureIdentifier @6 formalParameterPart TOKEN_SEMICOLON $@7 valuePart specificationPart .
+  127 formalParameterList: formalParameterList parameterDelimiter $@6 . formalParameter
 
-    $default  reduce using rule 139 (procedureHeading)
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier       go to state 202
+    formalParameter  go to state 230
 
 
 state 220
 
-  134 specificationPart: specificationIdentifierList .
-  136 specificationIdentifierList: specificationIdentifierList . specifier identifierList TOKEN_SEMICOLON
+  131 identifierList: identifier .
 
-    TOKEN_SWITCH        shift, and go to state 214
-    TOKEN_TYPE_INTEGER  shift, and go to state 18
-    TOKEN_TYPE_REAL     shift, and go to state 19
-    TOKEN_TYPE_BOOLEAN  shift, and go to state 20
-    TOKEN_TYPE_LABEL    shift, and go to state 215
-
-    $default  reduce using rule 134 (specificationPart)
-
-    type       go to state 216
-    specifier  go to state 228
+    $default  reduce using rule 131 (identifierList)
 
 
 state 221
 
-  102 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression . TOKEN_DO statement
+  132 identifierList: identifierList . TOKEN_COMMA identifier
+  133 valuePart: TOKEN_VALUE identifierList . TOKEN_SEMICOLON
 
-    TOKEN_DO  shift, and go to state 229
+    TOKEN_COMMA      shift, and go to state 231
+    TOKEN_SEMICOLON  shift, and go to state 232
 
 
 state 222
 
-  120 formalParameterList: formalParameterList parameterDelimiter $@4 formalParameter .
+  138 specifier: TOKEN_SWITCH .
 
-    $default  reduce using rule 120 (formalParameterList)
+    $default  reduce using rule 138 (specifier)
 
 
 state 223
 
-  125 identifierList: identifierList TOKEN_COMMA . identifier
+  137 specifier: TOKEN_TYPE_LABEL .
 
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    identifier  go to state 230
+    $default  reduce using rule 137 (specifier)
 
 
 state 224
 
-  126 valuePart: TOKEN_VALUE identifierList TOKEN_SEMICOLON .
+  135 specifier: type .
+  136          | type . TOKEN_ARRAY
+  139          | type . TOKEN_PROCEDURE
 
-    $default  reduce using rule 126 (valuePart)
+    TOKEN_PROCEDURE  shift, and go to state 233
+    TOKEN_ARRAY      shift, and go to state 234
+
+    $default  reduce using rule 135 (specifier)
 
 
 state 225
 
-  132 specifier: type TOKEN_PROCEDURE .
+  140 specificationPart: empty .
 
-    $default  reduce using rule 132 (specifier)
+    $default  reduce using rule 140 (specificationPart)
 
 
 state 226
 
-  129 specifier: type TOKEN_ARRAY .
+  142 specificationIdentifierList: specifier . identifierList TOKEN_SEMICOLON
 
-    $default  reduce using rule 129 (specifier)
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier      go to state 220
+    identifierList  go to state 235
 
 
 state 227
 
-  125 identifierList: identifierList . TOKEN_COMMA identifier
-  135 specificationIdentifierList: specifier identifierList . TOKEN_SEMICOLON
+  146 procedureHeading: procedureIdentifier @8 formalParameterPart TOKEN_SEMICOLON $@9 valuePart specificationPart .
 
-    TOKEN_COMMA      shift, and go to state 223
-    TOKEN_SEMICOLON  shift, and go to state 231
+    $default  reduce using rule 146 (procedureHeading)
 
 
 state 228
 
-  136 specificationIdentifierList: specificationIdentifierList specifier . identifierList TOKEN_SEMICOLON
+  141 specificationPart: specificationIdentifierList .
+  143 specificationIdentifierList: specificationIdentifierList . specifier identifierList TOKEN_SEMICOLON
 
-    TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_SWITCH        shift, and go to state 222
+    TOKEN_TYPE_INTEGER  shift, and go to state 22
+    TOKEN_TYPE_REAL     shift, and go to state 23
+    TOKEN_TYPE_BOOLEAN  shift, and go to state 24
+    TOKEN_TYPE_LABEL    shift, and go to state 223
 
-    identifier      go to state 212
-    identifierList  go to state 232
+    $default  reduce using rule 141 (specificationPart)
+
+    type       go to state 224
+    specifier  go to state 236
 
 
 state 229
 
-  102 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO . statement
+  109 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression . TOKEN_DO statement
 
-    TOKEN_PRINT       shift, and go to state 14
-    TOKEN_IDENTIFIER  shift, and go to state 1
-    TOKEN_BEGIN       shift, and go to state 2
-    TOKEN_INTEGER     shift, and go to state 3
-    TOKEN_FOR         shift, and go to state 16
-    TOKEN_IF          shift, and go to state 17
-
-    $default  reduce using rule 103 (empty)
-
-    blockHead                 go to state 4
-    unlabelledBlock           go to state 5
-    block                     go to state 22
-    tlabel                    go to state 23
-    label                     go to state 24
-    unlabelledCompound        go to state 10
-    compoundStatement         go to state 25
-    integer                   go to state 12
-    identifier                go to state 29
-    unconditionalStatement    go to state 32
-    conditionalStatement      go to state 33
-    ifStatement               go to state 34
-    ifClause                  go to state 35
-    basicStatement            go to state 36
-    unlabelledBasicStatement  go to state 37
-    dummyStatement            go to state 38
-    assignmentStatement       go to state 39
-    forStatement              go to state 40
-    empty                     go to state 41
-    procedureStatement        go to state 42
-    procedureIdentifier       go to state 43
-    statement                 go to state 233
+    TOKEN_DO  shift, and go to state 237
 
 
 state 230
 
-  125 identifierList: identifierList TOKEN_COMMA identifier .
+  127 formalParameterList: formalParameterList parameterDelimiter $@6 formalParameter .
 
-    $default  reduce using rule 125 (identifierList)
+    $default  reduce using rule 127 (formalParameterList)
 
 
 state 231
 
-  135 specificationIdentifierList: specifier identifierList TOKEN_SEMICOLON .
+  132 identifierList: identifierList TOKEN_COMMA . identifier
 
-    $default  reduce using rule 135 (specificationIdentifierList)
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier  go to state 238
 
 
 state 232
 
-  125 identifierList: identifierList . TOKEN_COMMA identifier
-  136 specificationIdentifierList: specificationIdentifierList specifier identifierList . TOKEN_SEMICOLON
+  133 valuePart: TOKEN_VALUE identifierList TOKEN_SEMICOLON .
 
-    TOKEN_COMMA      shift, and go to state 223
-    TOKEN_SEMICOLON  shift, and go to state 234
+    $default  reduce using rule 133 (valuePart)
 
 
 state 233
 
-  102 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement .
+  139 specifier: type TOKEN_PROCEDURE .
 
-    $default  reduce using rule 102 (forStatement)
+    $default  reduce using rule 139 (specifier)
 
 
 state 234
 
-  136 specificationIdentifierList: specificationIdentifierList specifier identifierList TOKEN_SEMICOLON .
+  136 specifier: type TOKEN_ARRAY .
 
-    $default  reduce using rule 136 (specificationIdentifierList)
+    $default  reduce using rule 136 (specifier)
+
+
+state 235
+
+  132 identifierList: identifierList . TOKEN_COMMA identifier
+  142 specificationIdentifierList: specifier identifierList . TOKEN_SEMICOLON
+
+    TOKEN_COMMA      shift, and go to state 231
+    TOKEN_SEMICOLON  shift, and go to state 239
+
+
+state 236
+
+  143 specificationIdentifierList: specificationIdentifierList specifier . identifierList TOKEN_SEMICOLON
+
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier      go to state 220
+    identifierList  go to state 240
+
+
+state 237
+
+  109 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO . statement
+
+    TOKEN_PRINT       shift, and go to state 31
+    TOKEN_IDENTIFIER  shift, and go to state 1
+    TOKEN_BEGIN       shift, and go to state 2
+    TOKEN_INTEGER     shift, and go to state 3
+    TOKEN_FOR         shift, and go to state 32
+    TOKEN_IF          shift, and go to state 33
+
+    $default  reduce using rule 110 (empty)
+
+    blockHead                 go to state 4
+    unlabelledBlock           go to state 5
+    block                     go to state 34
+    tlabel                    go to state 35
+    label                     go to state 36
+    unlabelledCompound        go to state 10
+    compoundStatement         go to state 37
+    integer                   go to state 12
+    identifier                go to state 39
+    unconditionalStatement    go to state 40
+    conditionalStatement      go to state 41
+    ifStatement               go to state 42
+    ifClause                  go to state 43
+    basicStatement            go to state 44
+    unlabelledBasicStatement  go to state 45
+    dummyStatement            go to state 46
+    assignmentStatement       go to state 47
+    forStatement              go to state 48
+    empty                     go to state 49
+    procedureStatement        go to state 50
+    procedureIdentifier       go to state 51
+    statement                 go to state 241
+
+
+state 238
+
+  132 identifierList: identifierList TOKEN_COMMA identifier .
+
+    $default  reduce using rule 132 (identifierList)
+
+
+state 239
+
+  142 specificationIdentifierList: specifier identifierList TOKEN_SEMICOLON .
+
+    $default  reduce using rule 142 (specificationIdentifierList)
+
+
+state 240
+
+  132 identifierList: identifierList . TOKEN_COMMA identifier
+  143 specificationIdentifierList: specificationIdentifierList specifier identifierList . TOKEN_SEMICOLON
+
+    TOKEN_COMMA      shift, and go to state 231
+    TOKEN_SEMICOLON  shift, and go to state 242
+
+
+state 241
+
+  109 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement .
+
+    $default  reduce using rule 109 (forStatement)
+
+
+state 242
+
+  143 specificationIdentifierList: specificationIdentifierList specifier identifierList TOKEN_SEMICOLON .
+
+    $default  reduce using rule 143 (specificationIdentifierList)

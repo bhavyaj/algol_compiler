@@ -33,12 +33,12 @@ basic_symbol		{letter}|{digit}|{logical_value}|{delimiter}
 identifier		{letter}({letter}|{digit})*
 
 unsigned_integer	{digit}+
-integer			[+-]?{unsigned_integer}
+integer			{unsigned_integer}
 decimal_fraction	"."{unsigned_integer}
 exponential_part	"\'10\'"{integer}
 decimal_number		{unsigned_integer}|{decimal_fraction}|{unsigned_integer}{decimal_fraction}
 unsigned_number		{decimal_number}|{exponential_part}|{decimal_number}{exponential_part}
-real_number		[+-]?{unsigned_number}
+real_number		{unsigned_number}
 
 white			" "|"\t"
 newline			"\n"
@@ -56,20 +56,17 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 			}
 
 			
-"'begin'"		{printf("begin reached\n");globalLevel++;
+"'begin'"		{printf("begin reached, global level=%d\n",globalLevel);
 			 push(globalLevel);
 			 return TOKEN_BEGIN ;}
 			
-"'end'"			{printf("end reached\n");return TOKEN_END;}
+"'end'"			{printf("end reached\n");
+			 pop(globalLevel);
+			 return TOKEN_END;}
 
 
-{white}*		{char *tempString = (char *)yytext;
-			 int i = 0;
-			 while(tempString != NULL){
-				if (tempString[0]=='\n') {lineNo++;}
-				tempString++;
-			 }
-			}
+{white}*		{}
+			
 
 {logical_value}		{return TOKEN_LOGICAL_VALUE;}
 
@@ -96,7 +93,7 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 "|"			{return TOKEN_OR_OP ;}
 "&"			{return TOKEN_AND_OP ;}
 "=>"			{return TOKEN_IMPLY ;}
-"="			{return TOKEN_EQUIV;}
+"==" 			{return TOKEN_EQUIV;}
 
 "goto"			{return TOKEN_GOTO ;}
 "if"			{return TOKEN_IF ;}
@@ -118,27 +115,29 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 
 "own"			{return TOKEN_TYPE_OWN;}
 "boolean"		{return TOKEN_TYPE_BOOLEAN;}
-"'integer'"		{printf("type integer reached\n");return TOKEN_TYPE_INTEGER;}
+"integer"		{printf("type integer reached\n");return TOKEN_TYPE_INTEGER;}
 "real"			{return TOKEN_TYPE_REAL;}
 "array"			{return TOKEN_TYPE_ARRAY;}
 "switch"		{return TOKEN_TYPE_SWITCH;}
 "procedure"		{return TOKEN_TYPE_PROCEDURE;}
 
-"label"			{printf("labelu reached\n");return TOKEN_TYPE_LABEL;}
+"label"			{printf("labelu reached\n"); return TOKEN_TYPE_LABEL;}
 "value"			{return TOKEN_TYPE_VALUE;}
 {relational_operator}	{return TOKEN_REL_OP;}
 {specificator}		{return TOKEN_SPECIFIER;}
 
 {library}		{return TOKEN_LIBRARY;}
-"bool_"{identifier}	{return TOKEN_BOOL_IDENTIFIER;}
 
-{identifier}		{printf("identifier reached\n");return TOKEN_IDENTIFIER;}
+
+{identifier}		{printf("identifier reached\n"); return TOKEN_IDENTIFIER;}
 
 {integer}		{return TOKEN_INTEGER;}
 
 {real_number}		{return TOKEN_REAL_NUM;}
 
-"."			{}
+
 %%
+// "."			{}
 //[a-zA-Z]+":="		{return TOKEN_ASSIGN_IDENTIFIER;}
 //[a-zA-Z]+":"		{printf("labelu identifier reached\n");return TOKEN_LABEL_IDENTIFIER;}
+//"bool_"{identifier}	{return TOKEN_BOOL_IDENTIFIER;}
