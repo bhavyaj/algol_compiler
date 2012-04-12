@@ -198,8 +198,8 @@ int yywrap()
 %token TOKEN_IMPLY
 %token TOKEN_SEMICOLON
 %token TOKEN_LTRSTRING
-%token TOKEN_TINTEGER
-%token TOKEN_TREAL
+//%token TOKEN_TINTEGER
+//%token TOKEN_TREAL
 %token TOKEN_RETURN
 %token TOKEN_ASSIGN_IDENTIFIER
 %token TOKEN_LABEL_IDENTIFIER
@@ -218,12 +218,12 @@ int yywrap()
 
 %start  program
 
-%union {
-	//float fvalue;
-	int integerVal; 		/* integer value */
-	char* symbolIndex; 		/* symbol table index */
-	Node *pt; 			/* node pointer */
-};
+//%union {
+//	//float fvalue;
+//	int integerVal; 		/* integer value */
+//	char* symbolIndex; 		/* symbol table index */
+//	Node *pt; 			/* node pointer */
+//};
 
 
 /*
@@ -253,13 +253,13 @@ int yywrap()
 
 
 blockHead :
-	tbegin declaration
+	TOKEN_BEGIN /*tbegin*/ declaration
 	{
-		printf("block");
+		printf("blockHead\n");
 	}
 	|blockHead TOKEN_SEMICOLON declaration
 	{
-		printf("block");
+		printf("blockHead\n");
 	}
 	;
 
@@ -278,6 +278,7 @@ block :
 		Node *newNode = createNode();
 		newNode->pt0 = $1;
 		$$ = newNode;
+		printf("unlabelled block\n");
 	}
 	|
 	tlabel
@@ -293,6 +294,7 @@ block :
 		Node *newNode = createNode();
 		newNode->pt0 = $2;						// $2
 		$$ = newNode;
+		printf("labelled block\n");
 	}
 	/*|
 	error
@@ -321,12 +323,12 @@ label :
 program :
 	compoundStatement
 	{
-		printf("compundStatement\n");
+		printf("compoundStatement\n");
 	}
 	
 	| block
 	{
-		printf("blockhead belu\n");
+		printf("block\n");
 	}
 	
 	
@@ -334,22 +336,24 @@ program :
 
 unlabelledCompound :
 	TOKEN_BEGIN compoundTail{
-		printf("unlabelled compund belu");
+		printf("unlabelled compound\n");
 	}
 	;
 
-tbegin: TOKEN_BEGIN
+//tbegin: TOKEN_BEGIN;
 
 compoundStatement :
 	unlabelledCompound
 	|
-	tlabel /*TOKEN_COLON*/ compoundStatement
+	tlabel /*TOKEN_COLON*/ compoundStatement{
+		printf("labelled compoundstatement\n");
+	}
 	;
 
 compoundTail :
 	statement TOKEN_END
 	{
-		printf("compound tail belu");
+		printf("compound tail\n");
 		Node *newNode = createNode();
 		newNode->pt0 = $1;
 		$$ = newNode;
@@ -1368,7 +1372,7 @@ listType :
 
 
 type :
-	TOKEN_TREAL
+	TOKEN_TYPE_REAL
 	{
 		Node *new = createNode();         	
         	new->type = type;
@@ -1377,7 +1381,7 @@ type :
 
 	}
 	|
-	TOKEN_TINTEGER
+	TOKEN_TYPE_INTEGER
 	{
 		Node *new = createNode();         	
         	new->type = type;
@@ -1388,7 +1392,7 @@ type :
 
 	}
 	|
-	TOKEN_BOOLEAN
+	TOKEN_TYPE_BOOLEAN
 	{
 		Node *new = createNode();         	
         	new->type = type;
@@ -1659,7 +1663,7 @@ returnStatement :
 	};
 
 assignmentStatement :
-	TOKEN_ASSIGN_IDENTIFIER arithmeticExpression  
+	identifier TOKEN_ASSIGN arithmeticExpression  
 	{
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
@@ -1675,14 +1679,15 @@ assignmentStatement :
 			new->semTypeDef=storeError;
 		}
 		else{
-			if (symbol1->type==storeInteger && tmp2->semTypeDef==storeInteger) {								// SYMBOL1>TYPE IS INTEGER  
+			if (symbol1->type==storeInteger && tmp2->semTypeDef==storeInteger) 				{								
+				// SYMBOL1>TYPE IS INTEGER  
 				symbol1->value=tmp2->intValue;
 			}
 		
 		}
 	}
 	|
-	TOKEN_ASSIGN_IDENTIFIER booleanExpression
+	identifier TOKEN_ASSIGN booleanExpression
 	{
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
@@ -1935,7 +1940,7 @@ forStatement :
 
 empty :	
 	{	
-		printf("empty reached");
+		printf("empty reached\n");
 		Node *new = createNode();         	            	  
         	new->type =empty;
 		$$ = new;
