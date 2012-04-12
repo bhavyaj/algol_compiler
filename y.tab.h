@@ -1,10 +1,8 @@
+/* A Bison parser, made by GNU Bison 2.5.  */
 
-/* A Bison parser, made by GNU Bison 2.4.1.  */
-
-/* Skeleton interface for Bison's Yacc-like parsers in C
+/* Bison interface for Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -102,15 +100,13 @@
      TOKEN_IMPLY = 318,
      TOKEN_SEMICOLON = 319,
      TOKEN_LTRSTRING = 320,
-     TOKEN_TINTEGER = 321,
-     TOKEN_TREAL = 322,
-     TOKEN_RETURN = 323,
-     TOKEN_ASSIGN_IDENTIFIER = 324,
-     TOKEN_LABEL_IDENTIFIER = 325,
-     TOKEN_BOOL_IDENTIFIER = 326,
-     TOKEN_ASSIGN = 327,
-     TOKEN_NOT_EQUAL = 328,
-     TOKEN_RELOP = 329
+     TOKEN_RETURN = 321,
+     TOKEN_ASSIGN_IDENTIFIER = 322,
+     TOKEN_LABEL_IDENTIFIER = 323,
+     TOKEN_BOOL_IDENTIFIER = 324,
+     TOKEN_ASSIGN = 325,
+     TOKEN_NOT_EQUAL = 326,
+     TOKEN_RELOP = 327
    };
 #endif
 /* Tokens.  */
@@ -177,15 +173,13 @@
 #define TOKEN_IMPLY 318
 #define TOKEN_SEMICOLON 319
 #define TOKEN_LTRSTRING 320
-#define TOKEN_TINTEGER 321
-#define TOKEN_TREAL 322
-#define TOKEN_RETURN 323
-#define TOKEN_ASSIGN_IDENTIFIER 324
-#define TOKEN_LABEL_IDENTIFIER 325
-#define TOKEN_BOOL_IDENTIFIER 326
-#define TOKEN_ASSIGN 327
-#define TOKEN_NOT_EQUAL 328
-#define TOKEN_RELOP 329
+#define TOKEN_RETURN 321
+#define TOKEN_ASSIGN_IDENTIFIER 322
+#define TOKEN_LABEL_IDENTIFIER 323
+#define TOKEN_BOOL_IDENTIFIER 324
+#define TOKEN_ASSIGN 325
+#define TOKEN_NOT_EQUAL 326
+#define TOKEN_RELOP 327
 
 
 
