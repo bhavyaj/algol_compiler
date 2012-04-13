@@ -67,7 +67,7 @@ Symbol* lookUp(char *lexm,int scope){
 			symbolEntry = symbolEntry->next; 
 	}
 	if(scope==0){
-		printf("Error in lexical scoping %d", scope);
+		printf("Error in lexical scoping %d\n", scope);
 		tempNodeScope = -1;
 		return NULL;
 	}
@@ -359,6 +359,7 @@ program :
 		printf("compoundStatement\n");
 		symbolTableDisplay(0);
 		symbolTableDisplay(1);
+		symbolTableDisplay(2);
 	}
 	
 	| block
@@ -366,6 +367,7 @@ program :
 		printf("block\n");
 		symbolTableDisplay(0);
 		symbolTableDisplay(1);
+		symbolTableDisplay(2);
 	}
 	
 	
@@ -692,8 +694,8 @@ simpleArithmeticExpression :
 		Node* tempNode2 = (Node*)$3;
 
 		  
-		if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal) {  
-			printf("if belu reached\n");			
+		if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal
+		{			
 			newNode->semTypeDef = storeReal ;  
 			if (tempNode0->semTypeDef==storeInteger) {  
 				tempNode0->realValue = 1.00*tempNode0->intValue;  
@@ -708,8 +710,7 @@ simpleArithmeticExpression :
 			newNode->realValue=tempNode0->realValue  +  tempNode2->realValue;
 			printf("tempnoderealval: %f\n",tempNode2->realValue);		
 		}
-		else {  
-			printf("else belu reached");				
+		else {  			
 			newNode->semTypeDef = storeInteger ;  
 			newNode->intValue = tempNode0->intValue  +  tempNode2->intValue ;  
 
@@ -902,7 +903,7 @@ primary :
 			newNode->semTypeDef= foundEntry->type ;	
 		}
 		else
-			printf("error belu");		
+			printf("error belu\n");		
 		$$ = newNode;
 
 		
@@ -1099,7 +1100,7 @@ identifier :
 		strcpy(newNode->identLex,yytext);
 		
 		if(!lookUp(newNode->identLex, currentScope)){
-			printf("belu laude, declare to kar");
+			printf("belu laude, declare to kar\n");
 		}
 		printf("TOKEN_IDENTIFIER\n");		
 		$$ = newNode;
@@ -1288,7 +1289,7 @@ booleanPrimary :
 		$$ = newNode;
 		
 	}
-	|    ////check////
+	/*|    ////check////
 	variable
 	{
 		Node *newNode = createNode();
@@ -1299,7 +1300,7 @@ booleanPrimary :
 		tempNode->semTypeDef = entry->type;
 		newNode->semTypeDef = tempNode->semTypeDef;
 		$$=newNode;
-	}
+	}*/
 	|
 	relation
 	{
@@ -1417,7 +1418,7 @@ relation :
 		$$=newNode;
 	};
 	        
-boolVariable : variable    ////check////
+/*boolVariable : variable    ////check////
 	{
 		Node* newNode = createNode();
 		newNode->type = boolVariable;
@@ -1465,7 +1466,7 @@ listType :
 			printf("belu else\n");			
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			printf("belu semtypedef : %d", newEntry->type);	
+			printf("belu semtypedef : %d\n", newEntry->type);	
 			$$=$0;			
 
 
@@ -1606,23 +1607,24 @@ conditionalStatement :
 		Node *temp = $1;
 		new->semTypeDef=temp->semTypeDef;
 		$$ = new;
+		printf("conditionalStatement -> ifStatement\n");
 	}
 
 	|
 
-        ifClause unconditionalStatement TOKEN_ELSE statement
+        ifStatement TOKEN_ELSE statement
 	{
 		Node *new = createNode();         	
         	new->type = conditionalStatement;
         	new->pt0 = $1 ;  
 		new->pt2 = $3 ;  
 		Node *temp1 = $1 ;  
-		Node *temp2 = $2 ;  
+		Node *temp2 = $3 ;  
 		if (temp1->semTypeDef==storeVoid && temp2->semTypeDef==storeVoid ) {  
-		new->semTypeDef=storeVoid ;  
+			new->semTypeDef=storeVoid ;  
 		}
 
-
+		printf("conditionalStatement -> ifstatement ELSE statement\n");
 		$$ = new;
 
 	}
@@ -1676,7 +1678,7 @@ ifStatement :
 		}
 		
 		$$ = new;
-
+		printf("ifStatement -> ifClause unconditionalStatement\n");
 
 	}
 	;
@@ -1694,7 +1696,7 @@ ifClause :
 		else {  
 			new->semTypeDef=storeError ;  
 		}
-		
+		printf("ifClause -> IF booleanExpression THEN\n");
 		$$ = new;  
 	}
 	;

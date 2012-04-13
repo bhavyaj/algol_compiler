@@ -1136,7 +1136,7 @@ YY_RULE_SETUP
 case 49:
 YY_RULE_SETUP
 #line 122 "lexer.l"
-{return TOKEN_TYPE_SWITCH;}
+{return TOKEN_SWITCH;}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP

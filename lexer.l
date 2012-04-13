@@ -119,7 +119,7 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 "integer"		{printf("type integer reached\n");return TOKEN_TYPE_INTEGER;}
 "real"			{return TOKEN_TYPE_REAL;}
 "array"			{return TOKEN_ARRAY;}
-"switch"		{return TOKEN_TYPE_SWITCH;}
+"switch"		{return TOKEN_SWITCH;}
 "procedure"		{return TOKEN_TYPE_PROCEDURE;}
 
 "label"			{printf("labelu reached\n"); return TOKEN_TYPE_LABEL;}
