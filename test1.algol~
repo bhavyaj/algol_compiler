@@ -1,8 +1,5 @@
 main:
 'begin'
-	integer	a;
 	real c;
-	a := 2;
-	if a = 2 then
-		c := 3;
+	c := 1;
 'end'

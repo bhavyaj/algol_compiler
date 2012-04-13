@@ -89,7 +89,7 @@ Symbol* lookUpInCurrentScope(char *lexm){
 	return NULL;
 }
 Symbol* addEntry(char *lexm){
-	symbolTableDisplay(currentScope);
+	//symbolTableDisplay(currentScope);
 	Symbol *symbolEntry = symbolTable[currentScope].head;
 	if(symbolEntry == NULL){
 		Symbol *newNodeEntry = (Symbol*)malloc(sizeof(Symbol));
@@ -109,7 +109,7 @@ Symbol* addEntry(char *lexm){
 	symbolTable[currentScope].tail = symbolTable[currentScope].tail->next;
 	symbolTable[currentScope].currentSymbol->next = newNodeEntry;
 	symbolTable[currentScope].currentSymbol = newNodeEntry;
-	symbolTableDisplay(currentScope);
+	//symbolTableDisplay(currentScope);
 	return newNodeEntry;
 }
 void symbolTableDisplay(int scope){
@@ -131,6 +131,8 @@ void symbolTableDisplay(int scope){
 			printf("boolean: %d\n",entry->boolean); 
 		if (entry->track != NULL)	
 			printf("track: %s\n",entry->track);
+		if (entry->type || entry->type==0)	
+			printf("type: %d\n",entry->type);
 		entry = entry->next;
 	}
 }
@@ -444,6 +446,7 @@ lowerBound:
 		
 		}
 		$$=newNode;
+		printf("lowerBound->arithmeticExpression\n");
 	};
 
 upperBound:
@@ -461,6 +464,7 @@ upperBound:
 	
 		}
 		$$=newNode;
+		printf("upperBound->arithmeticExpression\n");
 	};
 
 boundPair :
@@ -480,6 +484,7 @@ boundPair :
 			
 		}
 		$$ = newNode;
+		printf("boundPair->lowerBound : upperBound\n");
 	};
 
 boundPairList :
@@ -493,6 +498,7 @@ boundPairList :
 			newNode->semTypeDef=tempNode->semTypeDef;
 		}
 		$$ = newNode;
+		printf("boundPairList->boundPair\n");
 	}
 	|
 	boundPairList TOKEN_COMMA boundPair
@@ -513,6 +519,7 @@ boundPairList :
 		
 		newNode->track = tempNodeOne->track + 1 ;  	
 		$$ = newNode;
+		printf("boundPairList->boundPairList , boundPair\n");
 	};
 
 arrayIdentifier :
@@ -524,6 +531,7 @@ arrayIdentifier :
 		Node* tempNode = $1;
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
+		printf("arrayIdentifier->identifier\n");
 	}
 	;
 
@@ -540,6 +548,7 @@ arraySegment :
 		newNode->track = tempNodeTwo->track;
 		newNode->identLex = tempNodeOne->identLex;
 		$$ = newNode;
+		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
 	}
 	| arrayIdentifier TOKEN_COMMA arraySegment////check////
 	;
@@ -559,12 +568,13 @@ arrayList :
 			symbolTable[currentScope].currentSymbol->track=tempNode1->track;
 			$$=$0;
 		}
+		printf("arrayList->arraySegment\n");
 	}
 	|
-	arrayList TOKEN_COMMA////check////  
+	arrayList TOKEN_COMMA arraySegment////check////  
 	{
-		Node* tempNode0=$0;
-		Node* tempNode1=$1;
+		Node* tempNode0=$1;
+		Node* tempNode1=$3;
 		Symbol* symbolEntry=lookUpInCurrentScope(tempNode1->identLex);
 		if (symbolEntry!=NULL){
 			return 0;
@@ -575,13 +585,15 @@ arrayList :
 			symbolTable[currentScope].currentSymbol->track=tempNode1->track;
 			$$=$0;
 		}
+		printf("arrayList->arrayList , arraySegment\n");
 	}
-	arraySegment;
+	;
 
 arrayDeclaration :
 	TOKEN_ARRAY arrayList////check////
 	|
 	type TOKEN_ARRAY arrayList
+	{printf("here\n");}
 	;
 
 //////////////////////////// Expression Parsing
@@ -1277,7 +1289,7 @@ booleanPrimary :
 		
 	}
 	|    ////check////
-	variable
+	boolVariable
 	{
 		Node *newNode = createNode();
 		newNode->type = booleanPrimary;
@@ -1416,7 +1428,7 @@ boolVariable : variable    ////check////
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
 		printf("Boolvariable->simpleVariable\n");
-	}; //{////printf("Variable Parsed \n");}
+	}; //{printf("Variable Parsed \n");}
 /*
 boolSimpleVariable :
 	TOKEN_BOOL_IDENTIFIER
@@ -1775,7 +1787,7 @@ returnStatement :
 	};
 
 assignmentStatement :
-	identifier TOKEN_ASSIGN arithmeticExpression  
+	variable TOKEN_ASSIGN arithmeticExpression  
 	{
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
@@ -1804,7 +1816,7 @@ assignmentStatement :
 		$$ = new;
 	}
 	|
-	identifier TOKEN_ASSIGN booleanExpression
+	variable TOKEN_ASSIGN booleanExpression
 	{
 		Node *new = createNode();         	
         	new->type = assignmentStatement;

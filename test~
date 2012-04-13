@@ -1,2 +1,3 @@
-labA: 'begin';
+'begin' ;
+	integer a, b ; 
 'end'
