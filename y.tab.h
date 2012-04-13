@@ -1,8 +1,10 @@
-/* A Bison parser, made by GNU Bison 2.5.  */
 
-/* Bison interface for Yacc-like parsers in C
+/* A Bison parser, made by GNU Bison 2.4.1.  */
+
+/* Skeleton interface for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -105,8 +107,7 @@
      TOKEN_LABEL_IDENTIFIER = 323,
      TOKEN_BOOL_IDENTIFIER = 324,
      TOKEN_ASSIGN = 325,
-     TOKEN_NOT_EQUAL = 326,
-     TOKEN_RELOP = 327
+     TOKEN_NOT_EQUAL = 326
    };
 #endif
 /* Tokens.  */
@@ -179,7 +180,6 @@
 #define TOKEN_BOOL_IDENTIFIER 324
 #define TOKEN_ASSIGN 325
 #define TOKEN_NOT_EQUAL 326
-#define TOKEN_RELOP 327
 
 
 

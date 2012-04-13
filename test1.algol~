@@ -1,5 +1,9 @@
 main:
 'begin'
-	real c;
-	c := 1;
+	integer a;
+	a := 5;
+	if a = 5 then
+		a := a + 1;
+	if a = 6 then
+		a := a + 2; 
 'end'

@@ -240,7 +240,7 @@ int yywrap()
 %left	TOKEN_AND_OP
 %left	TOKEN_NOT_OP
 %left	TOKEN_LESS TOKEN_GREATER TOKEN_LESS_EQUAL TOKEN_GREATER_EQUAL TOKEN_NOT_EQUAL
-%left	TOKEN_RELOP
+%left	TOKEN_REL_OP
 %left	TOKEN_PLUS TOKEN_MINUS
 %right	TOKEN_POWER
 
@@ -1289,10 +1289,10 @@ booleanPrimary :
 		
 	}
 	|    ////check////
-	boolVariable
+	variable
 	{
 		Node *newNode = createNode();
-		newNode->type = booleanPrimary;
+		newNode->type = variable;
 		newNode->pt0 = $1;
 		Node *tempNode=$1;
 		Symbol* entry = lookUp(tempNode->identLex,currentScope);
@@ -1417,7 +1417,7 @@ relation :
 		$$=newNode;
 	};
 	        
-boolVariable : variable    ////check////
+/*boolVariable : variable    ////check////
 	{
 		Node* newNode = createNode();
 		newNode->type = boolVariable;
