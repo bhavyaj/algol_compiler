@@ -4089,7 +4089,7 @@ yyreduce:
 		Node *node1 = (yyvsp[(2) - (3)]);
 		Node *node2 = (yyvsp[(3) - (3)]);
 
-		Symbol* symbol = lookUpInCurrentScope(node1->identLex);
+		Symbol* symbol = lookUp(node1->identLex, currentScope);////check////
 		symbol->type = storeVoid;
 
 		Node *node = createNode();
