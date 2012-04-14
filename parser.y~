@@ -67,7 +67,7 @@ Symbol* lookUp(char *lexm,int scope){
 			symbolEntry = symbolEntry->next; 
 	}
 	if(scope==0){
-		printf("Error in lexical scoping %d", scope);
+		printf("Error in lexical scoping %d\n", scope);
 		tempNodeScope = -1;
 		return NULL;
 	}
@@ -89,7 +89,7 @@ Symbol* lookUpInCurrentScope(char *lexm){
 	return NULL;
 }
 Symbol* addEntry(char *lexm){
-	symbolTableDisplay(currentScope);
+	//symbolTableDisplay(currentScope);
 	Symbol *symbolEntry = symbolTable[currentScope].head;
 	if(symbolEntry == NULL){
 		Symbol *newNodeEntry = (Symbol*)malloc(sizeof(Symbol));
@@ -109,7 +109,7 @@ Symbol* addEntry(char *lexm){
 	symbolTable[currentScope].tail = symbolTable[currentScope].tail->next;
 	symbolTable[currentScope].currentSymbol->next = newNodeEntry;
 	symbolTable[currentScope].currentSymbol = newNodeEntry;
-	symbolTableDisplay(currentScope);
+	//symbolTableDisplay(currentScope);
 	return newNodeEntry;
 }
 void symbolTableDisplay(int scope){
@@ -131,6 +131,8 @@ void symbolTableDisplay(int scope){
 			printf("boolean: %d\n",entry->boolean); 
 		if (entry->track != NULL)	
 			printf("track: %s\n",entry->track);
+		if (entry->type || entry->type==0)	
+			printf("type: %d\n",entry->type);
 		entry = entry->next;
 	}
 }
@@ -238,7 +240,7 @@ int yywrap()
 %left	TOKEN_AND_OP
 %left	TOKEN_NOT_OP
 %left	TOKEN_LESS TOKEN_GREATER TOKEN_LESS_EQUAL TOKEN_GREATER_EQUAL TOKEN_NOT_EQUAL
-%left	TOKEN_RELOP
+%left	TOKEN_REL_OP
 %left	TOKEN_PLUS TOKEN_MINUS
 %right	TOKEN_POWER
 
@@ -357,6 +359,7 @@ program :
 		printf("compoundStatement\n");
 		symbolTableDisplay(0);
 		symbolTableDisplay(1);
+		symbolTableDisplay(2);
 	}
 	
 	| block
@@ -364,6 +367,7 @@ program :
 		printf("block\n");
 		symbolTableDisplay(0);
 		symbolTableDisplay(1);
+		symbolTableDisplay(2);
 	}
 	
 	
@@ -444,6 +448,7 @@ lowerBound:
 		
 		}
 		$$=newNode;
+		printf("lowerBound->arithmeticExpression\n");
 	};
 
 upperBound:
@@ -461,6 +466,7 @@ upperBound:
 	
 		}
 		$$=newNode;
+		printf("upperBound->arithmeticExpression\n");
 	};
 
 boundPair :
@@ -480,6 +486,7 @@ boundPair :
 			
 		}
 		$$ = newNode;
+		printf("boundPair->lowerBound : upperBound\n");
 	};
 
 boundPairList :
@@ -493,6 +500,7 @@ boundPairList :
 			newNode->semTypeDef=tempNode->semTypeDef;
 		}
 		$$ = newNode;
+		printf("boundPairList->boundPair\n");
 	}
 	|
 	boundPairList TOKEN_COMMA boundPair
@@ -513,6 +521,7 @@ boundPairList :
 		
 		newNode->track = tempNodeOne->track + 1 ;  	
 		$$ = newNode;
+		printf("boundPairList->boundPairList , boundPair\n");
 	};
 
 arrayIdentifier :
@@ -524,6 +533,7 @@ arrayIdentifier :
 		Node* tempNode = $1;
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
+		printf("arrayIdentifier->identifier\n");
 	}
 	;
 
@@ -540,6 +550,7 @@ arraySegment :
 		newNode->track = tempNodeTwo->track;
 		newNode->identLex = tempNodeOne->identLex;
 		$$ = newNode;
+		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
 	}
 	| arrayIdentifier TOKEN_COMMA arraySegment////check////
 	;
@@ -559,12 +570,13 @@ arrayList :
 			symbolTable[currentScope].currentSymbol->track=tempNode1->track;
 			$$=$0;
 		}
+		printf("arrayList->arraySegment\n");
 	}
 	|
-	arrayList TOKEN_COMMA////check////  
+	arrayList TOKEN_COMMA arraySegment////check////  
 	{
-		Node* tempNode0=$0;
-		Node* tempNode1=$1;
+		Node* tempNode0=$1;
+		Node* tempNode1=$3;
 		Symbol* symbolEntry=lookUpInCurrentScope(tempNode1->identLex);
 		if (symbolEntry!=NULL){
 			return 0;
@@ -575,13 +587,15 @@ arrayList :
 			symbolTable[currentScope].currentSymbol->track=tempNode1->track;
 			$$=$0;
 		}
+		printf("arrayList->arrayList , arraySegment\n");
 	}
-	arraySegment;
+	;
 
 arrayDeclaration :
 	TOKEN_ARRAY arrayList////check////
 	|
 	type TOKEN_ARRAY arrayList
+	{printf("here\n");}
 	;
 
 //////////////////////////// Expression Parsing
@@ -680,8 +694,8 @@ simpleArithmeticExpression :
 		Node* tempNode2 = (Node*)$3;
 
 		  
-		if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal) {  
-			printf("if belu reached\n");			
+		if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal
+		{			
 			newNode->semTypeDef = storeReal ;  
 			if (tempNode0->semTypeDef==storeInteger) {  
 				tempNode0->realValue = 1.00*tempNode0->intValue;  
@@ -696,8 +710,7 @@ simpleArithmeticExpression :
 			newNode->realValue=tempNode0->realValue  +  tempNode2->realValue;
 			printf("tempnoderealval: %f\n",tempNode2->realValue);		
 		}
-		else {  
-			printf("else belu reached");				
+		else {  			
 			newNode->semTypeDef = storeInteger ;  
 			newNode->intValue = tempNode0->intValue  +  tempNode2->intValue ;  
 
@@ -890,7 +903,7 @@ primary :
 			newNode->semTypeDef= foundEntry->type ;	
 		}
 		else
-			printf("error belu");		
+			printf("error belu\n");		
 		$$ = newNode;
 
 		
@@ -1087,7 +1100,7 @@ identifier :
 		strcpy(newNode->identLex,yytext);
 		
 		if(!lookUp(newNode->identLex, currentScope)){
-			printf("belu laude, declare to kar");
+			printf("belu laude, declare to kar\n");
 		}
 		printf("TOKEN_IDENTIFIER\n");		
 		$$ = newNode;
@@ -1276,18 +1289,18 @@ booleanPrimary :
 		$$ = newNode;
 		
 	}
-	|    ////check////
+	/*|    ////check////
 	variable
 	{
 		Node *newNode = createNode();
-		newNode->type = booleanPrimary;
+		newNode->type = variable;
 		newNode->pt0 = $1;
 		Node *tempNode=$1;
 		Symbol* entry = lookUp(tempNode->identLex,currentScope);
 		tempNode->semTypeDef = entry->type;
 		newNode->semTypeDef = tempNode->semTypeDef;
 		$$=newNode;
-	}
+	}*/
 	|
 	relation
 	{
@@ -1405,7 +1418,7 @@ relation :
 		$$=newNode;
 	};
 	        
-boolVariable : variable    ////check////
+/*boolVariable : variable    ////check////
 	{
 		Node* newNode = createNode();
 		newNode->type = boolVariable;
@@ -1416,7 +1429,7 @@ boolVariable : variable    ////check////
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
 		printf("Boolvariable->simpleVariable\n");
-	}; //{////printf("Variable Parsed \n");}
+	}; //{printf("Variable Parsed \n");}
 /*
 boolSimpleVariable :
 	TOKEN_BOOL_IDENTIFIER
@@ -1453,7 +1466,7 @@ listType :
 			printf("belu else\n");			
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			printf("belu semtypedef : %d", newEntry->type);	
+			printf("belu semtypedef : %d\n", newEntry->type);	
 			$$=$0;			
 
 
@@ -1594,23 +1607,24 @@ conditionalStatement :
 		Node *temp = $1;
 		new->semTypeDef=temp->semTypeDef;
 		$$ = new;
+		printf("conditionalStatement -> ifStatement\n");
 	}
 
 	|
 
-        ifClause unconditionalStatement TOKEN_ELSE statement
+        ifStatement TOKEN_ELSE statement
 	{
 		Node *new = createNode();         	
         	new->type = conditionalStatement;
         	new->pt0 = $1 ;  
 		new->pt2 = $3 ;  
 		Node *temp1 = $1 ;  
-		Node *temp2 = $2 ;  
+		Node *temp2 = $3 ;  
 		if (temp1->semTypeDef==storeVoid && temp2->semTypeDef==storeVoid ) {  
-		new->semTypeDef=storeVoid ;  
+			new->semTypeDef=storeVoid ;  
 		}
 
-
+		printf("conditionalStatement -> ifstatement ELSE statement\n");
 		$$ = new;
 
 	}
@@ -1664,7 +1678,7 @@ ifStatement :
 		}
 		
 		$$ = new;
-
+		printf("ifStatement -> ifClause unconditionalStatement\n");
 
 	}
 	;
@@ -1682,7 +1696,7 @@ ifClause :
 		else {  
 			new->semTypeDef=storeError ;  
 		}
-		
+		printf("ifClause -> IF booleanExpression THEN\n");
 		$$ = new;  
 	}
 	;
@@ -1775,7 +1789,7 @@ returnStatement :
 	};
 
 assignmentStatement :
-	identifier TOKEN_ASSIGN arithmeticExpression  
+	variable TOKEN_ASSIGN arithmeticExpression  
 	{
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
@@ -1804,7 +1818,7 @@ assignmentStatement :
 		$$ = new;
 	}
 	|
-	identifier TOKEN_ASSIGN booleanExpression
+	variable TOKEN_ASSIGN booleanExpression
 	{
 		Node *new = createNode();         	
         	new->type = assignmentStatement;

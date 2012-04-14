@@ -76,6 +76,7 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 "*"			{return TOKEN_MULTIPLY;}
 "**"			{return TOKEN_POWER;}
 
+{relational_operator}	{return TOKEN_REL_OP;}
 "<"			{return TOKEN_LESS ;}
 "<="			{return TOKEN_LESS_EQUAL ;}
 "="			{return TOKEN_EQUAL ;}
@@ -117,13 +118,13 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 "boolean"		{return TOKEN_TYPE_BOOLEAN;}
 "integer"		{printf("type integer reached\n");return TOKEN_TYPE_INTEGER;}
 "real"			{return TOKEN_TYPE_REAL;}
-"array"			{return TOKEN_TYPE_ARRAY;}
-"switch"		{return TOKEN_TYPE_SWITCH;}
+"array"			{return TOKEN_ARRAY;}
+"switch"		{return TOKEN_SWITCH;}
 "procedure"		{return TOKEN_TYPE_PROCEDURE;}
 
 "label"			{printf("labelu reached\n"); return TOKEN_TYPE_LABEL;}
 "value"			{return TOKEN_TYPE_VALUE;}
-{relational_operator}	{return TOKEN_REL_OP;}
+
 {specificator}		{return TOKEN_SPECIFIER;}
 
 {library}		{return TOKEN_LIBRARY;}
