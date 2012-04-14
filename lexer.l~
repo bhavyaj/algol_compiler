@@ -110,6 +110,8 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 
 "("			{return TOKEN_OPEN_BRACKET;}
 ")"			{return TOKEN_CLOSE_BRACKET;}
+"{"                     {return TOKEN_OPEN_CURLY_BRACKET;}
+"}"			{return TOKEN_CLOSE_CURLY_BRACKET;}
 "["			{return TOKEN_OPEN_SQUARE_BRACKET;}
 "]"			{return TOKEN_CLOSE_SQUARE_BRACKET;}
 {bracket}		{return TOKEN_BRACKET;}
@@ -119,11 +121,11 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 "integer"		{printf("type integer reached\n");return TOKEN_TYPE_INTEGER;}
 "real"			{return TOKEN_TYPE_REAL;}
 "array"			{return TOKEN_ARRAY;}
-"switch"		{return TOKEN_TYPE_SWITCH;}
-"procedure"		{return TOKEN_TYPE_PROCEDURE;}
+"switch"		{return TOKEN_SWITCH;}
+"procedure"		{return TOKEN_PROCEDURE;}
 
 "label"			{printf("labelu reached\n"); return TOKEN_TYPE_LABEL;}
-"value"			{return TOKEN_TYPE_VALUE;}
+"value"			{return TOKEN_VALUE;}
 
 {specificator}		{return TOKEN_SPECIFIER;}
 

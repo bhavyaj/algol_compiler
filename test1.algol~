@@ -1,11 +1,6 @@
-main:
-'begin'	integer a;
-	a := 5;
-	if a = 5 then
-		a := a + 1
-	else if a=5 then a := a + 3
-	else lab1:
-		'begin';
-			a:=a+6;
-		'end'
-'end'
+integer procedure Innerproduct( a , b , k , p , y ); integer k,p ; real y,a,b;
+	begin;
+		s := 0;
+		for p := 1 step 1 until k do s := s + a*b;
+		y := s;
+	end
