@@ -56,11 +56,11 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 			}
 
 			
-"'begin'"		{printf("begin reached, global level=%d\n",globalLevel);
+"begin"		{printf("begin reached, global level=%d\n",globalLevel);
 			 push(globalLevel);
 			 return TOKEN_BEGIN ;}
 			
-"'end'"			{printf("end reached\n");
+"end"			{printf("end reached\n");
 			 pop(globalLevel);
 			 return TOKEN_END;}
 
@@ -110,6 +110,8 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 
 "("			{return TOKEN_OPEN_BRACKET;}
 ")"			{return TOKEN_CLOSE_BRACKET;}
+"{"                     {return TOKEN_OPEN_CURLY_BRACKET;}
+"}"			{return TOKEN_CLOSE_CURLY_BRACKET;}
 "["			{return TOKEN_OPEN_SQUARE_BRACKET;}
 "]"			{return TOKEN_CLOSE_SQUARE_BRACKET;}
 {bracket}		{return TOKEN_BRACKET;}
@@ -120,10 +122,10 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 "real"			{return TOKEN_TYPE_REAL;}
 "array"			{return TOKEN_ARRAY;}
 "switch"		{return TOKEN_SWITCH;}
-"procedure"		{return TOKEN_TYPE_PROCEDURE;}
+"procedure"		{return TOKEN_PROCEDURE;}
 
 "label"			{printf("labelu reached\n"); return TOKEN_TYPE_LABEL;}
-"value"			{return TOKEN_TYPE_VALUE;}
+"value"			{return TOKEN_VALUE;}
 
 {specificator}		{return TOKEN_SPECIFIER;}
 

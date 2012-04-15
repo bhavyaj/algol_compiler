@@ -185,6 +185,8 @@ int yywrap()
 %token TOKEN_CLOSE_BRACKET
 %token TOKEN_OPEN_SQUARE_BRACKET
 %token TOKEN_CLOSE_SQUARE_BRACKET
+%token TOKEN_OPEN_CURLY_BRACKET                  //added support for belu curly brackets
+%token TOKEN_CLOSE_CURLY_BRACKET		//belup
 %token TOKEN_CONTINUE	
 %token TOKEN_REAL_NUM		
 %token TOKEN_INTEGER	
@@ -423,10 +425,10 @@ declaration :
 		$$=$1;
 	}
 	|
-	/*switchDeclaration{
+	switchDeclaration{
 		$$=$1;
 	}
-	|*/
+	|
 	procedureDeclaration
 	{
 		$$=$1;
@@ -450,6 +452,14 @@ lowerBound:
 		$$=newNode;
 		printf("lowerBound->arithmeticExpression\n");
 	};
+
+switchList :
+	designationalExpression
+	| switchList TOKEN_COMMA designationalExpression
+	;
+
+switchDeclaration :
+	TOKEN_SWITCH switchIdentifier TOKEN_ASSIGN switchList;
 
 upperBound:
 	arithmeticExpression
@@ -552,7 +562,20 @@ arraySegment :
 		$$ = newNode;
 		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
 	}
-	| arrayIdentifier TOKEN_COMMA arraySegment////check////
+	| arrayIdentifier TOKEN_COMMA arraySegment
+	{
+		Node* newNode = createNode();
+		newNode->type = boundPair;
+		newNode->pt0 = $1;
+		newNode->pt2 = $3;
+
+		Node *tempNodeOne = $1;
+		Node *tempNodeTwo = $3;
+		newNode->track = tempNodeTwo->track;
+		newNode->identLex = tempNodeOne->identLex;
+		$$ = newNode;
+		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
+	}////check////
 	;
 
 arrayList :
@@ -620,11 +643,27 @@ expression :
 		newNode->semTypeDef = tempNode->semTypeDef;
 		$$ = newNode;
 	}
-	/*|
+	|
 	designationalExpression////check////
 	{
-		
-	}*/;
+				
+	};
+
+switchIdentifier :
+	identifier
+	;
+
+switchDesignator :
+	switchIdentifier TOKEN_OPEN_CURLY_BRACKET subscriptExpression TOKEN_CLOSE_CURLY_BRACKET ;
+
+simpleDesignationalExpression : 
+	tlabel
+	| switchDesignator
+	| TOKEN_OPEN_BRACKET designationalExpression TOKEN_CLOSE_BRACKET;
+
+designationalExpression :
+	simpleDesignationalExpression
+	| ifClause simpleDesignationalExpression TOKEN_ELSE designationalExpression;
 
 arithmeticExpression :
 	simpleArithmeticExpression
@@ -694,7 +733,7 @@ simpleArithmeticExpression :
 		Node* tempNode2 = (Node*)$3;
 
 		  
-		if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal
+		if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal)
 		{			
 			newNode->semTypeDef = storeReal ;  
 			if (tempNode0->semTypeDef==storeInteger) {  
@@ -884,9 +923,9 @@ primary :
 	
 	}
 	|	
-	/*|
 	functionDesignator{
-	}*/
+	}
+	|
 	variable
 	{
 		Node *newNode = createNode();
@@ -1569,7 +1608,7 @@ unconditionalStatement :
 		$$ = new;
 
 
-
+		printf("unconditional -> basic\n");
 	
 	}
 	|
@@ -1710,7 +1749,7 @@ basicStatement :
         	new->pt0 = $1 ;  
 		Node *temp = $1 ;  
 		new->semTypeDef=temp->semTypeDef ;  
-
+		printf("basic -> unlabbasic\n");
 		$$ = new;
 
 	}
@@ -1718,7 +1757,7 @@ basicStatement :
 
 
 	|
-        label basicStatement ////check////
+        tlabel basicStatement ////check////
 	;
 
 unlabelledBasicStatement :
@@ -1758,9 +1797,10 @@ unlabelledBasicStatement :
 		Node *temp = $1 ;  
 		new->semTypeDef=temp->semTypeDef ;  
 		$$ = new;
+		printf("unlabelledbasicstmt -> procstmt\n");
 
 	}
-	
+	|
 	returnStatement
 	{
 		$$ = $1;
@@ -2020,9 +2060,7 @@ forClause :
 	};*/
 
 forStatement :
-	/*for_clause statement
-	|*/
-	TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO  statement
+	TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
 	{  
 		Node *new = createNode();
 		Node *temp = $2;
@@ -2065,8 +2103,6 @@ forStatement :
 			$$=new;
 		}
 	}
-	/*|
-        label TCOLON for_statement*/
 	;
 
 empty :	
@@ -2094,13 +2130,13 @@ procedureStatement :
 			if(temp2->semTypeDef==storeError)
 			{
 				new->semTypeDef =storeError;
-		}
-		else
-		{
-			new->semTypeDef = symbol->type;
+			}
+			else
+			{
+				new->semTypeDef = symbol->type;
 
+			}
 		}
-	}
 
 		$$ = new; 
 	}
@@ -2119,7 +2155,7 @@ procedureIdentifier :
 	}
 	;
 actualParameterPart :
-	empty
+	TOKEN_OPEN_BRACKET TOKEN_CLOSE_BRACKET
 	| TOKEN_OPEN_BRACKET actualParameterList TOKEN_CLOSE_BRACKET
 	{
 		$$=$2;
@@ -2128,7 +2164,7 @@ actualParameterPart :
 		{		
 			temp->semTypeDef == storeVoid;
 		}
-		
+		printf("actparampart -> ( act param list )\n");
 	}
 	;
 
@@ -2145,6 +2181,7 @@ actualParameterList :
 		new->semTypeDef = storeVoid;
 		
 		$$ = new;
+		printf("actual parameter list -> actual parameter\n");
 	}
 	|
         actualParameterList parameterDelimiter actualParameter  
@@ -2177,12 +2214,16 @@ actualParameter :
 		new->type = actualParameter;
 		new->semTypeDef = temp->semTypeDef;
 		new->pt0 = $1;
-
+		printf("actual parameter -> expression\n");
 		$$ = new;
-	};
+	}
+	;
 
 parameterDelimiter : TOKEN_COMMA
-	| TOKEN_CLOSE_SQUARE_BRACKET identifier TOKEN_COLON TOKEN_OPEN_SQUARE_BRACKET;
+	| TOKEN_CLOSE_BRACKET identifier TOKEN_COLON TOKEN_OPEN_BRACKET;
+
+functionDesignator :
+	procedureIdentifier actualParameterPart;
 
 statement :
 	unconditionalStatement //TOKEN_SEMICOLON statement 
@@ -2191,6 +2232,7 @@ statement :
 		Node *temp1=$1;
 //		Node *temp2=$3;
 		$$=new;
+		printf("stmt -> unconditionalstmt\n");
 	}
 	|
         conditionalStatement //TOKEN_SEMICOLON statement 
@@ -2311,23 +2353,7 @@ procedureHeading :
 		$$ = node;
 	} formalParameterPart TOKEN_SEMICOLON {
 		$3 = $1;
-	} valuePart specificationPart
-	/*
-	| procedureIdentifier {
-		Node *node = createNode();
-		node->type = procedureHeading;
-		node->pt0 = $1;
-		Node *node1 = $1;
-		node1->parent = node;
-		strcpy(node->identLex, node1->identLex);
-		if (lookUpInCurrentScope(node1->identLex) == NULL){
-			Symbol * index = addEntry(node1->identLex);
-		}
-		$$ = node;
-	} formalParameterPart TOKEN_SEMICOLON {
-		$3 = $1;
-	} valuePart;
-	*/
+	} valuePart specificationPart;
 
 procedureBody :
 	statement{
@@ -2337,6 +2363,7 @@ procedureBody :
 		Node *temp = $1;
 		new->semTypeDef = temp->semTypeDef;
 		$$ = new;
+		printf("proc body -> stmt\n");
 	};
 
 procedureDeclaration : 
@@ -2344,7 +2371,7 @@ procedureDeclaration :
 		Node *node1 = $2;
 		Node *node2 = $3;
 
-		Symbol* symbol = lookUpInCurrentScope(node1->identLex);
+		Symbol* symbol = lookUp(node1->identLex, currentScope);
 		symbol->type = storeVoid;
 
 		Node *node = createNode();
@@ -2356,6 +2383,7 @@ procedureDeclaration :
 		else
 			node->semTypeDef = storeError;
 		$$ = node;
+		printf("procedureDeclaration -> procedure heading body");
 	}
 	| type TOKEN_PROCEDURE procedureHeading procedureBody
 	{
@@ -2375,6 +2403,7 @@ procedureDeclaration :
 		else
 			node->semTypeDef = storeError;
 		$$ = node;
+		printf("proceduredeclaration -> type procedure heading body\n");
 	};
 
 
