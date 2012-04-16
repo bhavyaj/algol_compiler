@@ -3,10 +3,13 @@ typedef struct{
 	char *lexeme;
 	int token;
 	int value;
-	float realVal;
+	float realValue;
 	int type;
 	bool boolean;
-	int track; 
+	int offset;
+	int dim;
+	int arrayLower[10];
+	int arrayUpper[10]; 
 	struct Symbol *next;
 }Symbol;
 	
@@ -15,4 +18,7 @@ typedef struct{
 	Symbol *currentSymbol;
 	Symbol *tail;
 	int parent;
+	int arrayOffset;
+	int currentOffset;
+	int newTempOffset;
 }SymbolTable;

@@ -70,7 +70,11 @@ typedef struct{
 	bool boolValue;
 	char *identLex;
 	int semTypeDef;
-	int track;	// to keep track of dimension in grammar definition
+	int dim;	// to keep track of dimension in grammar definition
+	int lowerBound[20];
+	int upperBound[20];
+	char code[99999];
+	int place;
 	struct Node* pt0;
 	struct Node* pt1;
 	struct Node* pt2;

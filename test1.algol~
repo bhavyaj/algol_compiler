@@ -1,6 +1,8 @@
-integer procedure Innerproduct( a , b , k , p , y ); integer k,p ; real y,a,b;
-begin integer s;
-	s := 0;
-	for p := 1 step 1 until k do s := s + a*b;
-	y := s;
+main:
+begin integer s,r,k,j,i;
+	s := 6;
+	r := 2;
+	j := 4;
+	i := s-r;
+	k := i * j;
 end

@@ -8,6 +8,5 @@ Node* createNode(){
 	newNode->pt2 = NULL;
 	newNode->pt3 = NULL; 
 	newNode->identLex = (char*)malloc(15*sizeof(char));
-	newNode->dim = -1;
 	return newNode;	
 }

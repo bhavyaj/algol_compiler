@@ -56,11 +56,14 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 			}
 
 			
-"'begin'"		{printf("begin reached, global level=%d\n",globalLevel);
+"begin"			{
+			 printf("begin reached, global level=%d\n",globalLevel);
+			 globalLevel++;
 			 push(globalLevel);
-			 return TOKEN_BEGIN ;}
+			 return TOKEN_BEGIN ;
+			}
 			
-"'end'"			{printf("end reached\n");
+"end"			{printf("end reached\n");
 			 pop(globalLevel);
 			 return TOKEN_END;}
 

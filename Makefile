@@ -10,7 +10,7 @@ y.tab.o: y.tab.c
 lex.yy.o: y.tab.h lex.yy.c
 	$(CC) -w -c lex.yy.c
 lex.yy.c: lexer.l
-	$(LEX) -w lexer.l
+	$(LEX) -w -i lexer.l
 clean:
 	rm *.o
 
