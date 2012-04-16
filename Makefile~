@@ -13,6 +13,4 @@ lex.yy.c: lexer.l
 	$(LEX) -w lexer.l
 clean:
 	rm *.o
-	rm *.c
-
 

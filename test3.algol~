@@ -1,0 +1,5 @@
+main:
+begin integer i,j,k;
+	i := -1;
+	for i:=1 step 2 until 10 do print i; 
+end

@@ -25,6 +25,7 @@ enum tag{TOKEN_ID,//TOKEN_SEPARATOR,
 	multiplyingOperator,
 	factor,
 	primary,
+	unsignedNumber,
 	realNumber,
 	integer,
 	variable,
@@ -58,7 +59,8 @@ enum tag{TOKEN_ID,//TOKEN_SEPARATOR,
 	procedureBody,
 	procedureDeclaration,
 	actualParameter,
-	procedureHeading
+	procedureHeading,
+	switchIdentifier
 
 };
 typedef struct{
@@ -69,7 +71,12 @@ typedef struct{
 	bool boolValue;
 	char *identLex;
 	int semTypeDef;
-	int track;	// to keep track of dimension in grammar definition
+	int dim;
+	int isArray;	
+	int lowerBound[20];
+	int upperBound[20];
+	char code[99999];
+	int place;
 	struct Node* pt0;
 	struct Node* pt1;
 	struct Node* pt2;

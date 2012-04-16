@@ -56,9 +56,12 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 			}
 
 			
-"begin"		{printf("begin reached, global level=%d\n",globalLevel);
+"begin"			{
+			 printf("begin reached, global level=%d\n",globalLevel);
+			 globalLevel++;
 			 push(globalLevel);
-			 return TOKEN_BEGIN ;}
+			 return TOKEN_BEGIN ;
+			}
 			
 "end"			{printf("end reached\n");
 			 pop(globalLevel);
@@ -123,7 +126,7 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 "array"			{return TOKEN_ARRAY;}
 "switch"		{return TOKEN_SWITCH;}
 "procedure"		{return TOKEN_PROCEDURE;}
-
+"print"			{return TOKEN_PRINT;}
 "label"			{printf("labelu reached\n"); return TOKEN_TYPE_LABEL;}
 "value"			{return TOKEN_VALUE;}
 

@@ -6,7 +6,10 @@ typedef struct{
 	float realValue;
 	int type;
 	bool boolean;
-	int track; 
+	int offset;
+	int dim;
+	int lowerBound[20];
+	int upperBound[20]; 
 	struct Symbol *next;
 }Symbol;
 	
@@ -15,4 +18,7 @@ typedef struct{
 	Symbol *currentSymbol;
 	Symbol *tail;
 	int parent;
+	int arrayOffset;
+	int currentOffset;
+	int newTempOffset;
 }SymbolTable;
