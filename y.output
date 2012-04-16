@@ -242,45 +242,42 @@ Grammar
   133 formalParameter: identifier
 
   134 formalParameterList: formalParameter
+  135                    | formalParameterList parameterDelimiter formalParameter
 
-  135 $@3: /* empty */
+  136 formalParameterPart: empty
 
-  136 formalParameterList: formalParameterList parameterDelimiter $@3 formalParameter
+  137 $@3: /* empty */
 
-  137 formalParameterPart: empty
+  138 formalParameterPart: TOKEN_OPEN_BRACKET $@3 formalParameterList TOKEN_CLOSE_BRACKET
 
-  138 $@4: /* empty */
+  139 identifierList: identifier
+  140               | identifierList TOKEN_COMMA identifier
 
-  139 formalParameterPart: TOKEN_OPEN_BRACKET $@4 formalParameterList TOKEN_CLOSE_BRACKET
+  141 valuePart: TOKEN_VALUE identifierList TOKEN_SEMICOLON
+  142          | empty
 
-  140 identifierList: identifier
-  141               | identifierList TOKEN_COMMA identifier
+  143 specifier: type
+  144          | type TOKEN_ARRAY
+  145          | TOKEN_TYPE_LABEL
+  146          | TOKEN_SWITCH
+  147          | type TOKEN_PROCEDURE
 
-  142 valuePart: TOKEN_VALUE identifierList TOKEN_SEMICOLON
-  143          | empty
+  148 specificationPart: empty
+  149                  | specificationIdentifierList
 
-  144 specifier: type
-  145          | type TOKEN_ARRAY
-  146          | TOKEN_TYPE_LABEL
-  147          | TOKEN_SWITCH
-  148          | type TOKEN_PROCEDURE
+  150 specificationIdentifierList: specifier identifierList TOKEN_SEMICOLON
+  151                            | specificationIdentifierList specifier identifierList TOKEN_SEMICOLON
 
-  149 specificationPart: empty
-  150                  | specificationIdentifierList
+  152 @4: /* empty */
 
-  151 specificationIdentifierList: specifier identifierList TOKEN_SEMICOLON
-  152                            | specificationIdentifierList specifier identifierList TOKEN_SEMICOLON
+  153 $@5: /* empty */
 
-  153 @5: /* empty */
+  154 procedureHeading: procedureIdentifier @4 formalParameterPart TOKEN_SEMICOLON $@5 valuePart specificationPart
 
-  154 $@6: /* empty */
+  155 procedureBody: statement
 
-  155 procedureHeading: procedureIdentifier @5 formalParameterPart TOKEN_SEMICOLON $@6 valuePart specificationPart
-
-  156 procedureBody: statement
-
-  157 procedureDeclaration: TOKEN_PROCEDURE procedureHeading procedureBody
-  158                     | type TOKEN_PROCEDURE procedureHeading procedureBody
+  156 procedureDeclaration: TOKEN_PROCEDURE procedureHeading procedureBody
+  157                     | type TOKEN_PROCEDURE procedureHeading procedureBody
 
 
 Terminals, with rules where they appear
@@ -294,19 +291,19 @@ TOKEN_END (261) 16
 TOKEN_LOGICAL_VALUE (262) 88
 TOKEN_OPERATOR (263)
 TOKEN_OR (264)
-TOKEN_PROCEDURE (265) 148 157 158
+TOKEN_PROCEDURE (265) 147 156 157
 TOKEN_PLUS (266) 49 51
 TOKEN_MINUS (267) 50 52
 TOKEN_DIVIDE (268) 55
 TOKEN_POWER (269) 57
 TOKEN_MULTIPLY (270) 54
-TOKEN_COMMA (271) 24 29 32 34 71 92 126 141
+TOKEN_COMMA (271) 24 29 32 34 71 92 126 140
 TOKEN_UNDERSCORE (272)
 TOKEN_SPECIFIER (273)
 TOKEN_LIBRARY (274)
 TOKEN_BRACKET (275)
-TOKEN_OPEN_BRACKET (276) 44 61 87 121 122 127 139
-TOKEN_CLOSE_BRACKET (277) 44 61 87 121 122 127 139
+TOKEN_OPEN_BRACKET (276) 44 61 87 121 122 127 138
+TOKEN_CLOSE_BRACKET (277) 44 61 87 121 122 127 138
 TOKEN_OPEN_SQUARE_BRACKET (278) 31 69
 TOKEN_CLOSE_SQUARE_BRACKET (279) 31 69
 TOKEN_OPEN_CURLY_BRACKET (280) 41
@@ -335,8 +332,8 @@ TOKEN_UNTIL (302) 117
 TOKEN_IF (303) 106
 TOKEN_THEN (304) 106
 TOKEN_ELSE (305) 46 102
-TOKEN_SWITCH (306) 25 147
-TOKEN_VALUE (307) 142
+TOKEN_SWITCH (306) 25 146
+TOKEN_VALUE (307) 141
 TOKEN_BOOLEAN (308)
 TOKEN_TYPE_OWN (309)
 TOKEN_TYPE_INTEGER (310) 94
@@ -346,11 +343,11 @@ TOKEN_TYPE_ARRAY (313)
 TOKEN_TYPE_SWITCH (314)
 TOKEN_TYPE_PROCEDURE (315)
 TOKEN_TYPE_STRING (316)
-TOKEN_TYPE_LABEL (317) 146
+TOKEN_TYPE_LABEL (317) 145
 TOKEN_TYPE_VALUE (318)
-TOKEN_ARRAY (319) 35 36 145
+TOKEN_ARRAY (319) 35 36 144
 TOKEN_IMPLY (320) 78
-TOKEN_SEMICOLON (321) 3 4 17 142 151 152 155
+TOKEN_SEMICOLON (321) 3 4 17 141 150 151 154
 TOKEN_LTRSTRING (322)
 TOKEN_RETURN (323) 114
 TOKEN_ASSIGN_IDENTIFIER (324)
@@ -445,7 +442,7 @@ subscriptList (113)
 subscriptExpression (114)
     on left: 72, on right: 41 70 71
 identifier (115)
-    on left: 73, on right: 8 30 40 97 120 127 133 140 141
+    on left: 73, on right: 8 30 40 97 120 127 133 139 140
 booleanExpression (116)
     on left: 74, on right: 38 87 106 116
 simpleBoolean (117)
@@ -469,7 +466,7 @@ relationalOperator (125)
 listType (126)
     on left: 91 92, on right: 92 96
 type (127)
-    on left: 93 94 95, on right: 36 96 144 145 148 158
+    on left: 93 94 95, on right: 36 96 143 144 147 157
 typeDeclaration (128)
     on left: 96, on right: 18
 varIdentifier (129)
@@ -495,11 +492,11 @@ assignmentStatement (138)
 forStatement (139)
     on left: 117, on right: 103 131
 empty (140)
-    on left: 118, on right: 113 137 143 149
+    on left: 118, on right: 113 136 142 148
 procedureStatement (141)
     on left: 119, on right: 111
 procedureIdentifier (142)
-    on left: 120, on right: 119 128 155
+    on left: 120, on right: 119 128 154
 actualParameterPart (143)
     on left: 121 122, on right: 119 128
 actualParameterList (144)
@@ -507,41 +504,39 @@ actualParameterList (144)
 actualParameter (145)
     on left: 125, on right: 123 124
 parameterDelimiter (146)
-    on left: 126 127, on right: 124 136
+    on left: 126 127, on right: 124 135
 functionDesignator (147)
     on left: 128, on right: 59
 statement (148)
-    on left: 129 130 131 132, on right: 16 17 102 117 156
+    on left: 129 130 131 132, on right: 16 17 102 117 155
 formalParameter (149)
-    on left: 133, on right: 134 136
+    on left: 133, on right: 134 135
 formalParameterList (150)
-    on left: 134 136, on right: 136 139
-$@3 (151)
-    on left: 135, on right: 136
-formalParameterPart (152)
-    on left: 137 139, on right: 155
-$@4 (153)
-    on left: 138, on right: 139
-identifierList (154)
-    on left: 140 141, on right: 141 142 151 152
-valuePart (155)
-    on left: 142 143, on right: 155
-specifier (156)
-    on left: 144 145 146 147 148, on right: 151 152
-specificationPart (157)
-    on left: 149 150, on right: 155
-specificationIdentifierList (158)
-    on left: 151 152, on right: 150 152
-procedureHeading (159)
-    on left: 155, on right: 157 158
-@5 (160)
-    on left: 153, on right: 155
-$@6 (161)
-    on left: 154, on right: 155
-procedureBody (162)
-    on left: 156, on right: 157 158
-procedureDeclaration (163)
-    on left: 157 158, on right: 21
+    on left: 134 135, on right: 135 138
+formalParameterPart (151)
+    on left: 136 138, on right: 154
+$@3 (152)
+    on left: 137, on right: 138
+identifierList (153)
+    on left: 139 140, on right: 140 141 150 151
+valuePart (154)
+    on left: 141 142, on right: 154
+specifier (155)
+    on left: 143 144 145 146 147, on right: 150 151
+specificationPart (156)
+    on left: 148 149, on right: 154
+specificationIdentifierList (157)
+    on left: 150 151, on right: 149 151
+procedureHeading (158)
+    on left: 154, on right: 156 157
+@4 (159)
+    on left: 152, on right: 154
+$@5 (160)
+    on left: 153, on right: 154
+procedureBody (161)
+    on left: 155, on right: 156 157
+procedureDeclaration (162)
+    on left: 156 157, on right: 21
 
 
 state 0
@@ -831,7 +826,7 @@ state 20
 
 state 21
 
-  157 procedureDeclaration: TOKEN_PROCEDURE . procedureHeading procedureBody
+  156 procedureDeclaration: TOKEN_PROCEDURE . procedureHeading procedureBody
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
@@ -908,7 +903,7 @@ state 30
 
    36 arrayDeclaration: type . TOKEN_ARRAY arrayList
    96 typeDeclaration: type . listType
-  158 procedureDeclaration: type . TOKEN_PROCEDURE procedureHeading procedureBody
+  157 procedureDeclaration: type . TOKEN_PROCEDURE procedureHeading procedureBody
 
     TOKEN_IDENTIFIER  shift, and go to state 1
     TOKEN_PROCEDURE   shift, and go to state 72
@@ -1356,16 +1351,16 @@ state 63
 
 state 64
 
-  155 procedureHeading: procedureIdentifier . @5 formalParameterPart TOKEN_SEMICOLON $@6 valuePart specificationPart
+  154 procedureHeading: procedureIdentifier . @4 formalParameterPart TOKEN_SEMICOLON $@5 valuePart specificationPart
 
-    $default  reduce using rule 153 (@5)
+    $default  reduce using rule 152 (@4)
 
-    @5  go to state 131
+    @4  go to state 131
 
 
 state 65
 
-  157 procedureDeclaration: TOKEN_PROCEDURE procedureHeading . procedureBody
+  156 procedureDeclaration: TOKEN_PROCEDURE procedureHeading . procedureBody
 
     TOKEN_PRINT       shift, and go to state 33
     TOKEN_IDENTIFIER  shift, and go to state 1
@@ -1457,7 +1452,7 @@ state 71
 
 state 72
 
-  158 procedureDeclaration: type TOKEN_PROCEDURE . procedureHeading procedureBody
+  157 procedureDeclaration: type TOKEN_PROCEDURE . procedureHeading procedureBody
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
@@ -2292,7 +2287,7 @@ state 130
 
 state 131
 
-  155 procedureHeading: procedureIdentifier @5 . formalParameterPart TOKEN_SEMICOLON $@6 valuePart specificationPart
+  154 procedureHeading: procedureIdentifier @4 . formalParameterPart TOKEN_SEMICOLON $@5 valuePart specificationPart
 
     TOKEN_OPEN_BRACKET  shift, and go to state 178
 
@@ -2304,16 +2299,16 @@ state 131
 
 state 132
 
-  156 procedureBody: statement .
+  155 procedureBody: statement .
 
-    $default  reduce using rule 156 (procedureBody)
+    $default  reduce using rule 155 (procedureBody)
 
 
 state 133
 
-  157 procedureDeclaration: TOKEN_PROCEDURE procedureHeading procedureBody .
+  156 procedureDeclaration: TOKEN_PROCEDURE procedureHeading procedureBody .
 
-    $default  reduce using rule 157 (procedureDeclaration)
+    $default  reduce using rule 156 (procedureDeclaration)
 
 
 state 134
@@ -2393,7 +2388,7 @@ state 137
 
 state 138
 
-  158 procedureDeclaration: type TOKEN_PROCEDURE procedureHeading . procedureBody
+  157 procedureDeclaration: type TOKEN_PROCEDURE procedureHeading . procedureBody
 
     TOKEN_PRINT       shift, and go to state 33
     TOKEN_IDENTIFIER  shift, and go to state 1
@@ -3041,23 +3036,23 @@ state 177
 
 state 178
 
-  139 formalParameterPart: TOKEN_OPEN_BRACKET . $@4 formalParameterList TOKEN_CLOSE_BRACKET
+  138 formalParameterPart: TOKEN_OPEN_BRACKET . $@3 formalParameterList TOKEN_CLOSE_BRACKET
 
-    $default  reduce using rule 138 ($@4)
+    $default  reduce using rule 137 ($@3)
 
-    $@4  go to state 212
+    $@3  go to state 212
 
 
 state 179
 
-  137 formalParameterPart: empty .
+  136 formalParameterPart: empty .
 
-    $default  reduce using rule 137 (formalParameterPart)
+    $default  reduce using rule 136 (formalParameterPart)
 
 
 state 180
 
-  155 procedureHeading: procedureIdentifier @5 formalParameterPart . TOKEN_SEMICOLON $@6 valuePart specificationPart
+  154 procedureHeading: procedureIdentifier @4 formalParameterPart . TOKEN_SEMICOLON $@5 valuePart specificationPart
 
     TOKEN_SEMICOLON  shift, and go to state 213
 
@@ -3125,9 +3120,9 @@ state 188
 
 state 189
 
-  158 procedureDeclaration: type TOKEN_PROCEDURE procedureHeading procedureBody .
+  157 procedureDeclaration: type TOKEN_PROCEDURE procedureHeading procedureBody .
 
-    $default  reduce using rule 158 (procedureDeclaration)
+    $default  reduce using rule 157 (procedureDeclaration)
 
 
 state 190
@@ -3400,7 +3395,7 @@ state 211
 
 state 212
 
-  139 formalParameterPart: TOKEN_OPEN_BRACKET $@4 . formalParameterList TOKEN_CLOSE_BRACKET
+  138 formalParameterPart: TOKEN_OPEN_BRACKET $@3 . formalParameterList TOKEN_CLOSE_BRACKET
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
@@ -3411,11 +3406,11 @@ state 212
 
 state 213
 
-  155 procedureHeading: procedureIdentifier @5 formalParameterPart TOKEN_SEMICOLON . $@6 valuePart specificationPart
+  154 procedureHeading: procedureIdentifier @4 formalParameterPart TOKEN_SEMICOLON . $@5 valuePart specificationPart
 
-    $default  reduce using rule 154 ($@6)
+    $default  reduce using rule 153 ($@5)
 
-    $@6  go to state 227
+    $@5  go to state 227
 
 
 state 214
@@ -3586,8 +3581,8 @@ state 225
 
 state 226
 
-  136 formalParameterList: formalParameterList . parameterDelimiter $@3 formalParameter
-  139 formalParameterPart: TOKEN_OPEN_BRACKET $@4 formalParameterList . TOKEN_CLOSE_BRACKET
+  135 formalParameterList: formalParameterList . parameterDelimiter formalParameter
+  138 formalParameterPart: TOKEN_OPEN_BRACKET $@3 formalParameterList . TOKEN_CLOSE_BRACKET
 
     TOKEN_COMMA          shift, and go to state 209
     TOKEN_CLOSE_BRACKET  shift, and go to state 234
@@ -3597,7 +3592,7 @@ state 226
 
 state 227
 
-  155 procedureHeading: procedureIdentifier @5 formalParameterPart TOKEN_SEMICOLON $@6 . valuePart specificationPart
+  154 procedureHeading: procedureIdentifier @4 formalParameterPart TOKEN_SEMICOLON $@5 . valuePart specificationPart
 
     TOKEN_VALUE  shift, and go to state 236
 
@@ -3652,27 +3647,28 @@ state 233
 state 234
 
   127 parameterDelimiter: TOKEN_CLOSE_BRACKET . identifier TOKEN_COLON TOKEN_OPEN_BRACKET
-  139 formalParameterPart: TOKEN_OPEN_BRACKET $@4 formalParameterList TOKEN_CLOSE_BRACKET .
+  138 formalParameterPart: TOKEN_OPEN_BRACKET $@3 formalParameterList TOKEN_CLOSE_BRACKET .
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
-    $default  reduce using rule 139 (formalParameterPart)
+    $default  reduce using rule 138 (formalParameterPart)
 
     identifier  go to state 222
 
 
 state 235
 
-  136 formalParameterList: formalParameterList parameterDelimiter . $@3 formalParameter
+  135 formalParameterList: formalParameterList parameterDelimiter . formalParameter
 
-    $default  reduce using rule 135 ($@3)
+    TOKEN_IDENTIFIER  shift, and go to state 1
 
-    $@3  go to state 241
+    identifier       go to state 224
+    formalParameter  go to state 241
 
 
 state 236
 
-  142 valuePart: TOKEN_VALUE . identifierList TOKEN_SEMICOLON
+  141 valuePart: TOKEN_VALUE . identifierList TOKEN_SEMICOLON
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
@@ -3682,14 +3678,14 @@ state 236
 
 state 237
 
-  143 valuePart: empty .
+  142 valuePart: empty .
 
-    $default  reduce using rule 143 (valuePart)
+    $default  reduce using rule 142 (valuePart)
 
 
 state 238
 
-  155 procedureHeading: procedureIdentifier @5 formalParameterPart TOKEN_SEMICOLON $@6 valuePart . specificationPart
+  154 procedureHeading: procedureIdentifier @4 formalParameterPart TOKEN_SEMICOLON $@5 valuePart . specificationPart
 
     TOKEN_SWITCH        shift, and go to state 244
     TOKEN_TYPE_INTEGER  shift, and go to state 23
@@ -3744,84 +3740,81 @@ state 240
 
 state 241
 
-  136 formalParameterList: formalParameterList parameterDelimiter $@3 . formalParameter
+  135 formalParameterList: formalParameterList parameterDelimiter formalParameter .
 
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    identifier       go to state 224
-    formalParameter  go to state 252
+    $default  reduce using rule 135 (formalParameterList)
 
 
 state 242
 
-  140 identifierList: identifier .
+  139 identifierList: identifier .
 
-    $default  reduce using rule 140 (identifierList)
+    $default  reduce using rule 139 (identifierList)
 
 
 state 243
 
-  141 identifierList: identifierList . TOKEN_COMMA identifier
-  142 valuePart: TOKEN_VALUE identifierList . TOKEN_SEMICOLON
+  140 identifierList: identifierList . TOKEN_COMMA identifier
+  141 valuePart: TOKEN_VALUE identifierList . TOKEN_SEMICOLON
 
-    TOKEN_COMMA      shift, and go to state 253
-    TOKEN_SEMICOLON  shift, and go to state 254
+    TOKEN_COMMA      shift, and go to state 252
+    TOKEN_SEMICOLON  shift, and go to state 253
 
 
 state 244
 
-  147 specifier: TOKEN_SWITCH .
-
-    $default  reduce using rule 147 (specifier)
-
-
-state 245
-
-  146 specifier: TOKEN_TYPE_LABEL .
+  146 specifier: TOKEN_SWITCH .
 
     $default  reduce using rule 146 (specifier)
 
 
+state 245
+
+  145 specifier: TOKEN_TYPE_LABEL .
+
+    $default  reduce using rule 145 (specifier)
+
+
 state 246
 
-  144 specifier: type .
-  145          | type . TOKEN_ARRAY
-  148          | type . TOKEN_PROCEDURE
+  143 specifier: type .
+  144          | type . TOKEN_ARRAY
+  147          | type . TOKEN_PROCEDURE
 
-    TOKEN_PROCEDURE  shift, and go to state 255
-    TOKEN_ARRAY      shift, and go to state 256
+    TOKEN_PROCEDURE  shift, and go to state 254
+    TOKEN_ARRAY      shift, and go to state 255
 
-    $default  reduce using rule 144 (specifier)
+    $default  reduce using rule 143 (specifier)
 
 
 state 247
 
-  149 specificationPart: empty .
+  148 specificationPart: empty .
 
-    $default  reduce using rule 149 (specificationPart)
+    $default  reduce using rule 148 (specificationPart)
 
 
 state 248
 
-  151 specificationIdentifierList: specifier . identifierList TOKEN_SEMICOLON
+  150 specificationIdentifierList: specifier . identifierList TOKEN_SEMICOLON
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
     identifier      go to state 242
-    identifierList  go to state 257
+    identifierList  go to state 256
 
 
 state 249
 
-  155 procedureHeading: procedureIdentifier @5 formalParameterPart TOKEN_SEMICOLON $@6 valuePart specificationPart .
+  154 procedureHeading: procedureIdentifier @4 formalParameterPart TOKEN_SEMICOLON $@5 valuePart specificationPart .
 
-    $default  reduce using rule 155 (procedureHeading)
+    $default  reduce using rule 154 (procedureHeading)
 
 
 state 250
 
-  150 specificationPart: specificationIdentifierList .
-  152 specificationIdentifierList: specificationIdentifierList . specifier identifierList TOKEN_SEMICOLON
+  149 specificationPart: specificationIdentifierList .
+  151 specificationIdentifierList: specificationIdentifierList . specifier identifierList TOKEN_SEMICOLON
 
     TOKEN_SWITCH        shift, and go to state 244
     TOKEN_TYPE_INTEGER  shift, and go to state 23
@@ -3829,76 +3822,69 @@ state 250
     TOKEN_TYPE_BOOLEAN  shift, and go to state 25
     TOKEN_TYPE_LABEL    shift, and go to state 245
 
-    $default  reduce using rule 150 (specificationPart)
+    $default  reduce using rule 149 (specificationPart)
 
     type       go to state 246
-    specifier  go to state 258
+    specifier  go to state 257
 
 
 state 251
 
   117 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression . TOKEN_DO statement
 
-    TOKEN_DO  shift, and go to state 259
+    TOKEN_DO  shift, and go to state 258
 
 
 state 252
 
-  136 formalParameterList: formalParameterList parameterDelimiter $@3 formalParameter .
+  140 identifierList: identifierList TOKEN_COMMA . identifier
 
-    $default  reduce using rule 136 (formalParameterList)
+    TOKEN_IDENTIFIER  shift, and go to state 1
+
+    identifier  go to state 259
 
 
 state 253
 
-  141 identifierList: identifierList TOKEN_COMMA . identifier
+  141 valuePart: TOKEN_VALUE identifierList TOKEN_SEMICOLON .
 
-    TOKEN_IDENTIFIER  shift, and go to state 1
-
-    identifier  go to state 260
+    $default  reduce using rule 141 (valuePart)
 
 
 state 254
 
-  142 valuePart: TOKEN_VALUE identifierList TOKEN_SEMICOLON .
+  147 specifier: type TOKEN_PROCEDURE .
 
-    $default  reduce using rule 142 (valuePart)
+    $default  reduce using rule 147 (specifier)
 
 
 state 255
 
-  148 specifier: type TOKEN_PROCEDURE .
+  144 specifier: type TOKEN_ARRAY .
 
-    $default  reduce using rule 148 (specifier)
+    $default  reduce using rule 144 (specifier)
 
 
 state 256
 
-  145 specifier: type TOKEN_ARRAY .
+  140 identifierList: identifierList . TOKEN_COMMA identifier
+  150 specificationIdentifierList: specifier identifierList . TOKEN_SEMICOLON
 
-    $default  reduce using rule 145 (specifier)
+    TOKEN_COMMA      shift, and go to state 252
+    TOKEN_SEMICOLON  shift, and go to state 260
 
 
 state 257
 
-  141 identifierList: identifierList . TOKEN_COMMA identifier
-  151 specificationIdentifierList: specifier identifierList . TOKEN_SEMICOLON
-
-    TOKEN_COMMA      shift, and go to state 253
-    TOKEN_SEMICOLON  shift, and go to state 261
-
-
-state 258
-
-  152 specificationIdentifierList: specificationIdentifierList specifier . identifierList TOKEN_SEMICOLON
+  151 specificationIdentifierList: specificationIdentifierList specifier . identifierList TOKEN_SEMICOLON
 
     TOKEN_IDENTIFIER  shift, and go to state 1
 
     identifier      go to state 242
-    identifierList  go to state 262
+    identifierList  go to state 261
 
 
-state 259
+state 258
 
   117 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO . statement
 
@@ -3939,41 +3925,41 @@ state 259
     empty                     go to state 57
     procedureStatement        go to state 58
     procedureIdentifier       go to state 59
-    statement                 go to state 263
+    statement                 go to state 262
+
+
+state 259
+
+  140 identifierList: identifierList TOKEN_COMMA identifier .
+
+    $default  reduce using rule 140 (identifierList)
 
 
 state 260
 
-  141 identifierList: identifierList TOKEN_COMMA identifier .
+  150 specificationIdentifierList: specifier identifierList TOKEN_SEMICOLON .
 
-    $default  reduce using rule 141 (identifierList)
+    $default  reduce using rule 150 (specificationIdentifierList)
 
 
 state 261
 
-  151 specificationIdentifierList: specifier identifierList TOKEN_SEMICOLON .
+  140 identifierList: identifierList . TOKEN_COMMA identifier
+  151 specificationIdentifierList: specificationIdentifierList specifier identifierList . TOKEN_SEMICOLON
 
-    $default  reduce using rule 151 (specificationIdentifierList)
+    TOKEN_COMMA      shift, and go to state 252
+    TOKEN_SEMICOLON  shift, and go to state 263
 
 
 state 262
-
-  141 identifierList: identifierList . TOKEN_COMMA identifier
-  152 specificationIdentifierList: specificationIdentifierList specifier identifierList . TOKEN_SEMICOLON
-
-    TOKEN_COMMA      shift, and go to state 253
-    TOKEN_SEMICOLON  shift, and go to state 264
-
-
-state 263
 
   117 forStatement: TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement .
 
     $default  reduce using rule 117 (forStatement)
 
 
-state 264
+state 263
 
-  152 specificationIdentifierList: specificationIdentifierList specifier identifierList TOKEN_SEMICOLON .
+  151 specificationIdentifierList: specificationIdentifierList specifier identifierList TOKEN_SEMICOLON .
 
-    $default  reduce using rule 152 (specificationIdentifierList)
+    $default  reduce using rule 151 (specificationIdentifierList)

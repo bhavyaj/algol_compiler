@@ -8,6 +8,6 @@ begin
 	b[i-3,j] := 6;
 	print i;
 	print a[2,3];
-	print b[1,1];
+	print b[i-3,1];
 	print j;
 end

@@ -10,7 +10,7 @@ int globalLevel=0;
 extern int yylval;
 extern char* yytext;
 int numOfErrors=0;
-
+int paramBelu = 0;
 int scopeStack[100];
 int scopeStackTop = 0;
 
@@ -19,7 +19,7 @@ int tableStackTop=0;
 
 void push(int num){
 	if(scopeStackTop<100){
-		scopeStackTop = num;
+		scopeStack[scopeStackTop] = num;
 		scopeStackTop++;
 	}
 	else{
@@ -406,9 +406,10 @@ program :
 		Node* tempNode = $1;
 		strcpy(newNode->code,tempNode->code);
 		strcpy(code,newNode->code);
-		symbolTableDisplay(0);
-		symbolTableDisplay(1);
-		symbolTableDisplay(2);
+		int i;
+		for(i=0; i <= globalLevel; i++){
+			symbolTableDisplay(i);
+		}
 		$$=newNode;
 	}
 	
@@ -419,9 +420,10 @@ program :
 		Node* tempNode = $1;
 		strcpy(newNode->code,tempNode->code);
 		strcpy(code,newNode->code);
-		symbolTableDisplay(0);
-		symbolTableDisplay(1);
-		symbolTableDisplay(2);
+		int i;
+		for(i=0; i <= globalLevel; i++){
+			symbolTableDisplay(i);
+		}
 		$$=newNode;
 	}
 	
@@ -773,7 +775,16 @@ expression :
 	};
 
 switchIdentifier :
-	identifier
+	identifier{
+		Node *newNode = createNode();
+		newNode->type= switchIdentifier;
+		newNode->pt0=$1;
+		Node* tempNode = $1;
+		strcpy(newNode->identLex,tempNode->identLex);
+
+		$$=newNode;
+		printf("switchIdent->Identifier\n");
+	}
 	;
 
 switchDesignator :
@@ -2422,9 +2433,8 @@ procedureIdentifier :
 		Node *new = createNode(); 
 		new->type = procedureIdentifier;
 		new->pt0 = $1;
-	
 		Node *temp=$1;
-
+		strcpy(new->identLex,temp->identLex);
 		$$ = new;
 	}
 	;
@@ -2565,14 +2575,12 @@ formalParameter :
 		currentScope = oldScope;
 		printf("formalParmeter->identifer\n");
 		$$ = $1;
+		paramBelu++;
 	};
 	
 formalParameterList :
-	formalParameter{
-		$$ = 1;
-	}
+	formalParameter
 	| formalParameterList parameterDelimiter formalParameter{   ////check/////
-		$$ = (int)$1 + (int)$3;
 		printf("formalParmeterlist->formalParmeter\n");	
 	}
 	;
@@ -2591,22 +2599,44 @@ identifierList :
 	identifier {
 		Node *node1 = $0;
 		Node *node2 = $1;
-		currentScope = scopeStack[scopeStackTop-1];
-		printf("indenlist->ident\n");
+		int oldLevel = currentScope;
+		currentScope = globalLevel + 1;
+		printf("identlist->ident\n");
 		Symbol *symbol1=lookUp(node2->identLex,currentScope);
-		if(symbol1==NULL)
+		if(symbol1 != NULL)
 		{
-			Symbol *symbol=addEntry(node2->identLex);
-			symbol->type=node1->semTypeDef;		
+			symbol1->type=node1->semTypeDef;		
 		}
 		else{
-			symbol1->type = node1->semTypeDef;
+			printf("error!%s is absent from formal paramater",node2->identLex);
+			//symbol1->type = node1->semTypeDef;
 		}
+		currentScope = oldLevel;
+		paramBelu--;
+		$$ = node1;
+		
 	}
 
 	| identifierList TOKEN_COMMA identifier{
-		$2 = $0;
-		printf("indenlist ->identlist , ident\n");
+		Node *node1 = $1;
+		Node *node2 = $3;
+		int oldLevel = currentScope;
+		currentScope = globalLevel + 1;
+		printf("identlist->ident\n");
+		Symbol *symbol1=lookUp(node2->identLex,currentScope);
+		if(symbol1 != NULL)
+		{
+			symbol1->type=node1->semTypeDef;		
+		}
+		else{
+			printf("error!%s is absent from formal paramater",node2->identLex);
+			//symbol1->type = node1->semTypeDef;
+		}
+		currentScope = oldLevel;
+		printf("identlist ->identlist , ident\n");
+		paramBelu--;
+		$$ = node1;
+
 	};
 
 valuePart :  TOKEN_VALUE identifierList TOKEN_SEMICOLON{
@@ -2626,13 +2656,14 @@ specificationPart : empty
 	| specificationIdentifierList;
 
 specificationIdentifierList : specifier identifierList TOKEN_SEMICOLON{
-		//$3 = $0;
 		Node *node1 = $1;
 		printf("specificationidentlist->specifier identlist ;\n");
+
 	}
 	| specificationIdentifierList specifier identifierList TOKEN_SEMICOLON
 	{
 		printf("specificationidentlist->specificationidentlist specifier identlist ;\n");
+
 	};
 
 procedureHeading :
@@ -2649,8 +2680,11 @@ procedureHeading :
 		}
 		$$ = node;
 	} formalParameterPart TOKEN_SEMICOLON {
+		printf("the belu number of parameters defined is %d\n",paramBelu);
 		$3 = $1;
-	} valuePart specificationPart
+	} valuePart specificationPart{
+		printf("the belu number of parameters defined is %d\n",paramBelu);
+	}
 	;
 
 procedureBody :
@@ -2683,6 +2717,9 @@ procedureDeclaration :
 			node->semTypeDef = storeError;
 		$$ = node;
 		printf("procedureDeclaration -> procedure heading body");
+		if (paramBelu != 0)
+			printf("Error. too many or too few specifications\n");
+		paramBelu = 0;
 	}
 	| type TOKEN_PROCEDURE procedureHeading procedureBody
 	{
@@ -2703,6 +2740,9 @@ procedureDeclaration :
 			node->semTypeDef = storeError;
 		$$ = node;
 		printf("proceduredeclaration -> type procedure heading body\n");
+		if (paramBelu != 0)
+			printf("Error. too many or too few specifications\n");
+		paramBelu = 0;
 	};
 
 
@@ -2725,7 +2765,7 @@ int main(int argc, char* argv[])
 		;
 	}
 	strcat(code,"jr\t$ra");
-	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"the result is = \"");
+	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n the result is = \"");
 	printf("%s",code);
 	FILE* fp1 = fopen("code1.asm","w");
 	fprintf(fp1,"%s",code);

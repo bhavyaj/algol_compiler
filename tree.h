@@ -59,7 +59,8 @@ enum tag{TOKEN_ID,//TOKEN_SEPARATOR,
 	procedureBody,
 	procedureDeclaration,
 	actualParameter,
-	procedureHeading
+	procedureHeading,
+	switchIdentifier
 
 };
 typedef struct{
