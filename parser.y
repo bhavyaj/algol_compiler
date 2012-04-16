@@ -10,17 +10,25 @@ int globalLevel=0;
 extern int yylval;
 extern char* yytext;
 int numOfErrors=0;
-
+int currentGlobalOffset=0;/////check////////
 int scopeStack[100];
 int scopeStackTop = 0;
-
+SymbolTable symbolTable[1000];
+int tempNodeScope;
+int currentScope;
+int currentLabel = 0;
+char code[99999];
 int scopeId = 0;
 int tableStackTop=0;
 
 void push(int num){
 	if(scopeStackTop<100){
-		scopeStackTop = num;
+		
+
+		scopeStack[scopeStackTop] = num;
 		scopeStackTop++;
+		symbolTable[scopeStackTop].parent = currentScope;
+		printf("#######pushed parent %d and stack Top is %d ############\n",symbolTable[scopeStackTop].parent,symbolTable[scopeStackTop-1]);
 	}
 	else{
 		printf("Scope stack overflow\n");
@@ -42,11 +50,7 @@ extern int yylex();
 extern int lineNo ; 
 int yylval;
 extern char* yytext;
-SymbolTable symbolTable[1000];
-int tempNodeScope;
-int currentScope;
-int currentLabel = 0;
-char code[99999];
+
 extern FILE *yyin;
 
 
@@ -73,8 +77,10 @@ Symbol* lookUp(char *lexm,int scope){
 		tempNodeScope = -1;
 		return NULL;
 	}
-	else
+	else{
+		printf("############### HERE IS THE PARENT = %d for scope %d ###############\n",symbolTable[scope].parent,scope);
 		return lookUp(lexm,symbolTable[scope].parent);
+	}
 }
 
 
@@ -142,6 +148,9 @@ void symbolTableDisplay(int scope){
 		if (entry->offset || entry->offset==0)	
 			printf("offset: %d\n",entry->offset);
 		entry = entry->next;
+	}
+	for(i=0;i<=globalLevel;i++){
+		printf("scope stack value[%d] = %d stackTop = %d\n",i,scopeStack[i],scopeStackTop);
 	}
 }
 
@@ -442,8 +451,6 @@ unlabelledCompound :
 	}
 	;
 
-//tbegin: TOKEN_BEGIN;
-
 compoundStatement :
 	unlabelledCompound
 	{
@@ -467,6 +474,7 @@ compoundTail :
 		newNode->pt0 = $1;
 		Node* tempNode = $1;
 		strcpy(newNode->code, tempNode->code);
+		currentScope = scopeStack[scopeStackTop-1];
 		$$ = newNode;
 	}	
 	|
@@ -556,8 +564,8 @@ boundPair :
 	lowerBound TOKEN_COLON upperBound
 	{
 		Node* newNode = createNode();         	  
-    		newNode->type = boundPair;
-    		newNode->pt0 = $1;
+    	newNode->type = boundPair;
+    	newNode->pt0 = $1;
 		newNode->pt2 = $3;
 		Node* tempNodeOne = $1;
 		Node* tempNodeTwo = $3;
@@ -596,7 +604,7 @@ boundPairList :
 	{
 		Node* newNode = createNode();
 		newNode->type = boundPairList;
-        	newNode->pt0 = $1;
+        newNode->pt0 = $1;
 		newNode->pt2 = $3;
 		Node* tempNodeOne = $1;
 		Node* tempNodeTwo = $3;
@@ -1108,6 +1116,8 @@ primary :
 // do type checking and proper lookup
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol* foundEntry = lookUp(tempNode->identLex,currentScope);
+		printf("******************HERE IT IS**************\n");
+		printf("**********************found entry %s, tempNode lexeme %s******************\n",foundEntry->lexeme,tempNode->identLex);
 		if (foundEntry)
 		{	
 			newNode->intValue =  foundEntry->value;
@@ -1777,8 +1787,8 @@ listType :
 			printf("belu else\n");			
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			newEntry->offset=symbolTable[currentScope].currentOffset;
-			symbolTable[currentScope].currentOffset-=4;
+			newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
+			currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
 			printf("belu semtypedef : %d\n", newEntry->type);	
 			$$=$0;			
 
@@ -1798,8 +1808,8 @@ listType :
 		else{
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			newEntry->offset=symbolTable[currentScope].currentOffset;
-			symbolTable[currentScope].currentOffset-=4;
+			newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
+			currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
 		}
 		$$=$0;
 
@@ -2725,7 +2735,7 @@ int main(int argc, char* argv[])
 		;
 	}
 	strcat(code,"jr\t$ra");
-	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"the result is = \"");
+	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n the result is = \"");
 	printf("%s",code);
 	FILE* fp1 = fopen("code1.asm","w");
 	fprintf(fp1,"%s",code);

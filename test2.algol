@@ -5,4 +5,7 @@ integer procedure abc(a,b); integer a,b; integer c;
 		a:=4;
 		b:=6;
 	end;
+	integer a,b;
+		a:=4;
+		b:=6;
 end

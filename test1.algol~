@@ -5,4 +5,5 @@ begin integer s,r,k,j,i;
 	j := 4;
 	i := s-r;
 	k := i * j;
+	print k;
 end
