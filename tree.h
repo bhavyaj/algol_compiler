@@ -70,7 +70,8 @@ typedef struct{
 	bool boolValue;
 	char *identLex;
 	int semTypeDef;
-	int dim;	// to keep track of dimension in grammar definition
+	int dim;
+	int isArray;	
 	int lowerBound[20];
 	int upperBound[20];
 	char code[99999];

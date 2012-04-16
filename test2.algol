@@ -1,8 +1,8 @@
 main:
-begin integer i,j,k;
-	i := -1;
-	j := 4;
-	k := 2;
-	if i>0 | i<2 then i:=j+k;
-	print i;
+begin 
+integer procedure abc(a,b); integer a,b; integer c;
+	begin;
+		a:=4;
+		b:=6;
+	end;
 end

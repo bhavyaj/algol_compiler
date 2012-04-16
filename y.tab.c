@@ -117,7 +117,7 @@ SymbolTable symbolTable[1000];
 int tempNodeScope;
 int currentScope;
 int currentLabel = 0;
-char code[10000];
+char code[99999];
 extern FILE *yyin;
 
 
@@ -187,6 +187,7 @@ Symbol* addEntry(char *lexm){
 }
 void symbolTableDisplay(int scope){
 	Symbol *entry = symbolTable[scope].head;
+	int i;
 	printf("Symbol Table Scope %d\n",scope);
 	while (entry !=NULL){
 		if (entry->lexeme != NULL)	
@@ -203,7 +204,10 @@ void symbolTableDisplay(int scope){
 		if (entry->boolean != NULL)	
 			printf("boolean: %d\n",entry->boolean); 
 		if (entry->dim != NULL)	
-			printf("dim: %s\n",entry->dim);
+			printf("dim: %d\n",entry->dim);
+			for(i=0;i<entry->dim;i++){
+				printf("lower: %d, upper: %d\n",entry->lowerBound[i],entry->upperBound[i]);
+			}
 		if (entry->type || entry->type==0)	
 			printf("type: %d\n",entry->type);
 		if (entry->offset || entry->offset==0)	
@@ -246,7 +250,7 @@ int yywrap()
 
 
 /* Line 189 of yacc.c  */
-#line 250 "y.tab.c"
+#line 254 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -434,7 +438,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 438 "y.tab.c"
+#line 442 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -649,7 +653,7 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  20
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   397
+#define YYLAST   408
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  74
@@ -658,7 +662,7 @@ union yyalloc
 /* YYNRULES -- Number of rules.  */
 #define YYNRULES  159
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  268
+#define YYNSTATES  265
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -725,7 +729,7 @@ static const yytype_uint16 yyprhs[] =
      334,   337,   339,   342,   346,   348,   352,   354,   356,   361,
      364,   366,   368,   370,   373,   375,   377,   378,   383,   385,
      386,   391,   393,   397,   401,   403,   405,   408,   410,   412,
-     415,   417,   419,   423,   428,   429,   430,   438,   443,   447
+     415,   417,   419,   423,   428,   429,   430,   438,   440,   444
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -774,30 +778,29 @@ static const yytype_int16 yyrhs[] =
       -1,   140,    -1,   127,    -1,   127,    64,    -1,    62,    -1,
       51,    -1,   127,    10,    -1,   140,    -1,   158,    -1,   156,
      154,    66,    -1,   158,   156,   154,    66,    -1,    -1,    -1,
-     142,   160,   152,    66,   161,   155,   157,    -1,     5,    66,
-     148,     6,    -1,    10,   159,   162,    -1,   127,    10,   159,
-     162,    -1
+     142,   160,   152,    66,   161,   155,   157,    -1,   148,    -1,
+      10,   159,   162,    -1,   127,    10,   159,   162,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   301,   301,   300,   309,   316,   326,   336,   372,   380,
-     386,   395,   407,   423,   423,   438,   445,   451,   461,   475,
-     480,   485,   489,   496,   514,   515,   519,   522,   540,   560,
-     573,   595,   608,   622,   639,   657,   677,   679,   686,   698,
-     710,   716,   720,   723,   724,   725,   728,   729,   732,   769,
-     784,   799,   817,   856,   891,   906,   939,   981,   997,  1022,
-    1038,  1041,  1067,  1083,  1098,  1114,  1125,  1137,  1155,  1171,
-    1187,  1215,  1231,  1250,  1264,  1282,  1320,  1334,  1352,  1365,
-    1386,  1398,  1418,  1430,  1450,  1462,  1481,  1507,  1519,  1532,
-    1549,  1664,  1673,  1699,  1723,  1733,  1744,  1763,  1771,  1790,
-    1805,  1817,  1833,  1848,  1868,  1890,  1894,  1920,  1941,  1957,
-    1961,  1975,  1989,  2002,  2009,  2013,  2031,  2063,  2269,  2310,
-    2318,  2348,  2360,  2361,  2374,  2389,  2412,  2426,  2427,  2430,
-    2433,  2443,  2453,  2461,  2479,  2494,  2495,  2495,  2502,  2505,
-    2505,  2510,  2517,  2521,  2524,  2526,  2527,  2528,  2529,  2530,
-    2532,  2533,  2535,  2539,  2542,  2554,  2542,  2559,  2571,  2589
+       0,   305,   305,   304,   313,   320,   330,   340,   376,   385,
+     392,   402,   415,   432,   432,   448,   457,   463,   473,   487,
+     492,   497,   501,   508,   528,   529,   533,   536,   556,   579,
+     595,   619,   632,   664,   698,   718,   738,   740,   746,   758,
+     770,   776,   780,   783,   784,   785,   788,   789,   792,   829,
+     844,   859,   877,   916,   951,   966,   999,  1041,  1057,  1082,
+    1098,  1101,  1133,  1149,  1164,  1180,  1191,  1203,  1221,  1237,
+    1255,  1298,  1318,  1340,  1355,  1373,  1411,  1425,  1443,  1456,
+    1477,  1489,  1509,  1521,  1541,  1553,  1572,  1598,  1610,  1623,
+    1640,  1755,  1764,  1790,  1814,  1824,  1835,  1845,  1853,  1872,
+    1884,  1895,  1908,  1921,  1938,  1958,  1962,  1987,  2008,  2021,
+    2025,  2036,  2050,  2063,  2070,  2074,  2092,  2130,  2341,  2382,
+    2390,  2420,  2432,  2433,  2447,  2462,  2485,  2499,  2500,  2503,
+    2506,  2516,  2526,  2534,  2552,  2569,  2571,  2571,  2579,  2582,
+    2582,  2589,  2605,  2610,  2613,  2615,  2618,  2619,  2620,  2621,
+    2623,  2624,  2626,  2631,  2637,  2649,  2637,  2655,  2667,  2685
 };
 #endif
 
@@ -908,7 +911,7 @@ static const yytype_uint8 yyr2[] =
        2,     1,     2,     3,     1,     3,     1,     1,     4,     2,
        1,     1,     1,     2,     1,     1,     0,     4,     1,     0,
        4,     1,     3,     3,     1,     1,     2,     1,     1,     2,
-       1,     1,     3,     4,     0,     0,     7,     4,     3,     4
+       1,     1,     3,     4,     0,     0,     7,     1,     3,     4
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -922,89 +925,89 @@ static const yytype_uint8 yydefact[] =
        0,    19,    22,     0,     0,     0,     0,   101,   119,   100,
       14,     0,    68,     0,    69,     9,    67,   130,   131,   102,
      119,    99,   108,   111,   113,   110,   132,   114,   112,     0,
-       0,     5,     4,   121,   154,     0,     0,    41,     0,    34,
+       0,     5,     4,   121,   154,   119,     0,    41,     0,    34,
       36,    31,     0,     0,    98,    97,    92,    89,     0,     0,
        0,    65,     0,    43,   133,     0,    44,    46,    40,    38,
       48,    49,    54,    57,    59,    63,    64,    61,    98,    39,
       75,    76,    78,    80,    82,    84,    86,    87,     0,     0,
       60,     0,    31,     0,     0,    64,    98,     0,   115,   105,
      109,     0,     0,   119,   119,   106,   104,     0,   120,    17,
-     119,   119,     0,   158,     0,     0,     0,     0,     0,    37,
+     119,   119,   157,   158,     0,     0,     0,     0,   119,    37,
        0,     0,    50,    51,     0,     0,     0,    85,     0,     0,
        0,    91,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     9,   129,     0,   107,    73,    48,     0,    71,
      116,   117,   103,   122,   126,     0,   124,    18,   139,   138,
-       0,   119,    26,    24,    33,     0,    29,     0,    23,    35,
-     159,    93,    45,    62,    88,     0,    52,    53,    90,    56,
-      55,    58,    77,    79,    81,    83,     0,     0,     0,    70,
-     127,   123,     0,     0,   155,     0,     0,     0,     0,    32,
-      42,    47,     0,    72,     0,   125,   134,   135,     0,   119,
-     157,    25,    28,    27,    30,     0,     0,   140,   136,     0,
-     144,   119,     0,   128,     0,   141,     0,   148,   147,   145,
-     150,     0,   156,   151,     0,   137,     0,   143,   149,   146,
-       0,     0,   119,   142,   152,     0,   118,   153
+       0,    26,    24,    33,     0,    29,     0,    23,    35,   159,
+      93,    45,    62,    88,     0,    52,    53,    90,    56,    55,
+      58,    77,    79,    81,    83,     0,     0,     0,    70,   127,
+     123,     0,     0,   155,     0,     0,     0,    32,    42,    47,
+       0,    72,     0,   125,   134,   135,     0,   119,    25,    28,
+      27,    30,     0,     0,   140,   136,     0,   144,   119,     0,
+     128,     0,   141,     0,   148,   147,   145,   150,     0,   156,
+     151,     0,   137,     0,   143,   149,   146,     0,     0,   119,
+     142,   152,     0,   118,   153
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
       -1,     4,    14,     5,    37,    83,     8,     9,    10,    15,
-      39,    40,    27,   185,   182,    28,   232,   186,   187,    41,
+      39,    40,    27,   184,   181,    28,   229,   185,   186,    41,
       69,    70,    29,   174,    85,    86,    87,    88,    89,   167,
       91,    92,    93,    94,    95,   115,    42,    97,    44,   168,
      169,   116,    99,   100,   101,   102,   103,   104,   105,   106,
      107,   152,    75,    30,    31,    46,    47,    48,    49,   108,
       51,    52,    53,    54,    55,    56,    57,    58,   109,   128,
-     175,   176,   212,   110,    60,   227,   228,   244,   180,   213,
-     246,   241,   251,   252,   253,    65,   131,   229,   133,    32
+     175,   176,   211,   110,    60,   225,   226,   241,   180,   212,
+     243,   238,   248,   249,   250,    65,   131,   227,   133,    32
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -193
+#define YYPACT_NINF -190
 static const yytype_int16 yypact[] =
 {
-     109,  -193,   134,  -193,   -52,  -193,  -193,   109,    -7,    32,
-    -193,  -193,  -193,  -193,   245,   216,   263,  -193,  -193,  -193,
-    -193,    43,    43,  -193,  -193,  -193,    43,  -193,  -193,  -193,
-      75,  -193,  -193,   341,    43,   356,   341,  -193,    78,  -193,
-    -193,    30,  -193,   -14,  -193,    31,  -193,  -193,  -193,    21,
-     158,  -193,  -193,  -193,  -193,  -193,  -193,  -193,  -193,    46,
-      11,  -193,  -193,  -193,  -193,   101,    22,  -193,    89,  -193,
-     125,  -193,    43,    43,  -193,   143,  -193,  -193,   189,   189,
-     341,  -193,   367,  -193,  -193,   157,  -193,  -193,  -193,  -193,
-     164,   137,   174,  -193,  -193,  -193,   162,  -193,   260,  -193,
-     159,   138,   169,   193,  -193,  -193,  -193,  -193,    72,    46,
-    -193,   156,   163,   356,   164,  -193,   220,   199,  -193,  -193,
-    -193,   242,   356,   216,    41,  -193,  -193,   318,  -193,  -193,
-     216,   217,   186,  -193,   175,    43,   242,    43,   101,   125,
-      43,   242,   137,   137,   235,   243,   247,  -193,   242,   189,
-     189,  -193,   242,   189,   189,   189,   356,   356,   356,   356,
-     175,   224,   255,  -193,   242,  -193,  -193,   203,   141,  -193,
-    -193,  -193,  -193,  -193,  -193,    80,  -193,  -193,  -193,  -193,
-     221,   216,   266,  -193,  -193,   258,  -193,   145,  -193,  -193,
-    -193,  -193,  -193,  -193,  -193,   265,   137,   137,   203,   174,
-     174,  -193,   138,   169,   193,  -193,   175,   249,   242,  -193,
-    -193,    43,   341,    43,  -193,   283,   175,   242,   242,  -193,
-    -193,  -193,   242,  -193,   267,  -193,  -193,  -193,   148,   241,
-    -193,  -193,  -193,  -193,  -193,   251,   278,    43,  -193,    43,
-    -193,   287,   242,  -193,    43,  -193,    53,  -193,  -193,    17,
-    -193,    43,  -193,   287,   261,  -193,    43,  -193,  -193,  -193,
-      59,    43,   216,  -193,  -193,    76,  -193,  -193
+     145,  -190,   229,  -190,   -61,  -190,  -190,   145,   -21,    46,
+    -190,  -190,  -190,  -190,   239,   165,   271,  -190,  -190,  -190,
+    -190,    10,    10,  -190,  -190,  -190,    10,  -190,  -190,  -190,
+      43,  -190,  -190,   352,    10,   367,   352,  -190,   152,  -190,
+    -190,    52,  -190,    -6,  -190,    67,  -190,  -190,  -190,    34,
+     175,  -190,  -190,  -190,  -190,  -190,  -190,  -190,  -190,    76,
+      17,  -190,  -190,  -190,  -190,   165,    30,  -190,    55,  -190,
+      98,  -190,    10,    10,  -190,   103,  -190,  -190,   223,   223,
+     352,  -190,   378,  -190,  -190,   101,  -190,  -190,  -190,  -190,
+      81,   227,   128,  -190,  -190,  -190,   143,  -190,   194,  -190,
+     160,   144,   176,   182,  -190,  -190,  -190,  -190,   132,    76,
+    -190,   153,   156,   367,    81,  -190,   240,   207,  -190,  -190,
+    -190,   243,   367,   165,    14,  -190,  -190,   329,  -190,  -190,
+     165,   244,  -190,  -190,   178,    10,   243,    10,   165,    98,
+      10,   243,   227,   227,   238,   248,   256,  -190,   243,   223,
+     223,  -190,   243,   223,   223,   223,   367,   367,   367,   367,
+     178,   232,   262,  -190,   243,  -190,  -190,   190,   117,  -190,
+    -190,  -190,  -190,  -190,  -190,   171,  -190,  -190,  -190,  -190,
+     231,   273,  -190,  -190,   268,  -190,   172,  -190,  -190,  -190,
+    -190,  -190,  -190,  -190,   275,   227,   227,   190,   128,   128,
+    -190,   144,   176,   182,  -190,   178,   259,   243,  -190,  -190,
+      10,   352,    10,  -190,   178,   243,   243,  -190,  -190,  -190,
+     243,  -190,   269,  -190,  -190,  -190,   181,   250,  -190,  -190,
+    -190,  -190,   264,   285,    10,  -190,    10,  -190,   253,   243,
+    -190,    10,  -190,    40,  -190,  -190,    41,  -190,    10,  -190,
+     253,   274,  -190,    10,  -190,  -190,  -190,    63,    10,   165,
+    -190,  -190,    65,  -190,  -190
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -193,  -193,  -193,  -193,     4,    48,  -193,  -193,  -193,  -193,
-       5,   -15,   291,  -193,  -193,  -193,  -193,    95,  -193,   -17,
-     123,   244,  -193,   150,   293,  -193,   208,   -39,    86,   120,
-     -59,    71,   166,  -193,  -193,    24,  -193,    50,  -193,  -193,
-    -130,     0,     9,  -193,   167,   176,   168,   165,   252,  -193,
-    -193,  -193,  -193,  -192,  -193,   -24,   285,   298,  -193,    13,
-     -25,  -193,  -193,  -193,  -193,   300,   -96,  -193,   -13,   228,
-    -193,   129,   126,  -193,  -113,   107,  -193,  -193,  -193,  -193,
-    -164,  -193,   102,  -193,  -193,   284,  -193,  -193,   219,  -193
+    -190,  -190,  -190,  -190,     4,    48,  -190,  -190,  -190,  -190,
+      20,   -15,   297,  -190,  -190,  -190,  -190,   104,  -190,    28,
+     142,   257,  -190,    -1,   295,  -190,   215,   -39,   109,   110,
+     -50,   138,   177,  -190,  -190,    24,  -190,    53,  -190,  -190,
+    -131,     0,    42,  -190,   186,   174,   179,   184,   252,  -190,
+    -190,  -190,  -190,  -189,  -190,   -24,   288,   306,  -190,    29,
+     -28,  -190,  -190,  -190,  -190,   296,  -118,  -190,   -13,   236,
+    -190,   136,   123,  -190,   -53,   111,  -190,  -190,  -190,  -190,
+     -63,  -190,   105,  -190,  -190,   281,  -190,  -190,   216,  -190
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -1014,90 +1017,92 @@ static const yytype_int16 yypgoto[] =
 #define YYTABLE_NINF -122
 static const yytype_int16 yytable[] =
 {
-      13,    61,    59,    59,     6,    11,    76,    13,    64,    68,
-     172,    17,    18,   120,    16,    45,    45,   129,   195,   142,
-     143,    63,    67,    19,    12,    59,    71,   258,    50,    50,
-      74,    12,    20,    98,   112,   179,    98,    59,    45,    12,
-      12,   144,    17,    18,   117,     1,     2,     1,     7,   249,
-      45,    50,  -121,   121,   -31,     7,    68,    96,   122,    64,
-      96,   249,    12,    38,    38,    43,    43,   127,   215,   256,
-       3,   123,    63,    71,    12,   256,     1,   130,   223,     1,
-      98,   259,     1,     2,   111,    72,    38,   260,    43,   146,
-     196,   197,   256,   160,   134,   183,   210,   265,   124,   120,
-      43,     3,   211,   -98,    96,   135,   132,     3,   162,    36,
-      59,    59,   136,     1,     2,   177,   191,    59,    68,   257,
-      68,   144,   146,    45,    45,   264,    35,    98,    17,    18,
-      45,   171,    12,   240,   162,    71,    50,    71,     3,    73,
-      74,   137,   267,    50,    -2,   250,    36,    12,    12,   266,
-     153,    96,   154,    90,    12,   114,    90,   208,    12,   140,
-     162,   218,     1,     2,   210,   209,   145,   221,    59,   219,
-     237,    38,   124,    43,    43,   149,   150,   231,    38,     1,
-      43,    45,   148,    84,    12,    -2,   118,     3,   155,    -2,
-      -2,    -2,   -10,     1,    50,   151,   160,   156,    -2,   145,
-      90,    34,   114,   157,     3,    12,   162,   166,   170,   158,
-     141,   224,    98,   226,   149,   150,   162,    81,     3,    33,
-       1,     2,   188,    35,   199,   200,    36,   145,   164,    38,
-      12,    43,   159,    90,   166,   -98,    96,   224,   178,   245,
-      12,  -121,    90,   -31,   226,     3,     1,    90,   165,    59,
-     207,   245,   181,    78,    79,    21,   263,   192,   184,    34,
-     189,   245,    45,   141,    35,   193,    33,     1,     2,   194,
-      81,     3,   198,    21,   206,    50,   114,   114,   114,   114,
-     -41,  -121,   216,   -31,    36,   -41,    12,   214,   217,   230,
-      -9,   220,     3,   239,   166,   222,    22,   236,   242,   243,
-      23,    24,    25,   233,   188,   262,    34,    62,   235,    26,
-      38,    35,    43,   234,    22,    66,   161,   139,    23,    24,
-      25,   201,     1,   202,   205,    77,   204,    26,   254,    78,
-      79,    36,    90,   203,   147,   125,   119,   163,   247,    80,
-     173,   225,    23,    24,    25,     1,    81,     3,    77,   248,
-     126,   255,    78,    79,   238,   261,   138,   190,     0,    82,
-       1,     0,    80,    77,     0,     0,    35,    78,    79,    81,
-       3,     1,     0,     0,    77,     0,     0,   113,    78,    79,
-       0,     0,    82,     0,    81,     3,     0,     0,   113,    35,
-       0,     0,     0,     0,     0,    81,     3,    82
+      13,    61,    59,    59,     6,    16,    76,    13,    64,    19,
+     120,    17,   132,   179,     1,    45,    45,   194,     1,     2,
+      11,    63,    67,   129,    12,    59,    71,    18,   142,   143,
+      74,    12,    84,    98,   112,   118,    98,    59,    45,    12,
+      12,   144,    17,     3,    50,    50,    20,     1,     7,   246,
+      45,   255,    59,    72,    68,     7,   253,    96,    18,    64,
+      96,   246,    12,    38,    38,    45,   122,    50,    43,    43,
+     172,   135,    63,    71,    12,   121,   221,   117,   136,   253,
+      98,   253,    36,   130,   123,   132,    38,   111,  -121,    12,
+     -31,    43,   149,   150,    50,   182,   120,   127,   124,   195,
+     196,    68,   134,    43,    96,   256,   254,    73,   162,   237,
+      59,    59,   151,    38,   137,   177,   190,    59,    43,   140,
+     247,   144,   146,    45,    45,    59,   148,    98,    17,   261,
+      45,   264,    12,   207,   162,    71,     1,    71,    45,   -98,
+      74,   208,   155,    90,    18,   114,    90,    12,    12,     1,
+       2,    96,    50,   160,    12,   146,     1,     2,    12,    50,
+     162,     3,    12,    68,   171,    68,   219,    50,    33,     1,
+       2,    38,   124,   -10,     3,   228,    43,    43,    38,     1,
+       2,     3,     1,    43,    12,   257,    38,   209,   216,   145,
+      90,    43,   114,   210,     3,   262,   217,   209,   156,   160,
+      35,   149,   150,   234,     3,   162,   263,     3,    34,   157,
+     222,    98,   224,    35,   162,  -121,   158,   -31,    34,   -41,
+      36,   159,   145,    90,    -9,   164,    35,     1,   -98,    12,
+     166,   170,    90,    36,   222,    96,   242,    90,    12,    -2,
+     153,   224,   154,    36,   141,   187,    59,     1,   242,    21,
+     145,    81,     3,   260,    78,    79,   165,   166,   242,    45,
+     191,  -121,   197,   -31,   141,   178,   114,   114,   114,   114,
+     192,    81,     3,   206,    33,     1,     2,   183,   193,   188,
+      -2,    21,   205,    12,    -2,    -2,    -2,   -41,    50,   214,
+      22,   198,   199,    -2,    23,    24,    25,   213,   215,   233,
+       3,   218,   236,    26,   244,   220,   240,    38,    23,    24,
+      25,   239,    43,    62,    34,   245,   166,    66,   259,    35,
+     231,    90,    22,   161,   230,   187,    23,    24,    25,   232,
+     139,   202,   200,     1,   147,    26,    77,   203,   125,    36,
+      78,    79,   201,   204,   119,   163,   126,   223,   251,   235,
+      80,   173,   252,   138,   189,   258,     1,    81,     3,    77,
+       0,     0,     0,    78,    79,     0,     0,     0,     0,     0,
+      82,     1,     0,    80,    77,     0,     0,    35,    78,    79,
+      81,     3,     1,     0,     0,    77,     0,     0,   113,    78,
+      79,     0,     0,    82,     0,    81,     3,     0,     0,   113,
+      35,     0,     0,     0,     0,     0,    81,     3,    82
 };
 
 static const yytype_int16 yycheck[] =
 {
-       0,    16,    15,    16,     0,     0,    30,     7,    21,    26,
-     123,     7,     7,    38,    66,    15,    16,     6,   148,    78,
-      79,    21,    22,    30,     0,    38,    26,    10,    15,    16,
-      30,     7,     0,    33,    34,   131,    36,    50,    38,    15,
-      16,    80,    38,    38,    35,     4,     5,     4,     0,   241,
-      50,    38,    21,    23,    23,     7,    73,    33,    72,    72,
-      36,   253,    38,    15,    16,    15,    16,    21,   181,    16,
-      29,    50,    72,    73,    50,    16,     4,    66,   208,     4,
-      80,    64,     4,     5,    34,    10,    38,   251,    38,    80,
-     149,   150,    16,    21,    72,   134,    16,   261,    50,   124,
-      50,    29,    22,    72,    80,    16,     5,    29,   108,    68,
-     123,   124,    23,     4,     5,   130,   140,   130,   135,    66,
-     137,   160,   113,   123,   124,    66,    48,   127,   124,   124,
-     130,   122,   108,   229,   134,   135,   123,   137,    29,    64,
-     140,    16,    66,   130,    10,   241,    68,   123,   124,   262,
-      13,   127,    15,    33,   130,    35,    36,    16,   134,    16,
-     160,    16,     4,     5,    16,    24,    80,   206,   181,    24,
-      22,   123,   124,   123,   124,    11,    12,   216,   130,     4,
-     130,   181,    25,    33,   160,    51,    36,    29,    14,    55,
-      56,    57,    30,     4,   181,    31,    21,    38,    64,   113,
-      80,    43,    82,    65,    29,   181,   206,   121,   122,    40,
-      21,   211,   212,   213,    11,    12,   216,    28,    29,     3,
-       4,     5,   136,    48,   153,   154,    68,   141,    72,   181,
-     206,   181,    39,   113,   148,    72,   212,   237,    21,   239,
-     216,    21,   122,    23,   244,    29,     4,   127,    49,   262,
-     164,   251,    66,    11,    12,    10,   256,    22,   135,    43,
-     137,   261,   262,    21,    48,    22,     3,     4,     5,    22,
-      28,    29,   152,    10,    50,   262,   156,   157,   158,   159,
-      25,    21,    16,    23,    68,    25,   262,    66,    30,     6,
-      30,    26,    29,    52,   208,    46,    51,    30,    47,    21,
-      55,    56,    57,   217,   218,    44,    43,    16,   222,    64,
-     262,    48,   262,   218,    51,    22,   108,    73,    55,    56,
-      57,   155,     4,   156,   159,     7,   158,    64,   242,    11,
-      12,    68,   212,   157,    82,    50,    38,   109,    51,    21,
-      22,   212,    55,    56,    57,     4,    28,    29,     7,    62,
-      50,   244,    11,    12,   228,   253,    72,   138,    -1,    41,
-       4,    -1,    21,     7,    -1,    -1,    48,    11,    12,    28,
-      29,     4,    -1,    -1,     7,    -1,    -1,    21,    11,    12,
-      -1,    -1,    41,    -1,    28,    29,    -1,    -1,    21,    48,
-      -1,    -1,    -1,    -1,    -1,    28,    29,    41
+       0,    16,    15,    16,     0,    66,    30,     7,    21,    30,
+      38,     7,    65,   131,     4,    15,    16,   148,     4,     5,
+       0,    21,    22,     6,     0,    38,    26,     7,    78,    79,
+      30,     7,    33,    33,    34,    36,    36,    50,    38,    15,
+      16,    80,    38,    29,    15,    16,     0,     4,     0,   238,
+      50,    10,    65,    10,    26,     7,    16,    33,    38,    72,
+      36,   250,    38,    15,    16,    65,    72,    38,    15,    16,
+     123,    16,    72,    73,    50,    23,   207,    35,    23,    16,
+      80,    16,    68,    66,    50,   138,    38,    34,    21,    65,
+      23,    38,    11,    12,    65,   134,   124,    21,    50,   149,
+     150,    73,    72,    50,    80,    64,    66,    64,   108,   227,
+     123,   124,    31,    65,    16,   130,   140,   130,    65,    16,
+     238,   160,    80,   123,   124,   138,    25,   127,   124,    66,
+     130,    66,   108,    16,   134,   135,     4,   137,   138,    72,
+     140,    24,    14,    33,   124,    35,    36,   123,   124,     4,
+       5,   127,   123,    21,   130,   113,     4,     5,   134,   130,
+     160,    29,   138,   135,   122,   137,   205,   138,     3,     4,
+       5,   123,   124,    30,    29,   214,   123,   124,   130,     4,
+       5,    29,     4,   130,   160,   248,   138,    16,    16,    80,
+      80,   138,    82,    22,    29,   258,    24,    16,    38,    21,
+      48,    11,    12,    22,    29,   205,   259,    29,    43,    65,
+     210,   211,   212,    48,   214,    21,    40,    23,    43,    25,
+      68,    39,   113,   113,    30,    72,    48,     4,    72,   205,
+     121,   122,   122,    68,   234,   211,   236,   127,   214,    10,
+      13,   241,    15,    68,    21,   136,   259,     4,   248,    10,
+     141,    28,    29,   253,    11,    12,    49,   148,   258,   259,
+      22,    21,   152,    23,    21,    21,   156,   157,   158,   159,
+      22,    28,    29,   164,     3,     4,     5,   135,    22,   137,
+      51,    10,    50,   259,    55,    56,    57,    25,   259,    16,
+      51,   153,   154,    64,    55,    56,    57,    66,    30,    30,
+      29,    26,    52,    64,    51,    46,    21,   259,    55,    56,
+      57,    47,   259,    16,    43,    62,   207,    22,    44,    48,
+     216,   211,    51,   108,   215,   216,    55,    56,    57,   220,
+      73,   157,   155,     4,    82,    64,     7,   158,    50,    68,
+      11,    12,   156,   159,    38,   109,    50,   211,   239,   226,
+      21,    22,   241,    72,   138,   250,     4,    28,    29,     7,
+      -1,    -1,    -1,    11,    12,    -1,    -1,    -1,    -1,    -1,
+      41,     4,    -1,    21,     7,    -1,    -1,    48,    11,    12,
+      28,    29,     4,    -1,    -1,     7,    -1,    -1,    21,    11,
+      12,    -1,    -1,    41,    -1,    28,    29,    -1,    -1,    21,
+      48,    -1,    -1,    -1,    -1,    -1,    28,    29,    41
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -1117,20 +1122,20 @@ static const yytype_uint8 yystos[] =
      117,   118,   119,   120,   121,   122,   123,   124,   133,   142,
      147,   111,   115,    21,   103,   109,   115,   116,    97,   131,
      134,    23,    72,    50,    79,   130,   139,    21,   143,     6,
-      66,   160,     5,   162,    72,    16,    23,    16,   159,    95,
+      66,   160,   148,   162,    72,    16,    23,    16,   159,    95,
       16,    21,   104,   104,   101,   102,   116,   122,    25,    11,
       12,    31,   125,    13,    15,    14,    38,    65,    40,    39,
       21,   100,   115,   143,    72,    49,   102,   103,   113,   114,
      102,   116,   148,    22,    97,   144,   145,    85,    21,   140,
-     152,    66,    88,   101,    94,    87,    91,    92,   102,    94,
-     162,   129,    22,    22,    22,   114,   104,   104,   103,   105,
-     105,   106,   118,   119,   120,   121,    50,   102,    16,    24,
-      16,    22,   146,   153,    66,   148,    16,    30,    16,    24,
-      26,   101,    46,   114,   115,   145,   115,   149,   150,   161,
-       6,   101,    90,   102,    91,   102,    30,    22,   146,    52,
-     140,   155,    47,    21,   151,   115,   154,    51,    62,   127,
-     140,   156,   157,   158,   102,   149,    16,    66,    10,    64,
-     154,   156,    44,   115,    66,   154,   148,    66
+     152,    88,   101,    94,    87,    91,    92,   102,    94,   162,
+     129,    22,    22,    22,   114,   104,   104,   103,   105,   105,
+     106,   118,   119,   120,   121,    50,   102,    16,    24,    16,
+      22,   146,   153,    66,    16,    30,    16,    24,    26,   101,
+      46,   114,   115,   145,   115,   149,   150,   161,   101,    90,
+     102,    91,   102,    30,    22,   146,    52,   140,   155,    47,
+      21,   151,   115,   154,    51,    62,   127,   140,   156,   157,
+     158,   102,   149,    16,    66,    10,    64,   154,   156,    44,
+     115,    66,   154,   148,    66
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1944,7 +1949,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 301 "parser.y"
+#line 305 "parser.y"
     {
 		currentScope = scopeStack[scopeStackTop-1];
 		printf("current Scope = %d\n",currentScope);
@@ -1954,7 +1959,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 306 "parser.y"
+#line 310 "parser.y"
     {
 		printf("blockHead\n");
 	}
@@ -1963,7 +1968,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 310 "parser.y"
+#line 314 "parser.y"
     {
 		printf("blockHead\n");
 	}
@@ -1972,7 +1977,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 317 "parser.y"
+#line 321 "parser.y"
     {
 		Node* newNode = createNode();
 		Node* tempNode =(Node*) (yyvsp[(3) - (3)]);
@@ -1985,7 +1990,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 327 "parser.y"
+#line 331 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->pt0 = (yyvsp[(1) - (1)]);
@@ -1999,7 +2004,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 345 "parser.y"
+#line 349 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->pt0 = (yyvsp[(2) - (2)]);
@@ -2015,40 +2020,43 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 373 "parser.y"
+#line 377 "parser.y"
     {
 		Node* newNode = createNode();
 		Node* tempNode = (yyvsp[(1) - (2)]);
 		strcpy(newNode->identLex,tempNode->identLex);
+		(yyval)=newNode;
 	}
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 381 "parser.y"
+#line 386 "parser.y"
     {
 		Node* newNode = createNode();
 		Node* tempNode = (yyvsp[(1) - (1)]);
 		strcpy(newNode->identLex,tempNode->identLex);
+		(yyval)=newNode;
 	}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 387 "parser.y"
+#line 393 "parser.y"
     {
 		Node* newNode = createNode();
 		Node* tempNode = (yyvsp[(1) - (1)]);
 		strcpy(newNode->identLex,atoi(tempNode->intValue));
+		(yyval)=newNode;
 	}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 396 "parser.y"
+#line 403 "parser.y"
     {
 		printf("compoundStatement\n");
 		Node* newNode = createNode();
@@ -2058,13 +2066,14 @@ yyreduce:
 		symbolTableDisplay(0);
 		symbolTableDisplay(1);
 		symbolTableDisplay(2);
+		(yyval)=newNode;
 	}
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 408 "parser.y"
+#line 416 "parser.y"
     {
 		printf("block\n");
 		Node* newNode = createNode();
@@ -2074,13 +2083,14 @@ yyreduce:
 		symbolTableDisplay(0);
 		symbolTableDisplay(1);
 		symbolTableDisplay(2);
+		(yyval)=newNode;
 	}
     break;
 
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 423 "parser.y"
+#line 432 "parser.y"
     {
 		currentScope = scopeStack[scopeStackTop-1];
 		printf("current Scope = %d\n",currentScope);
@@ -2090,31 +2100,34 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 427 "parser.y"
+#line 436 "parser.y"
     {
 		Node* newNode = createNode();
 		Node* tempNode = (yyvsp[(2) - (3)]);
 		strcpy(newNode->code,tempNode->code);
 		printf("unlabelled compound\n");
+		(yyval)=newNode;	
 	}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 439 "parser.y"
+#line 449 "parser.y"
     {
 		Node* newNode = createNode();
 		Node* tempNode = (yyvsp[(1) - (1)]);
-		strcpy(newNode->code,tempNode->code);		
+		strcpy(newNode->code,tempNode->code);
+		printf("cmpndStatement->unlabelledCompnd\n");
+		(yyval)=newNode;	
 	}
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 445 "parser.y"
-    {
+#line 457 "parser.y"
+    {			/////check/////
 		printf("labelled compoundstatement\n");
 	}
     break;
@@ -2122,7 +2135,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 452 "parser.y"
+#line 464 "parser.y"
     {
 		printf("compound tail\n");
 		Node *newNode = createNode();
@@ -2136,7 +2149,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 462 "parser.y"
+#line 474 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->pt0 = (yyvsp[(1) - (3)]);
@@ -2150,7 +2163,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 476 "parser.y"
+#line 488 "parser.y"
     {
 		(yyval)=(yyvsp[(1) - (1)]);
 	}
@@ -2159,7 +2172,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 481 "parser.y"
+#line 493 "parser.y"
     {
 		(yyval)=(yyvsp[(1) - (1)]);
 	}
@@ -2168,7 +2181,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 485 "parser.y"
+#line 497 "parser.y"
     {
 		(yyval)=(yyvsp[(1) - (1)]);
 	}
@@ -2177,7 +2190,7 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 490 "parser.y"
+#line 502 "parser.y"
     {
 		(yyval)=(yyvsp[(1) - (1)]);
 	}
@@ -2186,18 +2199,20 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 497 "parser.y"
+#line 509 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = lowerBound;
 		newNode->pt0 = (yyvsp[(1) - (1)]);
 		Node *tempNode = (yyvsp[(1) - (1)]);
+		newNode->place = tempNode->place;
+		strcpy(newNode->code,tempNode->code);
 		if(tempNode->semTypeDef==storeInteger){
 			newNode->semTypeDef = storeInteger;
 			newNode->intValue = tempNode->intValue;
 		}
 		else{
-		
+			printf("error in array declaration-> lowerbound should be integer\n");
 		}
 		(yyval)=newNode;
 		printf("lowerBound->arithmeticExpression\n");
@@ -2207,18 +2222,20 @@ yyreduce:
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 523 "parser.y"
+#line 537 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = upperBound;
 		newNode->pt0 = (yyvsp[(1) - (1)]);
 		Node *tempNode = (yyvsp[(1) - (1)]);
+		newNode->place = tempNode->place;
+		strcpy(newNode->code,tempNode->code);
 		if(tempNode->semTypeDef==storeInteger){
 			newNode->semTypeDef = storeInteger;
 			newNode->intValue = tempNode->intValue;
 		}
 		else{
-	
+			printf("error in array declaration-> lowerbound should be integer\n");
 		}
 		(yyval)=newNode;
 		printf("upperBound->arithmeticExpression\n");
@@ -2228,7 +2245,7 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 541 "parser.y"
+#line 557 "parser.y"
     {
 		Node* newNode = createNode();         	  
     		newNode->type = boundPair;
@@ -2236,9 +2253,12 @@ yyreduce:
 		newNode->pt2 = (yyvsp[(3) - (3)]);
 		Node* tempNodeOne = (yyvsp[(1) - (3)]);
 		Node* tempNodeTwo = (yyvsp[(3) - (3)]);
-	
-		if (tempNodeOne->semTypeDef==storeInteger && tempNodeTwo->semTypeDef==storeInteger ){
-			newNode->semTypeDef=storeBoundPairList;			
+		
+		if (tempNodeOne->semTypeDef==storeInteger && tempNodeTwo->semTypeDef==storeInteger && tempNodeOne->intValue <= tempNodeTwo->intValue){
+			newNode->semTypeDef=storeBoundPairList;
+			sprintf(newNode->code,"%s%s",tempNodeOne->code,tempNodeTwo->code);
+			newNode->lowerBound[0] = tempNodeOne->intValue;
+			newNode->upperBound[0] = tempNodeTwo->intValue;
 		}
 		else {
 			
@@ -2251,7 +2271,7 @@ yyreduce:
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 561 "parser.y"
+#line 580 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = boundPairList;
@@ -2259,6 +2279,9 @@ yyreduce:
 		Node* tempNode = (yyvsp[(1) - (1)]);
 		if (tempNode->semTypeDef==storeBoundPairList) {  
 			newNode->semTypeDef=tempNode->semTypeDef;
+			newNode->dim = 1;
+			newNode->lowerBound[newNode->dim-1] = tempNode->lowerBound[0];
+			newNode->upperBound[newNode->dim-1] = tempNode->upperBound[0];
 		}
 		(yyval) = newNode;
 		printf("boundPairList->boundPair\n");
@@ -2268,7 +2291,7 @@ yyreduce:
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 574 "parser.y"
+#line 596 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = boundPairList;
@@ -2278,13 +2301,15 @@ yyreduce:
 		Node* tempNodeTwo = (yyvsp[(3) - (3)]);
 	
 		if (tempNodeOne->semTypeDef==storeBoundPairList && tempNodeTwo->semTypeDef==storeBoundPairList ){
-			newNode->semTypeDef=storeBoundPairList;			
+			newNode->semTypeDef=storeBoundPairList;
+			newNode->dim = tempNodeOne->dim + 1 ;
+			newNode->lowerBound[newNode->dim-1] = tempNodeTwo->lowerBound[0];
+			newNode->upperBound[newNode->dim-1] = tempNodeTwo->upperBound[0]; 	
 		}
 		else {
-			
+			printf("error in boundpairlist semantic type definition\n");			
 		}
 		
-		newNode->dim = tempNodeOne->dim + 1 ;  	
 		(yyval) = newNode;
 		printf("boundPairList->boundPairList , boundPair\n");
 	}
@@ -2293,7 +2318,7 @@ yyreduce:
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 596 "parser.y"
+#line 620 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = arrayIdentifier;
@@ -2308,17 +2333,35 @@ yyreduce:
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 609 "parser.y"
+#line 633 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = boundPair;
 		newNode->pt0 = (yyvsp[(1) - (4)]);
 		newNode->pt2 = (yyvsp[(3) - (4)]);
-
 		Node *tempNodeOne = (yyvsp[(1) - (4)]);
 		Node *tempNodeTwo = (yyvsp[(3) - (4)]);
+		currentScope = scopeStack[scopeStackTop-1];
+		Symbol* entry = lookUpInCurrentScope(tempNodeOne->identLex);
+		if(entry==NULL){
+			entry = addEntry(tempNodeOne->identLex);			
+		}
+		int size =1;
+		entry->dim = tempNodeTwo->dim;
 		newNode->dim = tempNodeTwo->dim;
+		int i;
+		for(i=0;i<tempNodeTwo->dim;i++){
+			entry->lowerBound[i] = tempNodeTwo->lowerBound[i];
+			entry->upperBound[i] = tempNodeTwo->upperBound[i];
+			newNode->lowerBound[i] = tempNodeTwo->lowerBound[i];
+			newNode->upperBound[i] = tempNodeTwo->upperBound[i];
+			size = size*(tempNodeTwo->upperBound[i]-tempNodeTwo->lowerBound[i]+1);
+		}
+		entry->offset = symbolTable[currentScope].arrayOffset;
+		printf("********************val of offset in array segment= %d**********\n",entry->offset);
+		symbolTable[currentScope].arrayOffset-=size*4;
 		newNode->identLex = tempNodeOne->identLex;
+		
 		(yyval) = newNode;
 		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
 	}
@@ -2327,17 +2370,34 @@ yyreduce:
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 623 "parser.y"
+#line 665 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = boundPair;
 		newNode->pt0 = (yyvsp[(1) - (3)]);
 		newNode->pt2 = (yyvsp[(3) - (3)]);
-
 		Node *tempNodeOne = (yyvsp[(1) - (3)]);
 		Node *tempNodeTwo = (yyvsp[(3) - (3)]);
+		currentScope = scopeStack[scopeStackTop-1];
+		Symbol* entry = lookUpInCurrentScope(tempNodeOne->identLex);
+		if(entry==NULL){
+			entry = addEntry(tempNodeOne->identLex);			
+		}
+		int size =1;
+		entry->dim = tempNodeTwo->dim;
 		newNode->dim = tempNodeTwo->dim;
+		int i;
+		for(i=0;i<tempNodeTwo->dim;i++){
+			entry->lowerBound[i] = tempNodeTwo->lowerBound[i];
+			entry->upperBound[i] = tempNodeTwo->upperBound[i];
+			newNode->lowerBound[i] = tempNodeTwo->lowerBound[i];
+			newNode->upperBound[i] = tempNodeTwo->upperBound[i];
+			size = size*(tempNodeTwo->upperBound[i]-tempNodeTwo->lowerBound[i]+1);
+		}
+		entry->offset = symbolTable[currentScope].arrayOffset;
+		symbolTable[currentScope].arrayOffset-=size*4;
 		newNode->identLex = tempNodeOne->identLex;
+		
 		(yyval) = newNode;
 		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
 	}
@@ -2346,21 +2406,23 @@ yyreduce:
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 640 "parser.y"
+#line 699 "parser.y"
     {
 		Node* tempNode0=(yyvsp[(0) - (1)]);
 		Node* tempNode1=(yyvsp[(1) - (1)]);
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol* symbolEntry=lookUpInCurrentScope(tempNode1->identLex);
 		if (symbolEntry!=NULL){
-			return 0;
+			symbolTable[currentScope].currentSymbol->type=tempNode1->semTypeDef;//return 0;
 		}
 		else{
 			symbolEntry = addEntry(tempNode1->identLex);
 			symbolTable[currentScope].currentSymbol->type=tempNode1->semTypeDef;
 			symbolTable[currentScope].currentSymbol->dim=tempNode1->dim;
-			(yyval)=(yyvsp[(0) - (1)]);
+			
 		}
+		(yyval)=(yyvsp[(0) - (1)]); ////check////
+		printf("********************val of offset in array list= %d**********\n",symbolEntry->offset);
 		printf("arrayList->arraySegment\n");
 	}
     break;
@@ -2368,21 +2430,21 @@ yyreduce:
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 658 "parser.y"
+#line 719 "parser.y"
     {
 		Node* tempNode0=(yyvsp[(1) - (3)]);
 		Node* tempNode1=(yyvsp[(3) - (3)]);
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol* symbolEntry=lookUpInCurrentScope(tempNode1->identLex);
 		if (symbolEntry!=NULL){
-			return 0;
+			symbolTable[currentScope].currentSymbol->type=tempNode1->semTypeDef;//return 0;
 		}
 		else{
 			symbolEntry = addEntry(tempNode1->identLex);
 			symbolTable[currentScope].currentSymbol->type=tempNode1->semTypeDef;
 			symbolTable[currentScope].currentSymbol->dim=tempNode1->dim;
-			(yyval)=(yyvsp[(0) - (3)]);
 		}
+		(yyval)=(yyvsp[(0) - (3)]); ////check////
 		printf("arrayList->arrayList , arraySegment\n");
 	}
     break;
@@ -2390,14 +2452,14 @@ yyreduce:
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 680 "parser.y"
+#line 741 "parser.y"
     {printf("here\n");}
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 687 "parser.y"
+#line 747 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = expression;
@@ -2413,7 +2475,7 @@ yyreduce:
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 699 "parser.y"
+#line 759 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = expression;
@@ -2429,7 +2491,7 @@ yyreduce:
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 711 "parser.y"
+#line 771 "parser.y"
     {
 				
 	}
@@ -2438,7 +2500,7 @@ yyreduce:
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 733 "parser.y"
+#line 793 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = arithmeticExpression;
@@ -2458,7 +2520,7 @@ yyreduce:
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 770 "parser.y"
+#line 830 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = simpleArithmeticExpression;
@@ -2478,7 +2540,7 @@ yyreduce:
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 785 "parser.y"
+#line 845 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = simpleArithmeticExpression;
@@ -2498,7 +2560,7 @@ yyreduce:
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 800 "parser.y"
+#line 860 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = simpleArithmeticExpression;
@@ -2519,7 +2581,7 @@ yyreduce:
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 818 "parser.y"
+#line 878 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = term;
@@ -2562,7 +2624,7 @@ yyreduce:
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 857 "parser.y"
+#line 917 "parser.y"
     {	
 		Node *newNode = createNode();
 		newNode->type = term;
@@ -2599,7 +2661,7 @@ yyreduce:
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 892 "parser.y"
+#line 952 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = term;
@@ -2618,7 +2680,7 @@ yyreduce:
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 907 "parser.y"
+#line 967 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = term;
@@ -2655,7 +2717,7 @@ yyreduce:
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 940 "parser.y"
+#line 1000 "parser.y"
     {
 		
 			Node *newNode = createNode();			//check declaration here...
@@ -2699,7 +2761,7 @@ yyreduce:
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 982 "parser.y"
+#line 1042 "parser.y"
     {
 		Node* newNode = createNode();
 		
@@ -2719,7 +2781,7 @@ yyreduce:
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 998 "parser.y"
+#line 1058 "parser.y"
     {
 		Node *newNode = createNode();
 		
@@ -2737,7 +2799,7 @@ yyreduce:
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 1023 "parser.y"
+#line 1083 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = primary;
@@ -2757,7 +2819,7 @@ yyreduce:
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 1038 "parser.y"
+#line 1098 "parser.y"
     {
 	}
     break;
@@ -2765,7 +2827,7 @@ yyreduce:
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 1042 "parser.y"
+#line 1102 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = primary;
@@ -2781,7 +2843,13 @@ yyreduce:
 			newNode->realValue = foundEntry->realValue;		
 			newNode->semTypeDef= foundEntry->type ;
 			newNode->place=getNewTemp();
-			int offset = foundEntry->offset;
+			int offset;
+			if (tempNode->isArray == 1){
+				offset = tempNode->place;
+			}
+			else{
+				offset = foundEntry->offset;
+			}
 			sprintf(newNode->code,"%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",tempNode->code,offset,newNode->place);	
 		}
 		else
@@ -2795,7 +2863,7 @@ yyreduce:
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 1068 "parser.y"
+#line 1134 "parser.y"
     {
 		Node *newNode = createNode();
 		
@@ -2814,7 +2882,7 @@ yyreduce:
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 1084 "parser.y"
+#line 1150 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = unsignedNumber;
@@ -2833,7 +2901,7 @@ yyreduce:
   case 64:
 
 /* Line 1455 of yacc.c  */
-#line 1099 "parser.y"
+#line 1165 "parser.y"
     {	
 		Node *newNode = createNode();
 		newNode->type = unsignedNumber;
@@ -2852,7 +2920,7 @@ yyreduce:
   case 65:
 
 /* Line 1455 of yacc.c  */
-#line 1115 "parser.y"
+#line 1181 "parser.y"
     {
 		Node *newNode = createNode();
 		
@@ -2866,7 +2934,7 @@ yyreduce:
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 1126 "parser.y"
+#line 1192 "parser.y"
     {
 		Node *newNode = createNode();
 		
@@ -2881,7 +2949,7 @@ yyreduce:
   case 67:
 
 /* Line 1455 of yacc.c  */
-#line 1138 "parser.y"
+#line 1204 "parser.y"
     {	
 		Node *new = createNode();		
 		new->type = simpleVariable;
@@ -2902,7 +2970,7 @@ yyreduce:
   case 68:
 
 /* Line 1455 of yacc.c  */
-#line 1156 "parser.y"
+#line 1222 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = variable;
@@ -2922,10 +2990,10 @@ yyreduce:
   case 69:
 
 /* Line 1455 of yacc.c  */
-#line 1172 "parser.y"
+#line 1238 "parser.y"
     {
 		Node *newNode = createNode();
-		
+		newNode->isArray = 1;
 		newNode->type = variable;
 		newNode->pt0 = (yyvsp[(1) - (1)]);
 		Node* tempNode = (Node*)(yyvsp[(1) - (1)]);
@@ -2933,6 +3001,8 @@ yyreduce:
 		newNode->intValue = tempNode->intValue;
 		newNode->realValue=tempNode->realValue;
 		newNode->semTypeDef=tempNode->semTypeDef;
+		newNode->place = tempNode->place;
+		strcpy(newNode->code,tempNode->code);
 		strcpy(newNode->identLex, tempNode->identLex);
 		(yyval) = newNode;
 	}
@@ -2941,7 +3011,7 @@ yyreduce:
   case 70:
 
 /* Line 1455 of yacc.c  */
-#line 1188 "parser.y"
+#line 1256 "parser.y"
     {
 		Node* newNode = createNode();
 		               	  
@@ -2950,17 +3020,32 @@ yyreduce:
 		newNode->pt2 = (yyvsp[(3) - (4)]);
 		Node* tempNode0 = (yyvsp[(1) - (4)]);
 		Node* tempNode1 = (yyvsp[(3) - (4)]);
+		//newNode->place = getNewTemp();
 		strcpy(newNode->identLex, tempNode0->identLex);
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol* foundEntry = lookUp(tempNode0->identLex,currentScope);
-		if(tempNode0 == -1)
+		if(foundEntry==NULL)
 		{
 			newNode->semTypeDef = storeError;
 		}
 		else
-		{
-		
+		{	
+			if(tempNode1->semTypeDef == storeInteger){		
 				newNode->semTypeDef = foundEntry->type;
+				int offset = foundEntry->offset-tempNode1->lowerBound[tempNode1->dim-1]*4;
+				int i=0;
+				for(i=foundEntry->dim-1;i>0;i--){
+					if(tempNode1->lowerBound[i-1] <= foundEntry->upperBound[i-1] && tempNode1->lowerBound[i-1] >= foundEntry->lowerBound[i-1]){
+						offset-=(foundEntry->upperBound[i]-foundEntry->lowerBound[i])*4*tempNode1->lowerBound[i-1];
+					}
+					else{
+						printf("array dimension is out of range\n");
+					}
+				}
+				newNode->place = offset;
+				//sprintf(newNode->code, "%sli\t$t0,%d\nsw\t$t0,%d($sp)\n",offset, newNode->place);
+				strcpy(newNode->code,tempNode1->code);
+			}
 		
 		
 		}	
@@ -2971,15 +3056,19 @@ yyreduce:
   case 71:
 
 /* Line 1455 of yacc.c  */
-#line 1216 "parser.y"
+#line 1299 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = subscriptList;
-	
 		Node* tempNode = (yyvsp[(1) - (1)]);
+		newNode->semTypeDef = tempNode->semTypeDef;
 		newNode->pt0 = (yyvsp[(1) - (1)]);
+		newNode->place = tempNode->place;
+		strcpy(newNode->code,tempNode->code);
 		if(tempNode->semTypeDef==storeInteger){
 			newNode->semTypeDef = tempNode->semTypeDef;
+			newNode->dim = 1;
+			newNode->lowerBound[newNode->dim-1] = tempNode->intValue;
 		}
 		else {
 			newNode->semTypeDef = storeError;
@@ -2991,7 +3080,7 @@ yyreduce:
   case 72:
 
 /* Line 1455 of yacc.c  */
-#line 1232 "parser.y"
+#line 1319 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = subscriptList;
@@ -2999,9 +3088,12 @@ yyreduce:
 		newNode->pt1 = (yyvsp[(3) - (3)]);
 		Node* tempNode1 = (yyvsp[(1) - (3)]);
 		Node* tempNode2 = (yyvsp[(3) - (3)]);
-	
+		newNode->semTypeDef = tempNode2->semTypeDef;
+		sprintf(newNode->code,"%s%s",tempNode1->code,tempNode2->code);
 		if(tempNode2->semTypeDef == storeInteger){
 			newNode->semTypeDef = tempNode2->semTypeDef;
+			newNode->dim = tempNode1->dim+1;
+			newNode->lowerBound[newNode->dim-1] = tempNode2->intValue;
 		}
 		else {
 			newNode->semTypeDef = storeError;
@@ -3013,12 +3105,13 @@ yyreduce:
   case 73:
 
 /* Line 1455 of yacc.c  */
-#line 1251 "parser.y"
+#line 1341 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = subscriptExpression;
 		newNode->pt0 = (yyvsp[(1) - (1)]);
 		Node* tempNode = (yyvsp[(1) - (1)]);
+		newNode->semTypeDef = tempNode->semTypeDef;
 		newNode->intValue = tempNode->intValue;
 		newNode->place = tempNode->place ;
 		strcpy(newNode->code,tempNode->code);
@@ -3030,7 +3123,7 @@ yyreduce:
   case 74:
 
 /* Line 1455 of yacc.c  */
-#line 1265 "parser.y"
+#line 1356 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = identifier;
@@ -3051,7 +3144,7 @@ yyreduce:
   case 75:
 
 /* Line 1455 of yacc.c  */
-#line 1283 "parser.y"
+#line 1374 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = booleanExpression;
@@ -3073,7 +3166,7 @@ yyreduce:
   case 76:
 
 /* Line 1455 of yacc.c  */
-#line 1321 "parser.y"
+#line 1412 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = booleanExpression;
@@ -3091,7 +3184,7 @@ yyreduce:
   case 77:
 
 /* Line 1455 of yacc.c  */
-#line 1335 "parser.y"
+#line 1426 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = booleanExpression;
@@ -3112,7 +3205,7 @@ yyreduce:
   case 78:
 
 /* Line 1455 of yacc.c  */
-#line 1353 "parser.y"
+#line 1444 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = implication;
@@ -3129,7 +3222,7 @@ yyreduce:
   case 79:
 
 /* Line 1455 of yacc.c  */
-#line 1366 "parser.y"
+#line 1457 "parser.y"
     {
 		Node *newNode = createNode();         		
 		newNode->type = implication;
@@ -3153,7 +3246,7 @@ yyreduce:
   case 80:
 
 /* Line 1455 of yacc.c  */
-#line 1387 "parser.y"
+#line 1478 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanTerm;
@@ -3169,7 +3262,7 @@ yyreduce:
   case 81:
 
 /* Line 1455 of yacc.c  */
-#line 1399 "parser.y"
+#line 1490 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanFactor;
@@ -3192,7 +3285,7 @@ yyreduce:
   case 82:
 
 /* Line 1455 of yacc.c  */
-#line 1419 "parser.y"
+#line 1510 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanFactor;
@@ -3208,7 +3301,7 @@ yyreduce:
   case 83:
 
 /* Line 1455 of yacc.c  */
-#line 1431 "parser.y"
+#line 1522 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanFactor;
@@ -3231,7 +3324,7 @@ yyreduce:
   case 84:
 
 /* Line 1455 of yacc.c  */
-#line 1451 "parser.y"
+#line 1542 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanSecondary;
@@ -3247,7 +3340,7 @@ yyreduce:
   case 85:
 
 /* Line 1455 of yacc.c  */
-#line 1463 "parser.y"
+#line 1554 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanSecondary;
@@ -3268,7 +3361,7 @@ yyreduce:
   case 86:
 
 /* Line 1455 of yacc.c  */
-#line 1482 "parser.y"
+#line 1573 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanPrimary;
@@ -3285,7 +3378,7 @@ yyreduce:
   case 87:
 
 /* Line 1455 of yacc.c  */
-#line 1508 "parser.y"
+#line 1599 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanPrimary;
@@ -3301,7 +3394,7 @@ yyreduce:
   case 88:
 
 /* Line 1455 of yacc.c  */
-#line 1520 "parser.y"
+#line 1611 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanPrimary;
@@ -3317,7 +3410,7 @@ yyreduce:
   case 89:
 
 /* Line 1455 of yacc.c  */
-#line 1533 "parser.y"
+#line 1624 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = logicalValue;
@@ -3337,7 +3430,7 @@ yyreduce:
   case 90:
 
 /* Line 1455 of yacc.c  */
-#line 1550 "parser.y"
+#line 1641 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = relation;
@@ -3432,7 +3525,7 @@ yyreduce:
   case 91:
 
 /* Line 1455 of yacc.c  */
-#line 1665 "parser.y"
+#line 1756 "parser.y"
     {	
 		Node *newNode = createNode();
 		newNode->type = relationalOperator;
@@ -3444,7 +3537,7 @@ yyreduce:
   case 92:
 
 /* Line 1455 of yacc.c  */
-#line 1674 "parser.y"
+#line 1765 "parser.y"
     {
 
 		Node *temp2=(yyvsp[(0) - (1)]);
@@ -3474,7 +3567,7 @@ yyreduce:
   case 93:
 
 /* Line 1455 of yacc.c  */
-#line 1700 "parser.y"
+#line 1791 "parser.y"
     {
 		Node *temp2=(yyvsp[(0) - (3)]);
 		Node *temp0=(yyvsp[(1) - (3)]);
@@ -3497,7 +3590,7 @@ yyreduce:
   case 94:
 
 /* Line 1455 of yacc.c  */
-#line 1724 "parser.y"
+#line 1815 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = type;
@@ -3511,7 +3604,7 @@ yyreduce:
   case 95:
 
 /* Line 1455 of yacc.c  */
-#line 1734 "parser.y"
+#line 1825 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = type;
@@ -3525,22 +3618,19 @@ yyreduce:
   case 96:
 
 /* Line 1455 of yacc.c  */
-#line 1745 "parser.y"
+#line 1836 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = type;
         	new->semTypeDef=storeBoolean;
 		(yyval) = new;
-
-
-
 	}
     break;
 
   case 97:
 
 /* Line 1455 of yacc.c  */
-#line 1764 "parser.y"
+#line 1846 "parser.y"
     {
 	printf("typeDeclaration\n");
 
@@ -3550,7 +3640,7 @@ yyreduce:
   case 98:
 
 /* Line 1455 of yacc.c  */
-#line 1772 "parser.y"
+#line 1854 "parser.y"
     {
 		Node *new = createNode();		
 		new->type = varIdentifier;
@@ -3571,7 +3661,7 @@ yyreduce:
   case 99:
 
 /* Line 1455 of yacc.c  */
-#line 1791 "parser.y"
+#line 1873 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = unconditionalStatement;
@@ -3580,17 +3670,14 @@ yyreduce:
 		new->semTypeDef=temp1->semTypeDef;
 		strcpy(new->code,temp1->code);
 		(yyval) = new;
-
-
 		printf("unconditional -> basic\n");
-	
 	}
     break;
 
   case 100:
 
 /* Line 1455 of yacc.c  */
-#line 1805 "parser.y"
+#line 1884 "parser.y"
     {
 
 		Node *new = createNode();         	
@@ -3600,14 +3687,13 @@ yyreduce:
 		new->semTypeDef=temp1->semTypeDef;
 		strcpy(new->code,temp1->code);
 		(yyval) = new;
-
 	}
     break;
 
   case 101:
 
 /* Line 1455 of yacc.c  */
-#line 1817 "parser.y"
+#line 1895 "parser.y"
     {
 
 		Node *new = createNode();
@@ -3617,15 +3703,13 @@ yyreduce:
 		new->semTypeDef=temp1->semTypeDef;
 		strcpy(new->code,temp1->code);
 		(yyval) = new;
-
-
 	}
     break;
 
   case 102:
 
 /* Line 1455 of yacc.c  */
-#line 1834 "parser.y"
+#line 1909 "parser.y"
     {
 		Node *newNode = createNode();         	
         	newNode->type = conditionalStatement;
@@ -3642,7 +3726,7 @@ yyreduce:
   case 103:
 
 /* Line 1455 of yacc.c  */
-#line 1849 "parser.y"
+#line 1921 "parser.y"
     {
 		Node *newNode = createNode();         	
         	newNode->type = conditionalStatement;
@@ -3656,17 +3740,15 @@ yyreduce:
 		if (tempNode1->semTypeDef==storeVoid && tempNode2->semTypeDef==storeVoid ) {  
 			newNode->semTypeDef=storeVoid ;  
 		}
-
 		printf("conditionalStatement -> ifstatement ELSE statement\n");
 		(yyval) = newNode;
-
 	}
     break;
 
   case 104:
 
 /* Line 1455 of yacc.c  */
-#line 1869 "parser.y"
+#line 1939 "parser.y"
     {
 		Node *newNode = createNode();         	
 		newNode->type = conditionalStatement;
@@ -3690,7 +3772,7 @@ yyreduce:
   case 106:
 
 /* Line 1455 of yacc.c  */
-#line 1895 "parser.y"
+#line 1963 "parser.y"
     {
 		Node *newNode = createNode();         	
         	newNode->type = ifStatement;
@@ -3711,14 +3793,13 @@ yyreduce:
 		
 		(yyval) = newNode;
 		printf("ifStatement -> ifClause unconditionalStatement\n");
-
 	}
     break;
 
   case 107:
 
 /* Line 1455 of yacc.c  */
-#line 1921 "parser.y"
+#line 1988 "parser.y"
     {
 		Node *newNode = createNode();
         	newNode->type = ifClause;
@@ -3740,7 +3821,7 @@ yyreduce:
   case 108:
 
 /* Line 1455 of yacc.c  */
-#line 1941 "parser.y"
+#line 2008 "parser.y"
     {
 
 		Node *new = createNode();         	
@@ -3758,7 +3839,7 @@ yyreduce:
   case 110:
 
 /* Line 1455 of yacc.c  */
-#line 1962 "parser.y"
+#line 2026 "parser.y"
     {		
 		Node *new = createNode();         	
         	new->type = unlabelledBasicStatement; 
@@ -3767,14 +3848,13 @@ yyreduce:
 		new->semTypeDef=temp->semTypeDef ;
 		strcpy(new->code,temp->code);
 		(yyval) = new;
-
 	}
     break;
 
   case 111:
 
 /* Line 1455 of yacc.c  */
-#line 1976 "parser.y"
+#line 2037 "parser.y"
     {
 
 		Node *new = createNode();         	
@@ -3783,7 +3863,7 @@ yyreduce:
 		Node *temp = (yyvsp[(1) - (1)]) ;  
 
 		new->semTypeDef=temp->semTypeDef ;  
-
+		printf("unlabelledstatement->dummystatement\n");
 		(yyval) = new;
 
 	}
@@ -3792,7 +3872,7 @@ yyreduce:
   case 112:
 
 /* Line 1455 of yacc.c  */
-#line 1990 "parser.y"
+#line 2051 "parser.y"
     {
 			
 		Node *new = createNode();         	
@@ -3809,7 +3889,7 @@ yyreduce:
   case 113:
 
 /* Line 1455 of yacc.c  */
-#line 2003 "parser.y"
+#line 2064 "parser.y"
     {
 		(yyval) = (yyvsp[(1) - (1)]);
 	}
@@ -3818,7 +3898,7 @@ yyreduce:
   case 115:
 
 /* Line 1455 of yacc.c  */
-#line 2014 "parser.y"
+#line 2075 "parser.y"
     {
 		Node *newNode = createNode();
                 newNode->type = returnStatement;
@@ -3839,7 +3919,7 @@ yyreduce:
   case 116:
 
 /* Line 1455 of yacc.c  */
-#line 2032 "parser.y"
+#line 2093 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
@@ -3855,13 +3935,19 @@ yyreduce:
 			new->semTypeDef=storeError;
 		}
 		else{
-			if (symbol1->type==storeInteger && tmp2->semTypeDef==storeInteger){								
+			//if (symbol1->type==storeInteger && tmp2->semTypeDef==storeInteger){								
 				// SYMBOL1>TYPE IS INTEGER  
 				symbol1->value=tmp2->intValue;
-				int offset = symbol1->offset;
+				int offset;
+				if(tmp1->isArray==1){
+					offset = tmp1->place;
+				}
+				else{
+					offset = symbol1->offset;
+				}
 				sprintf(new->code,"%s%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",tmp1->code,tmp2->code,tmp2->place,offset);
-			}
-			else if (symbol1->type==storeReal && tmp2->semTypeDef==storeReal){								
+			//}
+			/*else*/ if (symbol1->type==storeReal && tmp2->semTypeDef==storeReal){								
 				// SYMBOL1>TYPE IS Real
 		  		symbol1->realValue=tmp2->realValue;
 				printf("assignmentStatement->identifier:= arithmeticexpression, realValue= %f,,%f\n",tmp2->realValue,symbol1->realValue);		
@@ -3875,7 +3961,7 @@ yyreduce:
   case 117:
 
 /* Line 1455 of yacc.c  */
-#line 2064 "parser.y"
+#line 2131 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
@@ -3896,11 +3982,17 @@ yyreduce:
 		
 		}
 		else{
-			if (symbol2->type==storeBoolean==storeBoolean && temp2->semTypeDef==storeBoolean) {  
+			//if (symbol2->type==storeBoolean==storeBoolean && temp2->semTypeDef==storeBoolean) {  
 				symbol2->boolean=temp2->boolValue;
-				int offset = symbol2->offset;
+				int offset;
+				if(temp1->isArray==1){
+					offset = temp1->place;
+				}
+				else{
+					offset = symbol2->offset;
+				}
 				sprintf(new->code,"%s%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp1->code,temp2->code,temp2->place,offset);
-			}
+			//}
 		}
 		(yyval) = new;
 	}
@@ -3909,7 +4001,7 @@ yyreduce:
   case 118:
 
 /* Line 1455 of yacc.c  */
-#line 2270 "parser.y"
+#line 2342 "parser.y"
     {  
 		Node *new = createNode();
 		Node *temp = (yyvsp[(2) - (10)]);
@@ -3952,7 +4044,7 @@ yyreduce:
   case 119:
 
 /* Line 1455 of yacc.c  */
-#line 2310 "parser.y"
+#line 2382 "parser.y"
     {	
 		printf("empty reached\n");
 		Node *new = createNode();         	            	  
@@ -3964,7 +4056,7 @@ yyreduce:
   case 120:
 
 /* Line 1455 of yacc.c  */
-#line 2318 "parser.y"
+#line 2390 "parser.y"
     {
 		Node *new = createNode();
 		Node *temp1 = (yyvsp[(1) - (2)]);
@@ -3997,7 +4089,7 @@ yyreduce:
   case 121:
 
 /* Line 1455 of yacc.c  */
-#line 2349 "parser.y"
+#line 2421 "parser.y"
     {
 		Node *new = createNode(); 
 		new->type = procedureIdentifier;
@@ -4012,22 +4104,23 @@ yyreduce:
   case 123:
 
 /* Line 1455 of yacc.c  */
-#line 2362 "parser.y"
+#line 2434 "parser.y"
     {
-		(yyval)=(yyvsp[(2) - (3)]);
+
 		Node *temp = (yyvsp[(2) - (3)]);
 		if(temp->semTypeDef != storeError)
 		{		
 			temp->semTypeDef == storeVoid;
 		}
 		printf("actparampart -> ( act param list )\n");
+		(yyval)=(yyvsp[(2) - (3)]);
 	}
     break;
 
   case 124:
 
 /* Line 1455 of yacc.c  */
-#line 2375 "parser.y"
+#line 2448 "parser.y"
     {
 		Node *temp = (yyvsp[(-1) - (1)]);
 		Node *temp1 = (yyvsp[(1) - (1)]);
@@ -4046,7 +4139,7 @@ yyreduce:
   case 125:
 
 /* Line 1455 of yacc.c  */
-#line 2390 "parser.y"
+#line 2463 "parser.y"
     {
 		Node *temp = (yyvsp[(-1) - (3)]);
 		Node *temp3 = (yyvsp[(1) - (3)]);
@@ -4071,7 +4164,7 @@ yyreduce:
   case 126:
 
 /* Line 1455 of yacc.c  */
-#line 2413 "parser.y"
+#line 2486 "parser.y"
     {
 		Node *newNode = createNode(); 
 		Node *tempNode = (yyvsp[(1) - (1)]); 
@@ -4088,7 +4181,7 @@ yyreduce:
   case 130:
 
 /* Line 1455 of yacc.c  */
-#line 2434 "parser.y"
+#line 2507 "parser.y"
     {
 		Node* newNode=createNode();
 		Node *tempNode=(yyvsp[(1) - (1)]);
@@ -4102,7 +4195,7 @@ yyreduce:
   case 131:
 
 /* Line 1455 of yacc.c  */
-#line 2444 "parser.y"
+#line 2517 "parser.y"
     {
 		Node* newNode=createNode();
 		Node *tempNode=(yyvsp[(1) - (1)]);
@@ -4116,7 +4209,7 @@ yyreduce:
   case 132:
 
 /* Line 1455 of yacc.c  */
-#line 2454 "parser.y"
+#line 2527 "parser.y"
     {	Node* newNode=createNode();
 		Node *tempNode=(yyvsp[(1) - (1)]);
 		newNode->semTypeDef = tempNode->semTypeDef;
@@ -4128,7 +4221,7 @@ yyreduce:
   case 133:
 
 /* Line 1455 of yacc.c  */
-#line 2462 "parser.y"
+#line 2535 "parser.y"
     {
 		Node* newNode=createNode();
 		Node* tempNode=(yyvsp[(2) - (2)]);
@@ -4141,7 +4234,7 @@ yyreduce:
   case 134:
 
 /* Line 1455 of yacc.c  */
-#line 2480 "parser.y"
+#line 2553 "parser.y"
     {
 		(yyvsp[(0) - (1)])=(yyvsp[(-1) - (1)]);
 		Node *node1 = (yyvsp[(1) - (1)]);
@@ -4153,23 +4246,26 @@ yyreduce:
 			Symbol * index = addEntry(node1->identLex);
 		}
 		currentScope = oldScope;
+		printf("formalParmeter->identifer\n");
+		
 	}
     break;
 
   case 136:
 
 /* Line 1455 of yacc.c  */
-#line 2495 "parser.y"
+#line 2571 "parser.y"
     {   ////check/////
 		(yyvsp[(1) - (2)]) = (yyvsp[(0) - (2)]); 
 		(yyvsp[(2) - (2)]) = (yyvsp[(0) - (2)]);
+		printf("formalParmeterlist->formalParmeter\n");	
 	}
     break;
 
   case 138:
 
 /* Line 1455 of yacc.c  */
-#line 2502 "parser.y"
+#line 2579 "parser.y"
     {
 		(yyval) = (yyvsp[(0) - (1)]);
 	}
@@ -4178,57 +4274,94 @@ yyreduce:
   case 139:
 
 /* Line 1455 of yacc.c  */
-#line 2505 "parser.y"
+#line 2582 "parser.y"
     {
 		(yyvsp[(1) - (1)]) = (yyvsp[(0) - (1)]);
+	}
+    break;
+
+  case 140:
+
+/* Line 1455 of yacc.c  */
+#line 2584 "parser.y"
+    {
+		printf("formalParmeterpart->(formalParmeterlist)\n");
 	}
     break;
 
   case 141:
 
 /* Line 1455 of yacc.c  */
-#line 2510 "parser.y"
+#line 2589 "parser.y"
     {
 		Node *node1 = (yyvsp[(0) - (1)]);
 		Node *node2 = (yyvsp[(1) - (1)]);
 		currentScope = scopeStack[scopeStackTop-1];
-		Symbol *symbol = lookUp(node2->identLex,currentScope);
-		symbol->type = node1->semTypeDef;
+		printf("indenlist->ident\n");
+		Symbol *symbol1=lookUp(node2->identLex,currentScope);
+		if(symbol1==NULL)
+		{
+			Symbol *symbol=addEntry(node2->identLex);
+			symbol->type=node1->semTypeDef;		
+		}
+		else{
+			symbol1->type = node1->semTypeDef;
+		}
 	}
     break;
 
   case 142:
 
 /* Line 1455 of yacc.c  */
-#line 2517 "parser.y"
+#line 2605 "parser.y"
     {
 		(yyvsp[(2) - (3)]) = (yyvsp[(0) - (3)]);
+		printf("indenlist ->identlist , ident\n");
 	}
     break;
 
   case 143:
 
 /* Line 1455 of yacc.c  */
-#line 2521 "parser.y"
+#line 2610 "parser.y"
     {
 		(yyvsp[(3) - (3)]) = (yyvsp[(0) - (3)]);
+	}
+    break;
+
+  case 145:
+
+/* Line 1455 of yacc.c  */
+#line 2615 "parser.y"
+    {
+		printf("specifier->type\n"); 
 	}
     break;
 
   case 152:
 
 /* Line 1455 of yacc.c  */
-#line 2535 "parser.y"
+#line 2626 "parser.y"
     {
-		(yyvsp[(3) - (3)]) = (yyvsp[(0) - (3)]);
+		//$3 = $0;
 		Node *node1 = (yyvsp[(1) - (3)]);
+		printf("specificationidentlist->specifier identlist ;\n");
+	}
+    break;
+
+  case 153:
+
+/* Line 1455 of yacc.c  */
+#line 2632 "parser.y"
+    {
+		printf("specificationidentlist->specificationidentlist specifier identlist ;\n");
 	}
     break;
 
   case 154:
 
 /* Line 1455 of yacc.c  */
-#line 2542 "parser.y"
+#line 2637 "parser.y"
     {
 		Node *node = createNode();
 		node->type = procedureHeading;
@@ -4247,7 +4380,7 @@ yyreduce:
   case 155:
 
 /* Line 1455 of yacc.c  */
-#line 2554 "parser.y"
+#line 2649 "parser.y"
     {
 		(yyvsp[(3) - (4)]) = (yyvsp[(1) - (4)]);
 	}
@@ -4256,12 +4389,12 @@ yyreduce:
   case 157:
 
 /* Line 1455 of yacc.c  */
-#line 2559 "parser.y"
+#line 2655 "parser.y"
     {//changed 16th april
 		Node *new = createNode();
 		
 		new->type = procedureBody;
-		Node *temp = (yyvsp[(1) - (4)]);
+		Node *temp = (yyvsp[(1) - (1)]);
 		new->semTypeDef = temp->semTypeDef;
 		strcpy(new->code,temp->code);
 		(yyval) = new;
@@ -4272,7 +4405,7 @@ yyreduce:
   case 158:
 
 /* Line 1455 of yacc.c  */
-#line 2571 "parser.y"
+#line 2667 "parser.y"
     {
 		Node *node1 = (yyvsp[(2) - (3)]);
 		Node *node2 = (yyvsp[(3) - (3)]);
@@ -4296,7 +4429,7 @@ yyreduce:
   case 159:
 
 /* Line 1455 of yacc.c  */
-#line 2590 "parser.y"
+#line 2686 "parser.y"
     {
 		Node *node1 = (yyvsp[(3) - (4)]);
 		Node *node2 = (yyvsp[(1) - (4)]);
@@ -4321,7 +4454,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 4325 "y.tab.c"
+#line 4458 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -4533,7 +4666,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 2611 "parser.y"
+#line 2707 "parser.y"
 
 int main(int argc, char* argv[])
 {
