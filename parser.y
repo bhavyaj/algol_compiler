@@ -359,7 +359,7 @@ block :
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
 	}
-	TOKEN_COLON*/ block 
+	TOKEN_COLON*/ block
 	{
 		Node *newNode = createNode();
 		newNode->pt0 = $2;
@@ -387,7 +387,7 @@ block :
 	};
 */
 
-tlabel: label TOKEN_COLON
+tlabel : label TOKEN_COLON
 	{
 		Node* newNode = createNode();
 		Node* tempNode = $1;
@@ -445,11 +445,9 @@ program :
 	;
 
 unlabelledCompound :
-	TOKEN_BEGIN{
+	TOKEN_BEGIN compoundTail{
 		currentScope = scopeStack[scopeStackTop-1];
 		printf("current Scope = %d\n",currentScope);
-	} 
-	 {
 		Node* newNode = createNode();
 		Node* tempNode = $2;
 		strcpy(newNode->code,tempNode->code);
@@ -468,7 +466,13 @@ compoundStatement :
 		$$=newNode;	
 	}
 	|
-	tlabel /*TOKEN_COLON*/ compoundStatement{			/////check/////
+	tlabel /*TOKEN_COLON*/ compoundStatement
+	{			/////check/////
+		Node* newNode = createNode();
+		Node* tempNode1 = $1;
+		Node* tempNode2 = $2;
+		sprintf(newNode->code,"%s:\n%s",tempNode1->identLex,tempNode2->code);
+		$$=newNode;	
 		printf("labelled compoundstatement\n");
 	}
 	;
@@ -476,7 +480,6 @@ compoundStatement :
 compoundTail :
 	statement TOKEN_END
 	{
-		printf("compound tail -> statement\n");
 		Node *newNode = createNode();
 		newNode->pt0 = $1;
 		Node* tempNode = $1;
@@ -486,7 +489,7 @@ compoundTail :
 	}	
 	|
 	statement TOKEN_SEMICOLON compoundTail
-	{	printf("compound tail -> statement compound tail\n "); 
+	{	
 		Node *newNode = createNode();
 		newNode->pt0 = $1;
 		Node* tempNode1=$1;
@@ -550,14 +553,6 @@ lowerBound:
 		$$=newNode;
 		printf("lowerBound->arithmeticExpression\n");
 	};
-
-switchList :
-	designationalExpression
-	| switchList TOKEN_COMMA designationalExpression
-	;
-
-switchDeclaration :
-	TOKEN_SWITCH switchIdentifier TOKEN_ASSIGN switchList;
 
 upperBound:
 	arithmeticExpression
@@ -627,9 +622,13 @@ boundPairList :
 		newNode->pt2 = $3;
 		Node* tempNodeOne = $1;
 		Node* tempNodeTwo = $3;
-	
+		int i;
 		if (tempNodeOne->semTypeDef==storeBoundPairList && tempNodeTwo->semTypeDef==storeBoundPairList ){
 			newNode->semTypeDef=storeBoundPairList;
+			for(i=tempNodeOne->dim-1;i>=0;i--){
+				newNode->lowerBound[i] = tempNodeOne->lowerBound[i];
+				newNode->upperBound[i] = tempNodeOne->upperBound[i];
+			}
 			newNode->dim = tempNodeOne->dim + 1 ;
 			newNode->lowerBound[newNode->dim-1] = tempNodeTwo->lowerBound[0];
 			newNode->upperBound[newNode->dim-1] = tempNodeTwo->upperBound[0]; 	
@@ -673,7 +672,7 @@ arraySegment :
 		entry->dim = tempNodeTwo->dim;
 		newNode->dim = tempNodeTwo->dim;
 		int i;
-		for(i=0;i<tempNodeTwo->dim;i++){
+		for(i=tempNodeTwo->dim-1;i>=0;i--){
 			entry->lowerBound[i] = tempNodeTwo->lowerBound[i];
 			entry->upperBound[i] = tempNodeTwo->upperBound[i];
 			newNode->lowerBound[i] = tempNodeTwo->lowerBound[i];
@@ -688,7 +687,7 @@ arraySegment :
 		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
 	}
 	| arrayIdentifier TOKEN_COMMA arraySegment
-	{
+	{	
 		Node* newNode = createNode();
 		newNode->type = arraySegment;
 		newNode->pt0 = $1;
@@ -705,7 +704,8 @@ arraySegment :
 		entry->dim = tempNodeTwo->dim;
 		newNode->dim = tempNodeTwo->dim;
 		int i;
-		for(i=0; i < tempNodeTwo->dim; i++){
+		
+		for(i=tempNodeTwo->dim-1;i>=0;i--){
 			entry->lowerBound[i] = tempNodeTwo->lowerBound[i];
 			entry->upperBound[i] = tempNodeTwo->upperBound[i];
 			newNode->lowerBound[i] = tempNodeTwo->lowerBound[i];
@@ -810,31 +810,6 @@ expression :
 	{
 				
 	};
-
-switchIdentifier :
-	identifier{
-		Node *newNode = createNode();
-		newNode->type= switchIdentifier;
-		newNode->pt0=$1;
-		Node* tempNode = $1;
-		strcpy(newNode->identLex,tempNode->identLex);
-
-		$$=newNode;
-		printf("switchIdent->Identifier\n");
-	}
-	;
-
-switchDesignator :
-	switchIdentifier TOKEN_OPEN_CURLY_BRACKET subscriptExpression TOKEN_CLOSE_CURLY_BRACKET ;
-
-simpleDesignationalExpression : 
-	tlabel
-	| switchDesignator
-	| TOKEN_OPEN_BRACKET designationalExpression TOKEN_CLOSE_BRACKET;
-
-designationalExpression :
-	simpleDesignationalExpression
-	| ifClause simpleDesignationalExpression TOKEN_ELSE designationalExpression;
 
 arithmeticExpression :
 	simpleArithmeticExpression
@@ -1148,6 +1123,17 @@ primary :
 	}
 	|	
 	functionDesignator{
+		Node *newNode = createNode();
+		newNode->type = primary;
+		newNode->pt0 = $1;
+		Node *tempNode = (Node*)$1;
+		newNode->intValue = tempNode->intValue;
+		newNode->realValue = tempNode->realValue;
+		newNode->semTypeDef=tempNode->semTypeDef;
+		newNode->place=tempNode->place;
+		strcpy(newNode->code,tempNode->code);
+		$$ = newNode;
+		printf("primary->unsignedNumber");
 	}
 	|
 	variable
@@ -1388,7 +1374,7 @@ subscriptList:
 		$$ = newNode;
 	};
 
-subscriptExpression:
+subscriptExpression :
 	arithmeticExpression
 	{
 		Node* newNode = createNode();
@@ -1829,14 +1815,17 @@ listType :
 			printf("belu else\n");			
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
-			currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			if(currentGlobalOffset <= symbolTable[currentScope].currentOffset){
+				newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
+				currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			}
+			else{
+				newEntry->offset=symbolTable[currentScope].currentOffset;
+				symbolTable[currentScope].currentOffset-=4;				
+			}
 			printf("belu semtypedef : %d\n", newEntry->type);	
-			$$=$0;			
-
-
+			$$=$0;
 		}
-
 	}
 	|
 	listType TOKEN_COMMA varIdentifier ////check////
@@ -1850,15 +1839,17 @@ listType :
 		else{
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
-			currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			if(currentGlobalOffset <= symbolTable[currentScope].currentOffset){
+				newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
+				currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			}
+			else{
+				newEntry->offset=symbolTable[currentScope].currentOffset;
+				symbolTable[currentScope].currentOffset-=4;				
+			}
 		}
-		$$=$0;
-
-		
+		$$=$0;	
 	}
-	
-
 	;
 
 
@@ -2120,7 +2111,13 @@ unlabelledBasicStatement :
 		strcpy(newNode->code,tempNode->code);
 		$$ = $1;
 	}
-
+	|
+	gotoStatement
+	{
+		Node* newNode = createNode();
+		Node* tempNode = $1;
+		strcpy(newNode->code,tempNode->code);
+	}
 	;
 dummyStatement :	///check////
 	empty
@@ -2553,7 +2550,7 @@ actualParameterList :
 		else
 		{
 			new->semTypeDef = storeVoid;
-			sprintf(new->code,"%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp1->code,temp1->place,-100-4* new->dim);			
+			sprintf(new->code,"%s%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp3->code,temp1->code,temp1->place,-100-4* new->dim);			
 		}	
 		$$ = new;
 
@@ -2581,7 +2578,32 @@ parameterDelimiter : TOKEN_COMMA
 functionDesignator :
 	procedureIdentifier actualParameterPart
 	{
-		Node* newNode = createNode();
+		Node *new = createNode();
+		Node *temp1 = $1;
+		Node *temp2 = $2;
+		currentScope = scopeStack[scopeStackTop-1];
+		Symbol *symbol= lookUp(temp1->identLex,currentScope);
+
+		if(symbol == NULL)
+		{
+			new->semTypeDef = storeError;
+		}
+		else
+		{
+			/*if(temp2->semTypeDef==storeError)
+			{
+				new->semTypeDef =storeError;
+			}
+			else
+			{*/
+				new->semTypeDef = symbol->type;
+				new->place = getNewTemp();
+				sprintf(new->code, "sw\t$t0,-996($sp)\nsw\t$t1,-992($sp)\nsw\t$t2,-988($sp)\nsw\t$t3,-984($sp)\nsw\t$t4,-980($sp)\nsw\t$t5,-976($sp)\nsw\t$t6,-972($sp)\nsw\t$t7,-968($sp)\nsw\t$ra,-964($sp)\n%sli\t$t0,100\nsub\t$sp,$sp,$t0\njal\t%s\nli\t$t0,100\nadd\t$sp,$sp,$t0\nlw\t$t0,-996($sp)\nlw\t$t1,-992($sp)\nlw\t$t2,-988($sp)\nlw\t$t3,-984($sp)\nlw\t$t4,-980($sp)\nlw\t$t5,-976($sp)\nlw\t$t6,-972($sp)\nlw\t$t7,-968($sp)\nlw\t$ra,-964($sp)\nsw\t$v0,%d($sp)\n",temp2->code,temp1->identLex,new->place);
+
+			//}
+		}
+
+		$$ = new; 
 		
 
 	}
@@ -2838,6 +2860,59 @@ procedureDeclaration :
 		paramBelu = 0;
 	};
 
+gotoStatement :
+	TOKEN_GOTO designationalExpression
+	{
+		Node* newNode=createNode();
+		Node* tempNode = $2;
+		sprintf(newNode->code,"b\t%s\n",tempNode->identLex);
+		$$=newNode;
+	};
+
+switchDeclaration :
+	TOKEN_SWITCH switchIdentifier TOKEN_ASSIGN switchList;
+
+switchList :
+	designationalExpression
+	| switchList TOKEN_COMMA designationalExpression
+	;
+
+switchIdentifier :
+	identifier{
+		Node *newNode = createNode();
+		newNode->type= switchIdentifier;
+		newNode->pt0=$1;
+		Node* tempNode = $1;
+		strcpy(newNode->identLex,tempNode->identLex);
+
+		$$=newNode;
+		printf("switchIdent->Identifier\n");
+	}
+	;
+
+designationalExpression :
+	simpleDesignationalExpression
+	{
+		Node* newNode=createNode();
+		Node* tempNode = $1;
+		strcpy(newNode->identLex,tempNode->identLex);
+		$$=newNode;
+	}
+	| ifClause simpleDesignationalExpression TOKEN_ELSE designationalExpression;
+
+simpleDesignationalExpression : 
+	TOKEN_COLON label
+	{
+		Node* newNode=createNode();
+		Node* tempNode = $2;
+		strcpy(newNode->identLex,tempNode->identLex);
+		$$=newNode;
+	}
+	| switchDesignator
+	| TOKEN_OPEN_BRACKET designationalExpression TOKEN_CLOSE_BRACKET;
+
+switchDesignator :
+	switchIdentifier TOKEN_OPEN_CURLY_BRACKET subscriptExpression TOKEN_CLOSE_CURLY_BRACKET ;
 
 %%
 int main(int argc, char* argv[])
@@ -2858,8 +2933,8 @@ int main(int argc, char* argv[])
 		;
 	}
 	strcat(code,"jr\t$ra");
-	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n the result is = \"");
-	printf("%s",code);
+	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n OUTPUT = \"");
+	//printf("%s",code);
 	FILE* fp1 = fopen("code1.asm","w");
 	fprintf(fp1,"%s",code);
 	return 0;

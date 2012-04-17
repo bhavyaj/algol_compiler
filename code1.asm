@@ -20,15 +20,15 @@ sw	$t0,-1036($sp)
 li	$t0,6
 sw	$t0,-1040($sp)
 lw	$t0,-1040($sp)
-sw	$t0,-728($sp)
+sw	$t0,-776($sp)
 li	$t0,1
 sw	$t0,-1044($sp)
-li	$t0,3
+li	$t0,1
 sw	$t0,-1048($sp)
 li	$t0,10
 sw	$t0,-1052($sp)
 lw	$t0,-1052($sp)
-sw	$t0,-728($sp)
+sw	$t0,-768($sp)
 li	$t0,3
 sw	$t0,-1056($sp)
 lw	$t0,-1056($sp)
@@ -46,11 +46,11 @@ lw	$t0,-1068($sp)
 li	$v0,1
 move	$a0,$t0
 syscall
-li	$t0,1
+li	$t0,2
 sw	$t0,-1072($sp)
 li	$t0,3
 sw	$t0,-1076($sp)
-lw	$t0,-728($sp)
+lw	$t0,-776($sp)
 sw	$t0,-1080($sp)
 li	$v0,4
 la	$a0, MSG
@@ -59,11 +59,11 @@ lw	$t0,-1080($sp)
 li	$v0,1
 move	$a0,$t0
 syscall
-li	$t0,2
+li	$t0,1
 sw	$t0,-1084($sp)
-li	$t0,3
+li	$t0,1
 sw	$t0,-1088($sp)
-lw	$t0,-728($sp)
+lw	$t0,-768($sp)
 sw	$t0,-1092($sp)
 li	$v0,4
 la	$a0, MSG
@@ -75,4 +75,4 @@ syscall
 jr	$ra
 
 	.data
-MSG:	.asciiz "\n the result is = "
+MSG:	.asciiz "\n OUTPUT = "
