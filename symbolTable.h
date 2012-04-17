@@ -8,6 +8,7 @@ typedef struct{
 	bool boolean;
 	int offset;
 	int dim;
+	int procNumParam;
 	int lowerBound[20];
 	int upperBound[20]; 
 	struct Symbol *next;

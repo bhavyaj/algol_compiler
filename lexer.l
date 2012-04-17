@@ -63,7 +63,7 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 			 return TOKEN_BEGIN ;
 			}
 			
-"end"			{printf("end reached\n");
+"end"		{printf("end reached\n");
 			 pop(globalLevel);
 			 return TOKEN_END;}
 

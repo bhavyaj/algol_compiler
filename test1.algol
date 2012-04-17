@@ -2,7 +2,7 @@ main:
 begin integer s,r,k,j,i;
 	s := 6;
 	r := 2;
-	j := 4;
+	j := 5;
 	i := s-r;
 	k := i * j;
 	print k;

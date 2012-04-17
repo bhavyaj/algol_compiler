@@ -8,8 +8,8 @@ typedef struct{
 	bool boolean;
 	int offset;
 	int dim;
-	int arrayLower[10];
-	int arrayUpper[10]; 
+	int lowerBound[20];
+	int upperBound[20]; 
 	struct Symbol *next;
 }Symbol;
 	
