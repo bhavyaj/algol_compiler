@@ -1,14 +1,18 @@
 main:
-begin integer zhandu;
+begin integer x,y;
 integer procedure abc(a,b,c); integer a,b; integer c;
 	begin integer d;
-		return 3;
+		d :=10;
+		print a;
+		print b;
+		print c;
+		print d;
+		c := (a+b+c)*d;
+		print c;
 	end;
-integer procedure beluc(a,b); integer a;real c;
-	begin integer x;
-	end;
-integer procedure belucc(a,b); integer a;
-	begin;
-	end;
-zhandu := abc(1,2,3);
+x := 4;
+abc(1,2,3);
+y := 5;
+print x;
+print y;
 end
