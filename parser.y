@@ -1311,11 +1311,14 @@ subscriptedVariable :
 		{	
 			if(tempNode1->semTypeDef == storeInteger){		
 				newNode->semTypeDef = foundEntry->type;
-				int offset = foundEntry->offset-tempNode1->lowerBound[tempNode1->dim-1]*4;
-				int i=0;
+				int i;
+				for(i=tempNode1->dim-1;i>=0;i--){
+					printf("######### the temp node array index is %d #########\n",tempNode1->lowerBound[i]);
+				}
+				int offset = foundEntry->offset - (tempNode1->lowerBound[tempNode1->dim-1]-foundEntry->lowerBound[tempNode1->dim-1])*4;
 				for(i=foundEntry->dim-1;i>0;i--){
 					if(tempNode1->lowerBound[i-1] <= foundEntry->upperBound[i-1] && tempNode1->lowerBound[i-1] >= foundEntry->lowerBound[i-1]){
-						offset-=(foundEntry->upperBound[i]-foundEntry->lowerBound[i])*4*tempNode1->lowerBound[i-1];
+						offset-=(foundEntry->upperBound[i]-foundEntry->lowerBound[i])*4*(tempNode1->lowerBound[i-1]-foundEntry->lowerBound[i-1]);
 					}
 					else{
 						printf("array dimension is out of range\n");
@@ -1365,6 +1368,10 @@ subscriptList:
 		sprintf(newNode->code,"%s%s",tempNode1->code,tempNode2->code);
 		if(tempNode2->semTypeDef == storeInteger){
 			newNode->semTypeDef = tempNode2->semTypeDef;
+			int i;
+			for(i=tempNode1->dim-1;i>=0;i--){
+				newNode->lowerBound[i] = tempNode1->lowerBound[i];
+			}
 			newNode->dim = tempNode1->dim+1;
 			newNode->lowerBound[newNode->dim-1] = tempNode2->intValue;
 		}

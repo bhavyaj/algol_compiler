@@ -4,11 +4,11 @@ begin
 	integer array b,a[0:3,1:4];
 	a[2,3] := 5-1;
 	b[2,3] := 6;
-	b[1,1] := 10;
+	b[2,1] := 10;
 	c:=3;
 	print a[2,3];
 	print b[2,3];
-	print b[1,1];
+	print b[2,1];
 end
 
 
