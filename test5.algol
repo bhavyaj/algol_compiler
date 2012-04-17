@@ -2,7 +2,8 @@ main:
 begin integer s,r,k;
 	s := 6;
 	r := 2;
-	begin integer j,i;
+	begin
+			integer j,i;
 			j := 3;
 			i := 4;
 			i := s-r;

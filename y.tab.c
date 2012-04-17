@@ -797,16 +797,16 @@ static const yytype_uint16 yyrline[] =
      645,   658,   689,   723,   742,   762,   767,   775,   787,   799,
      805,   818,   821,   822,   823,   826,   827,   830,   867,   882,
      897,   915,   954,   989,  1004,  1037,  1079,  1095,  1122,  1138,
-    1141,  1173,  1189,  1204,  1220,  1231,  1243,  1261,  1277,  1295,
-    1338,  1358,  1380,  1395,  1413,  1451,  1465,  1483,  1496,  1517,
-    1529,  1549,  1561,  1581,  1593,  1612,  1638,  1650,  1663,  1680,
-    1795,  1804,  1830,  1854,  1864,  1875,  1885,  1893,  1912,  1924,
-    1935,  1948,  1961,  1978,  1998,  2002,  2027,  2048,  2061,  2065,
-    2076,  2090,  2104,  2114,  2118,  2136,  2174,  2385,  2426,  2434,
-    2465,  2476,  2477,  2491,  2506,  2529,  2543,  2544,  2547,  2556,
-    2566,  2576,  2584,  2602,  2631,  2632,  2640,  2643,  2643,  2650,
-    2671,  2693,  2696,  2698,  2701,  2702,  2703,  2704,  2706,  2707,
-    2709,  2714,  2721,  2734,  2721,  2743,  2755,  2779
+    1152,  1184,  1200,  1215,  1231,  1242,  1254,  1272,  1288,  1306,
+    1349,  1369,  1391,  1406,  1424,  1462,  1476,  1494,  1507,  1528,
+    1540,  1560,  1572,  1592,  1604,  1623,  1649,  1661,  1674,  1691,
+    1806,  1815,  1844,  1870,  1880,  1891,  1901,  1909,  1928,  1940,
+    1951,  1964,  1977,  1994,  2014,  2018,  2043,  2064,  2077,  2081,
+    2092,  2106,  2120,  2130,  2134,  2152,  2190,  2401,  2442,  2450,
+    2481,  2492,  2493,  2507,  2522,  2545,  2559,  2560,  2563,  2597,
+    2607,  2617,  2625,  2643,  2672,  2673,  2681,  2684,  2684,  2691,
+    2712,  2734,  2737,  2739,  2742,  2743,  2744,  2745,  2747,  2748,
+    2750,  2755,  2762,  2775,  2762,  2784,  2796,  2820
 };
 #endif
 
@@ -2862,13 +2862,24 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 1138 "parser.y"
     {
+		Node *newNode = createNode();
+		newNode->type = primary;
+		newNode->pt0 = (yyvsp[(1) - (1)]);
+		Node *tempNode = (Node*)(yyvsp[(1) - (1)]);
+		newNode->intValue = tempNode->intValue;
+		newNode->realValue = tempNode->realValue;
+		newNode->semTypeDef=tempNode->semTypeDef;
+		newNode->place=tempNode->place;
+		strcpy(newNode->code,tempNode->code);
+		(yyval) = newNode;
+		printf("primary->unsignedNumber");
 	}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 1142 "parser.y"
+#line 1153 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = primary;
@@ -2904,7 +2915,7 @@ yyreduce:
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 1174 "parser.y"
+#line 1185 "parser.y"
     {
 		Node *newNode = createNode();
 		
@@ -2923,7 +2934,7 @@ yyreduce:
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 1190 "parser.y"
+#line 1201 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = unsignedNumber;
@@ -2942,7 +2953,7 @@ yyreduce:
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 1205 "parser.y"
+#line 1216 "parser.y"
     {	
 		Node *newNode = createNode();
 		newNode->type = unsignedNumber;
@@ -2961,7 +2972,7 @@ yyreduce:
   case 64:
 
 /* Line 1455 of yacc.c  */
-#line 1221 "parser.y"
+#line 1232 "parser.y"
     {
 		Node *newNode = createNode();
 		
@@ -2975,7 +2986,7 @@ yyreduce:
   case 65:
 
 /* Line 1455 of yacc.c  */
-#line 1232 "parser.y"
+#line 1243 "parser.y"
     {
 		Node *newNode = createNode();
 		
@@ -2990,7 +3001,7 @@ yyreduce:
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 1244 "parser.y"
+#line 1255 "parser.y"
     {	
 		Node *new = createNode();		
 		new->type = simpleVariable;
@@ -3011,7 +3022,7 @@ yyreduce:
   case 67:
 
 /* Line 1455 of yacc.c  */
-#line 1262 "parser.y"
+#line 1273 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = variable;
@@ -3031,7 +3042,7 @@ yyreduce:
   case 68:
 
 /* Line 1455 of yacc.c  */
-#line 1278 "parser.y"
+#line 1289 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->isArray = 1;
@@ -3052,7 +3063,7 @@ yyreduce:
   case 69:
 
 /* Line 1455 of yacc.c  */
-#line 1296 "parser.y"
+#line 1307 "parser.y"
     {
 		Node* newNode = createNode();
 		               	  
@@ -3097,7 +3108,7 @@ yyreduce:
   case 70:
 
 /* Line 1455 of yacc.c  */
-#line 1339 "parser.y"
+#line 1350 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = subscriptList;
@@ -3121,7 +3132,7 @@ yyreduce:
   case 71:
 
 /* Line 1455 of yacc.c  */
-#line 1359 "parser.y"
+#line 1370 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = subscriptList;
@@ -3146,7 +3157,7 @@ yyreduce:
   case 72:
 
 /* Line 1455 of yacc.c  */
-#line 1381 "parser.y"
+#line 1392 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = subscriptExpression;
@@ -3164,7 +3175,7 @@ yyreduce:
   case 73:
 
 /* Line 1455 of yacc.c  */
-#line 1396 "parser.y"
+#line 1407 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = identifier;
@@ -3185,7 +3196,7 @@ yyreduce:
   case 74:
 
 /* Line 1455 of yacc.c  */
-#line 1414 "parser.y"
+#line 1425 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = booleanExpression;
@@ -3207,7 +3218,7 @@ yyreduce:
   case 75:
 
 /* Line 1455 of yacc.c  */
-#line 1452 "parser.y"
+#line 1463 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = booleanExpression;
@@ -3225,7 +3236,7 @@ yyreduce:
   case 76:
 
 /* Line 1455 of yacc.c  */
-#line 1466 "parser.y"
+#line 1477 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = booleanExpression;
@@ -3246,7 +3257,7 @@ yyreduce:
   case 77:
 
 /* Line 1455 of yacc.c  */
-#line 1484 "parser.y"
+#line 1495 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = implication;
@@ -3263,7 +3274,7 @@ yyreduce:
   case 78:
 
 /* Line 1455 of yacc.c  */
-#line 1497 "parser.y"
+#line 1508 "parser.y"
     {
 		Node *newNode = createNode();         		
 		newNode->type = implication;
@@ -3287,7 +3298,7 @@ yyreduce:
   case 79:
 
 /* Line 1455 of yacc.c  */
-#line 1518 "parser.y"
+#line 1529 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanTerm;
@@ -3303,7 +3314,7 @@ yyreduce:
   case 80:
 
 /* Line 1455 of yacc.c  */
-#line 1530 "parser.y"
+#line 1541 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanFactor;
@@ -3326,7 +3337,7 @@ yyreduce:
   case 81:
 
 /* Line 1455 of yacc.c  */
-#line 1550 "parser.y"
+#line 1561 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanFactor;
@@ -3342,7 +3353,7 @@ yyreduce:
   case 82:
 
 /* Line 1455 of yacc.c  */
-#line 1562 "parser.y"
+#line 1573 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanFactor;
@@ -3365,7 +3376,7 @@ yyreduce:
   case 83:
 
 /* Line 1455 of yacc.c  */
-#line 1582 "parser.y"
+#line 1593 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanSecondary;
@@ -3381,7 +3392,7 @@ yyreduce:
   case 84:
 
 /* Line 1455 of yacc.c  */
-#line 1594 "parser.y"
+#line 1605 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanSecondary;
@@ -3402,7 +3413,7 @@ yyreduce:
   case 85:
 
 /* Line 1455 of yacc.c  */
-#line 1613 "parser.y"
+#line 1624 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanPrimary;
@@ -3419,7 +3430,7 @@ yyreduce:
   case 86:
 
 /* Line 1455 of yacc.c  */
-#line 1639 "parser.y"
+#line 1650 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanPrimary;
@@ -3435,7 +3446,7 @@ yyreduce:
   case 87:
 
 /* Line 1455 of yacc.c  */
-#line 1651 "parser.y"
+#line 1662 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = booleanPrimary;
@@ -3451,7 +3462,7 @@ yyreduce:
   case 88:
 
 /* Line 1455 of yacc.c  */
-#line 1664 "parser.y"
+#line 1675 "parser.y"
     {
 		Node* newNode = createNode();
 		newNode->type = logicalValue;
@@ -3471,7 +3482,7 @@ yyreduce:
   case 89:
 
 /* Line 1455 of yacc.c  */
-#line 1681 "parser.y"
+#line 1692 "parser.y"
     {
 		Node *newNode = createNode();
 		newNode->type = relation;
@@ -3566,7 +3577,7 @@ yyreduce:
   case 90:
 
 /* Line 1455 of yacc.c  */
-#line 1796 "parser.y"
+#line 1807 "parser.y"
     {	
 		Node *newNode = createNode();
 		newNode->type = relationalOperator;
@@ -3578,7 +3589,7 @@ yyreduce:
   case 91:
 
 /* Line 1455 of yacc.c  */
-#line 1805 "parser.y"
+#line 1816 "parser.y"
     {
 
 		Node *temp2=(yyvsp[(0) - (1)]);
@@ -3594,21 +3605,24 @@ yyreduce:
 			printf("belu else\n");			
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
-			currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			if(currentGlobalOffset <= symbolTable[currentScope].currentOffset){
+				newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
+				currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			}
+			else{
+				newEntry->offset=symbolTable[currentScope].currentOffset;
+				symbolTable[currentScope].currentOffset-=4;				
+			}
 			printf("belu semtypedef : %d\n", newEntry->type);	
-			(yyval)=(yyvsp[(0) - (1)]);			
-
-
+			(yyval)=(yyvsp[(0) - (1)]);
 		}
-
 	}
     break;
 
   case 92:
 
 /* Line 1455 of yacc.c  */
-#line 1831 "parser.y"
+#line 1845 "parser.y"
     {
 		Node *temp2=(yyvsp[(0) - (3)]);
 		Node *temp0=(yyvsp[(1) - (3)]);
@@ -3619,19 +3633,23 @@ yyreduce:
 		else{
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
-			currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			if(currentGlobalOffset <= symbolTable[currentScope].currentOffset){
+				newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
+				currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			}
+			else{
+				newEntry->offset=symbolTable[currentScope].currentOffset;
+				symbolTable[currentScope].currentOffset-=4;				
+			}
 		}
-		(yyval)=(yyvsp[(0) - (3)]);
-
-		
+		(yyval)=(yyvsp[(0) - (3)]);	
 	}
     break;
 
   case 93:
 
 /* Line 1455 of yacc.c  */
-#line 1855 "parser.y"
+#line 1871 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = type;
@@ -3645,7 +3663,7 @@ yyreduce:
   case 94:
 
 /* Line 1455 of yacc.c  */
-#line 1865 "parser.y"
+#line 1881 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = type;
@@ -3659,7 +3677,7 @@ yyreduce:
   case 95:
 
 /* Line 1455 of yacc.c  */
-#line 1876 "parser.y"
+#line 1892 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = type;
@@ -3671,7 +3689,7 @@ yyreduce:
   case 96:
 
 /* Line 1455 of yacc.c  */
-#line 1886 "parser.y"
+#line 1902 "parser.y"
     {
 	printf("typeDeclaration\n");
 	//$$=$2;
@@ -3681,7 +3699,7 @@ yyreduce:
   case 97:
 
 /* Line 1455 of yacc.c  */
-#line 1894 "parser.y"
+#line 1910 "parser.y"
     {
 		Node *new = createNode();		
 		new->type = varIdentifier;
@@ -3702,7 +3720,7 @@ yyreduce:
   case 98:
 
 /* Line 1455 of yacc.c  */
-#line 1913 "parser.y"
+#line 1929 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = unconditionalStatement;
@@ -3718,7 +3736,7 @@ yyreduce:
   case 99:
 
 /* Line 1455 of yacc.c  */
-#line 1924 "parser.y"
+#line 1940 "parser.y"
     {
 
 		Node *new = createNode();         	
@@ -3734,7 +3752,7 @@ yyreduce:
   case 100:
 
 /* Line 1455 of yacc.c  */
-#line 1935 "parser.y"
+#line 1951 "parser.y"
     {
 
 		Node *new = createNode();
@@ -3750,7 +3768,7 @@ yyreduce:
   case 101:
 
 /* Line 1455 of yacc.c  */
-#line 1949 "parser.y"
+#line 1965 "parser.y"
     {
 		Node *newNode = createNode();         	
         	newNode->type = conditionalStatement;
@@ -3767,7 +3785,7 @@ yyreduce:
   case 102:
 
 /* Line 1455 of yacc.c  */
-#line 1961 "parser.y"
+#line 1977 "parser.y"
     {
 		Node *newNode = createNode();         	
         	newNode->type = conditionalStatement;
@@ -3789,7 +3807,7 @@ yyreduce:
   case 103:
 
 /* Line 1455 of yacc.c  */
-#line 1979 "parser.y"
+#line 1995 "parser.y"
     {
 		Node *newNode = createNode();         	
 		newNode->type = conditionalStatement;
@@ -3813,7 +3831,7 @@ yyreduce:
   case 105:
 
 /* Line 1455 of yacc.c  */
-#line 2003 "parser.y"
+#line 2019 "parser.y"
     {
 		Node *newNode = createNode();         	
         	newNode->type = ifStatement;
@@ -3840,7 +3858,7 @@ yyreduce:
   case 106:
 
 /* Line 1455 of yacc.c  */
-#line 2028 "parser.y"
+#line 2044 "parser.y"
     {
 		Node *newNode = createNode();
         	newNode->type = ifClause;
@@ -3862,7 +3880,7 @@ yyreduce:
   case 107:
 
 /* Line 1455 of yacc.c  */
-#line 2048 "parser.y"
+#line 2064 "parser.y"
     {
 
 		Node *new = createNode();         	
@@ -3880,7 +3898,7 @@ yyreduce:
   case 109:
 
 /* Line 1455 of yacc.c  */
-#line 2066 "parser.y"
+#line 2082 "parser.y"
     {		
 		Node *new = createNode();         	
         new->type = unlabelledBasicStatement; 
@@ -3895,7 +3913,7 @@ yyreduce:
   case 110:
 
 /* Line 1455 of yacc.c  */
-#line 2077 "parser.y"
+#line 2093 "parser.y"
     {
 
 		Node *new = createNode();         	
@@ -3913,7 +3931,7 @@ yyreduce:
   case 111:
 
 /* Line 1455 of yacc.c  */
-#line 2091 "parser.y"
+#line 2107 "parser.y"
     {
 			
 		Node *new = createNode();         	
@@ -3931,7 +3949,7 @@ yyreduce:
   case 112:
 
 /* Line 1455 of yacc.c  */
-#line 2105 "parser.y"
+#line 2121 "parser.y"
     {
 		Node* newNode = createNode();
 		Node *tempNode = (yyvsp[(1) - (1)]);
@@ -3943,7 +3961,7 @@ yyreduce:
   case 114:
 
 /* Line 1455 of yacc.c  */
-#line 2119 "parser.y"
+#line 2135 "parser.y"
     {
 		Node *newNode = createNode();
                 newNode->type = returnStatement;
@@ -3964,7 +3982,7 @@ yyreduce:
   case 115:
 
 /* Line 1455 of yacc.c  */
-#line 2137 "parser.y"
+#line 2153 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
@@ -4006,7 +4024,7 @@ yyreduce:
   case 116:
 
 /* Line 1455 of yacc.c  */
-#line 2175 "parser.y"
+#line 2191 "parser.y"
     {
 		Node *new = createNode();         	
         	new->type = assignmentStatement;
@@ -4046,7 +4064,7 @@ yyreduce:
   case 117:
 
 /* Line 1455 of yacc.c  */
-#line 2386 "parser.y"
+#line 2402 "parser.y"
     {  
 		Node *new = createNode();
 		Node *temp = (yyvsp[(2) - (10)]);
@@ -4089,7 +4107,7 @@ yyreduce:
   case 118:
 
 /* Line 1455 of yacc.c  */
-#line 2426 "parser.y"
+#line 2442 "parser.y"
     {	
 		printf("empty reached\n");
 		Node *new = createNode();         	            	  
@@ -4101,7 +4119,7 @@ yyreduce:
   case 119:
 
 /* Line 1455 of yacc.c  */
-#line 2434 "parser.y"
+#line 2450 "parser.y"
     {
 		Node *new = createNode();
 		Node *temp1 = (yyvsp[(1) - (2)]);
@@ -4135,7 +4153,7 @@ yyreduce:
   case 120:
 
 /* Line 1455 of yacc.c  */
-#line 2466 "parser.y"
+#line 2482 "parser.y"
     {
 		Node *new = createNode(); 
 		new->type = procedureIdentifier;
@@ -4149,7 +4167,7 @@ yyreduce:
   case 122:
 
 /* Line 1455 of yacc.c  */
-#line 2478 "parser.y"
+#line 2494 "parser.y"
     {
 
 		Node *temp = (yyvsp[(2) - (3)]);
@@ -4165,7 +4183,7 @@ yyreduce:
   case 123:
 
 /* Line 1455 of yacc.c  */
-#line 2492 "parser.y"
+#line 2508 "parser.y"
     {
 		Node *temp = (yyvsp[(-1) - (1)]);
 		Node *temp1 = (yyvsp[(1) - (1)]);
@@ -4184,7 +4202,7 @@ yyreduce:
   case 124:
 
 /* Line 1455 of yacc.c  */
-#line 2507 "parser.y"
+#line 2523 "parser.y"
     {
 		Node *temp = (yyvsp[(-1) - (3)]);
 		Node *temp3 = (yyvsp[(1) - (3)]);
@@ -4199,7 +4217,7 @@ yyreduce:
 		else
 		{
 			new->semTypeDef = storeVoid;
-			sprintf(new->code,"%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp1->code,temp1->place,-100-4* new->dim);			
+			sprintf(new->code,"%s%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp3->code,temp1->code,temp1->place,-100-4* new->dim);			
 		}	
 		(yyval) = new;
 
@@ -4209,7 +4227,7 @@ yyreduce:
   case 125:
 
 /* Line 1455 of yacc.c  */
-#line 2530 "parser.y"
+#line 2546 "parser.y"
     {
 		Node *newNode = createNode(); 
 		Node *tempNode = (yyvsp[(1) - (1)]); 
@@ -4226,9 +4244,34 @@ yyreduce:
   case 128:
 
 /* Line 1455 of yacc.c  */
-#line 2548 "parser.y"
+#line 2564 "parser.y"
     {
-		Node* newNode = createNode();
+		Node *new = createNode();
+		Node *temp1 = (yyvsp[(1) - (2)]);
+		Node *temp2 = (yyvsp[(2) - (2)]);
+		currentScope = scopeStack[scopeStackTop-1];
+		Symbol *symbol= lookUp(temp1->identLex,currentScope);
+
+		if(symbol == NULL)
+		{
+			new->semTypeDef = storeError;
+		}
+		else
+		{
+			/*if(temp2->semTypeDef==storeError)
+			{
+				new->semTypeDef =storeError;
+			}
+			else
+			{*/
+				new->semTypeDef = symbol->type;
+				new->place = getNewTemp();
+				sprintf(new->code, "sw\t$t0,-996($sp)\nsw\t$t1,-992($sp)\nsw\t$t2,-988($sp)\nsw\t$t3,-984($sp)\nsw\t$t4,-980($sp)\nsw\t$t5,-976($sp)\nsw\t$t6,-972($sp)\nsw\t$t7,-968($sp)\nsw\t$ra,-964($sp)\n%sli\t$t0,100\nsub\t$sp,$sp,$t0\njal\t%s\nli\t$t0,100\nadd\t$sp,$sp,$t0\nlw\t$t0,-996($sp)\nlw\t$t1,-992($sp)\nlw\t$t2,-988($sp)\nlw\t$t3,-984($sp)\nlw\t$t4,-980($sp)\nlw\t$t5,-976($sp)\nlw\t$t6,-972($sp)\nlw\t$t7,-968($sp)\nlw\t$ra,-964($sp)\nsw\t$v0,%d($sp)\n",temp2->code,temp1->identLex,new->place);
+
+			//}
+		}
+
+		(yyval) = new; 
 		
 
 	}
@@ -4237,7 +4280,7 @@ yyreduce:
   case 129:
 
 /* Line 1455 of yacc.c  */
-#line 2557 "parser.y"
+#line 2598 "parser.y"
     {
 		Node* newNode=createNode();
 		Node *tempNode=(yyvsp[(1) - (1)]);
@@ -4251,7 +4294,7 @@ yyreduce:
   case 130:
 
 /* Line 1455 of yacc.c  */
-#line 2567 "parser.y"
+#line 2608 "parser.y"
     {
 		Node* newNode=createNode();
 		Node *tempNode=(yyvsp[(1) - (1)]);
@@ -4265,7 +4308,7 @@ yyreduce:
   case 131:
 
 /* Line 1455 of yacc.c  */
-#line 2577 "parser.y"
+#line 2618 "parser.y"
     {	Node* newNode=createNode();
 		Node *tempNode=(yyvsp[(1) - (1)]);
 		newNode->semTypeDef = tempNode->semTypeDef;
@@ -4277,7 +4320,7 @@ yyreduce:
   case 132:
 
 /* Line 1455 of yacc.c  */
-#line 2585 "parser.y"
+#line 2626 "parser.y"
     {
 		Node* newNode=createNode();
 		Node* tempNode=(yyvsp[(2) - (2)]);
@@ -4290,7 +4333,7 @@ yyreduce:
   case 133:
 
 /* Line 1455 of yacc.c  */
-#line 2603 "parser.y"
+#line 2644 "parser.y"
     {
 		(yyvsp[(0) - (1)])=(yyvsp[(-1) - (1)]);
 		Node *node0 = (yyvsp[(0) - (1)]);
@@ -4322,7 +4365,7 @@ yyreduce:
   case 135:
 
 /* Line 1455 of yacc.c  */
-#line 2632 "parser.y"
+#line 2673 "parser.y"
     {   ////check/////
 		(yyvsp[(1) - (3)])=(yyvsp[(0) - (3)]);
 		(yyvsp[(2) - (3)])=(yyvsp[(0) - (3)]);
@@ -4333,7 +4376,7 @@ yyreduce:
   case 136:
 
 /* Line 1455 of yacc.c  */
-#line 2640 "parser.y"
+#line 2681 "parser.y"
     {
 		(yyval) = (yyvsp[(0) - (1)]);
 	}
@@ -4342,7 +4385,7 @@ yyreduce:
   case 137:
 
 /* Line 1455 of yacc.c  */
-#line 2643 "parser.y"
+#line 2684 "parser.y"
     {
 		(yyvsp[(1) - (1)]) = (yyvsp[(0) - (1)]);
 	}
@@ -4351,7 +4394,7 @@ yyreduce:
   case 138:
 
 /* Line 1455 of yacc.c  */
-#line 2645 "parser.y"
+#line 2686 "parser.y"
     {
 		printf("formalParmeterpart->(formalParmeterlist)\n");
 	}
@@ -4360,7 +4403,7 @@ yyreduce:
   case 139:
 
 /* Line 1455 of yacc.c  */
-#line 2650 "parser.y"
+#line 2691 "parser.y"
     {
 		Node *node1 = (yyvsp[(0) - (1)]);
 		Node *node2 = (yyvsp[(1) - (1)]);
@@ -4386,7 +4429,7 @@ yyreduce:
   case 140:
 
 /* Line 1455 of yacc.c  */
-#line 2671 "parser.y"
+#line 2712 "parser.y"
     {
 		Node *node1 = (yyvsp[(1) - (3)]);
 		Node *node2 = (yyvsp[(3) - (3)]);
@@ -4413,7 +4456,7 @@ yyreduce:
   case 141:
 
 /* Line 1455 of yacc.c  */
-#line 2693 "parser.y"
+#line 2734 "parser.y"
     {
 		(yyvsp[(3) - (3)]) = (yyvsp[(0) - (3)]);
 	}
@@ -4422,7 +4465,7 @@ yyreduce:
   case 143:
 
 /* Line 1455 of yacc.c  */
-#line 2698 "parser.y"
+#line 2739 "parser.y"
     {
 		printf("specifier->type\n"); 
 	}
@@ -4431,7 +4474,7 @@ yyreduce:
   case 150:
 
 /* Line 1455 of yacc.c  */
-#line 2709 "parser.y"
+#line 2750 "parser.y"
     {
 		Node *node1 = (yyvsp[(1) - (3)]);
 		printf("specificationidentlist->specifier identlist ;\n");
@@ -4442,7 +4485,7 @@ yyreduce:
   case 151:
 
 /* Line 1455 of yacc.c  */
-#line 2715 "parser.y"
+#line 2756 "parser.y"
     {
 		printf("specificationidentlist->specificationidentlist specifier identlist ;\n");
 
@@ -4452,7 +4495,7 @@ yyreduce:
   case 152:
 
 /* Line 1455 of yacc.c  */
-#line 2721 "parser.y"
+#line 2762 "parser.y"
     {
 		Node *node = createNode();
 		node->type = procedureHeading;
@@ -4472,7 +4515,7 @@ yyreduce:
   case 153:
 
 /* Line 1455 of yacc.c  */
-#line 2734 "parser.y"
+#line 2775 "parser.y"
     {
 		printf("the belu number of parameters defined is %d\n",paramBelu);
 		(yyvsp[(3) - (4)]) = (yyvsp[(1) - (4)]);
@@ -4482,7 +4525,7 @@ yyreduce:
   case 154:
 
 /* Line 1455 of yacc.c  */
-#line 2737 "parser.y"
+#line 2778 "parser.y"
     {
 		printf("the belu number of parameters defined is %d\n",paramBelu);
 	}
@@ -4491,7 +4534,7 @@ yyreduce:
   case 155:
 
 /* Line 1455 of yacc.c  */
-#line 2743 "parser.y"
+#line 2784 "parser.y"
     {//changed 16th april
 
 		Node *new = createNode();
@@ -4507,7 +4550,7 @@ yyreduce:
   case 156:
 
 /* Line 1455 of yacc.c  */
-#line 2755 "parser.y"
+#line 2796 "parser.y"
     {
 		Node *node1 = (yyvsp[(2) - (3)]);
 		Node *node2 = (yyvsp[(3) - (3)]);
@@ -4537,7 +4580,7 @@ yyreduce:
   case 157:
 
 /* Line 1455 of yacc.c  */
-#line 2780 "parser.y"
+#line 2821 "parser.y"
     {
 		Node *node1 = (yyvsp[(3) - (4)]);
 		Node *node2 = (yyvsp[(4) - (4)]);
@@ -4568,7 +4611,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 4572 "y.tab.c"
+#line 4615 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -4780,7 +4823,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 2807 "parser.y"
+#line 2848 "parser.y"
 
 int main(int argc, char* argv[])
 {
@@ -4800,7 +4843,7 @@ int main(int argc, char* argv[])
 		;
 	}
 	strcat(code,"jr\t$ra");
-	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n the result is = \"");
+	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n OUTPUT = \"");
 	printf("%s",code);
 	FILE* fp1 = fopen("code1.asm","w");
 	fprintf(fp1,"%s",code);

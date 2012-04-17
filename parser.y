@@ -1136,6 +1136,17 @@ primary :
 	}
 	|	
 	functionDesignator{
+		Node *newNode = createNode();
+		newNode->type = primary;
+		newNode->pt0 = $1;
+		Node *tempNode = (Node*)$1;
+		newNode->intValue = tempNode->intValue;
+		newNode->realValue = tempNode->realValue;
+		newNode->semTypeDef=tempNode->semTypeDef;
+		newNode->place=tempNode->place;
+		strcpy(newNode->code,tempNode->code);
+		$$ = newNode;
+		printf("primary->unsignedNumber");
 	}
 	|
 	variable
@@ -1817,14 +1828,17 @@ listType :
 			printf("belu else\n");			
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
-			currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			if(currentGlobalOffset <= symbolTable[currentScope].currentOffset){
+				newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
+				currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			}
+			else{
+				newEntry->offset=symbolTable[currentScope].currentOffset;
+				symbolTable[currentScope].currentOffset-=4;				
+			}
 			printf("belu semtypedef : %d\n", newEntry->type);	
-			$$=$0;			
-
-
+			$$=$0;
 		}
-
 	}
 	|
 	listType TOKEN_COMMA varIdentifier ////check////
@@ -1838,15 +1852,17 @@ listType :
 		else{
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
-			newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
-			currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			if(currentGlobalOffset <= symbolTable[currentScope].currentOffset){
+				newEntry->offset=currentGlobalOffset;//symbolTable[currentScope].currentOffset;
+				currentGlobalOffset-=4;//symbolTable[currentScope].currentOffset-=4;
+			}
+			else{
+				newEntry->offset=symbolTable[currentScope].currentOffset;
+				symbolTable[currentScope].currentOffset-=4;				
+			}
 		}
-		$$=$0;
-
-		
+		$$=$0;	
 	}
-	
-
 	;
 
 
@@ -2518,7 +2534,7 @@ actualParameterList :
 		else
 		{
 			new->semTypeDef = storeVoid;
-			sprintf(new->code,"%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp1->code,temp1->place,-100-4* new->dim);			
+			sprintf(new->code,"%s%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp3->code,temp1->code,temp1->place,-100-4* new->dim);			
 		}	
 		$$ = new;
 
@@ -2546,7 +2562,32 @@ parameterDelimiter : TOKEN_COMMA
 functionDesignator :
 	procedureIdentifier actualParameterPart
 	{
-		Node* newNode = createNode();
+		Node *new = createNode();
+		Node *temp1 = $1;
+		Node *temp2 = $2;
+		currentScope = scopeStack[scopeStackTop-1];
+		Symbol *symbol= lookUp(temp1->identLex,currentScope);
+
+		if(symbol == NULL)
+		{
+			new->semTypeDef = storeError;
+		}
+		else
+		{
+			/*if(temp2->semTypeDef==storeError)
+			{
+				new->semTypeDef =storeError;
+			}
+			else
+			{*/
+				new->semTypeDef = symbol->type;
+				new->place = getNewTemp();
+				sprintf(new->code, "sw\t$t0,-996($sp)\nsw\t$t1,-992($sp)\nsw\t$t2,-988($sp)\nsw\t$t3,-984($sp)\nsw\t$t4,-980($sp)\nsw\t$t5,-976($sp)\nsw\t$t6,-972($sp)\nsw\t$t7,-968($sp)\nsw\t$ra,-964($sp)\n%sli\t$t0,100\nsub\t$sp,$sp,$t0\njal\t%s\nli\t$t0,100\nadd\t$sp,$sp,$t0\nlw\t$t0,-996($sp)\nlw\t$t1,-992($sp)\nlw\t$t2,-988($sp)\nlw\t$t3,-984($sp)\nlw\t$t4,-980($sp)\nlw\t$t5,-976($sp)\nlw\t$t6,-972($sp)\nlw\t$t7,-968($sp)\nlw\t$ra,-964($sp)\nsw\t$v0,%d($sp)\n",temp2->code,temp1->identLex,new->place);
+
+			//}
+		}
+
+		$$ = new; 
 		
 
 	}
@@ -2823,7 +2864,7 @@ int main(int argc, char* argv[])
 		;
 	}
 	strcat(code,"jr\t$ra");
-	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n the result is = \"");
+	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n OUTPUT = \"");
 	printf("%s",code);
 	FILE* fp1 = fopen("code1.asm","w");
 	fprintf(fp1,"%s",code);
