@@ -4,6 +4,9 @@ integer procedure abc(a,b,c); integer a,b; integer c;
 	begin integer d;
 		d :=10;
 		print a;
+		print b;
+		print c;
+		print d;
 		c := (a+b+c)*d;
 		print c;
 	end;
@@ -13,3 +16,8 @@ y := 5;
 print x;
 print y;
 end
+
+
+function mein nesting check karna h
+array passing implement karna h
+
