@@ -10,7 +10,11 @@ int globalLevel=0;
 extern int yylval;
 extern char* yytext;
 int numOfErrors=0;
+
 int currentGlobalOffset=0;/////check////////
+
+int paramBelu = 0;
+
 int scopeStack[100];
 int scopeStackTop = 0;
 SymbolTable symbolTable[1000];
@@ -23,12 +27,9 @@ int tableStackTop=0;
 
 void push(int num){
 	if(scopeStackTop<100){
-		
-
 		scopeStack[scopeStackTop] = num;
 		scopeStackTop++;
 		symbolTable[scopeStackTop].parent = currentScope;
-		printf("#######pushed parent %d and stack Top is %d ############\n",symbolTable[scopeStackTop].parent,symbolTable[scopeStackTop-1]);
 	}
 	else{
 		printf("Scope stack overflow\n");
@@ -78,7 +79,6 @@ Symbol* lookUp(char *lexm,int scope){
 		return NULL;
 	}
 	else{
-		printf("############### HERE IS THE PARENT = %d for scope %d ###############\n",symbolTable[scope].parent,scope);
 		return lookUp(lexm,symbolTable[scope].parent);
 	}
 }
@@ -148,9 +148,6 @@ void symbolTableDisplay(int scope){
 		if (entry->offset || entry->offset==0)	
 			printf("offset: %d\n",entry->offset);
 		entry = entry->next;
-	}
-	for(i=0;i<=globalLevel;i++){
-		printf("scope stack value[%d] = %d stackTop = %d\n",i,scopeStack[i],scopeStackTop);
 	}
 }
 
@@ -310,17 +307,23 @@ int yywrap()
 
 
 blockHead :
-	TOKEN_BEGIN 
+	TOKEN_BEGIN declaration
 	{
 		currentScope = scopeStack[scopeStackTop-1];
 		printf("current Scope = %d\n",currentScope);
-	}
-	/*tbegin*/ declaration
-	{
+		Node* newNode = createNode();
+		Node* tempNode = $2;
+		strcpy(newNode->code,tempNode->code);
+		$$=newNode;
 		printf("blockHead\n");
 	}
 	|blockHead TOKEN_SEMICOLON declaration
 	{
+		Node* newNode = createNode();
+		Node* tempNode1 = $1;
+		Node* tempNode2 = $3;
+		sprintf(newNode->code,"%s%s",tempNode1->code,tempNode2->code);
+		$$=newNode;
 		printf("blockHead\n");
 	}
 	;
@@ -329,9 +332,10 @@ unlabelledBlock :
 	blockHead TOKEN_SEMICOLON compoundTail
 	{
 		Node* newNode = createNode();
-		Node* tempNode =(Node*) $3;
-		newNode->pt0 = (Node*) $3;
-		strcpy(newNode->code, tempNode->code);
+		Node* tempNode1 = $1;
+		Node* tempNode2 = $3;
+		newNode->pt0 = $3;
+		sprintf(newNode->code,"%s%s",tempNode1->code,tempNode2->code);
 		$$ = newNode;
 	};
 
@@ -415,9 +419,10 @@ program :
 		Node* tempNode = $1;
 		strcpy(newNode->code,tempNode->code);
 		strcpy(code,newNode->code);
-		symbolTableDisplay(0);
-		symbolTableDisplay(1);
-		symbolTableDisplay(2);
+		int i;
+		for(i=0; i <= globalLevel; i++){
+			symbolTableDisplay(i);
+		}
 		$$=newNode;
 	}
 	
@@ -428,9 +433,10 @@ program :
 		Node* tempNode = $1;
 		strcpy(newNode->code,tempNode->code);
 		strcpy(code,newNode->code);
-		symbolTableDisplay(0);
-		symbolTableDisplay(1);
-		symbolTableDisplay(2);
+		int i;
+		for(i=0; i <= globalLevel; i++){
+			symbolTableDisplay(i);
+		}
 		$$=newNode;
 	}
 	
@@ -442,7 +448,7 @@ unlabelledCompound :
 		currentScope = scopeStack[scopeStackTop-1];
 		printf("current Scope = %d\n",currentScope);
 	} 
-	compoundTail{
+	 {
 		Node* newNode = createNode();
 		Node* tempNode = $2;
 		strcpy(newNode->code,tempNode->code);
@@ -469,7 +475,7 @@ compoundStatement :
 compoundTail :
 	statement TOKEN_END
 	{
-		printf("compound tail\n");
+		printf("compound tail -> statement\n");
 		Node *newNode = createNode();
 		newNode->pt0 = $1;
 		Node* tempNode = $1;
@@ -479,7 +485,7 @@ compoundTail :
 	}	
 	|
 	statement TOKEN_SEMICOLON compoundTail
-	{
+	{	printf("compound tail -> statement compound tail\n "); 
 		Node *newNode = createNode();
 		newNode->pt0 = $1;
 		Node* tempNode1=$1;
@@ -494,21 +500,34 @@ compoundTail :
 declaration : 
 	typeDeclaration
 	{
-		$$=$1;
+		Node* newNode = createNode();
+		//Node* tempNode = $1;
+		strcpy(newNode->code,"\n");
+		$$=newNode;
+		if(strcmp(newNode->code,"\n")==0)printf("##############type declared #################\n");
 	}	 
 	|
 	arrayDeclaration
 	{
-		$$=$1;
+		Node* newNode = createNode();
+		//Node* tempNode = $1;
+		strcpy(newNode->code,"\n");
+		$$=newNode;
 	}
 	|
 	switchDeclaration{
-		$$=$1;
+		Node* newNode = createNode();
+		//Node* tempNode = $1;
+		strcpy(newNode->code,"\n");
+		$$=newNode;
 	}
 	|
 	procedureDeclaration
 	{
-		$$=$1;
+		Node* newNode = createNode();
+		Node* tempNode = $1;
+		strcpy(newNode->code,tempNode->code);
+		$$=newNode;
 	};
 
 
@@ -662,7 +681,6 @@ arraySegment :
 			size = size*(tempNodeTwo->upperBound[i]-tempNodeTwo->lowerBound[i]+1);
 		}
 		entry->offset = symbolTable[currentScope].arrayOffset;
-		printf("********************val of offset in array segment= %d**********\n",entry->offset);
 		symbolTable[currentScope].arrayOffset-=size*4;
 		newNode->identLex = tempNodeOne->identLex;
 		
@@ -719,7 +737,6 @@ arrayList :
 			
 		}
 		$$=$0; ////check////
-		printf("********************val of offset in array list= %d**********\n",symbolEntry->offset);
 		printf("arrayList->arraySegment\n");
 	}
 	|
@@ -744,9 +761,14 @@ arrayList :
 
 arrayDeclaration :
 	TOKEN_ARRAY arrayList////check////
+	{
+		//$$=$2;
+	}
 	|
 	type TOKEN_ARRAY arrayList
-	{printf("here\n");}
+	{printf("here\n");
+		//$$=$3;
+	}
 	;
 
 
@@ -781,7 +803,16 @@ expression :
 	};
 
 switchIdentifier :
-	identifier
+	identifier{
+		Node *newNode = createNode();
+		newNode->type= switchIdentifier;
+		newNode->pt0=$1;
+		Node* tempNode = $1;
+		strcpy(newNode->identLex,tempNode->identLex);
+
+		$$=newNode;
+		printf("switchIdent->Identifier\n");
+	}
 	;
 
 switchDesignator :
@@ -1079,10 +1110,12 @@ factor :
 	procedureStatement
 	{
 		Node *newNode = createNode();
-		
 		Node* tempNode = (Node*)$1;
 		newNode->intValue = tempNode->intValue;
+		newNode->realValue = tempNode->realValue;
 		newNode->semTypeDef=tempNode->semTypeDef;
+		newNode->place = tempNode->place;
+		strcpy(newNode->code,tempNode->code);
 		$$ = newNode;
 	}*/;
 
@@ -1116,8 +1149,6 @@ primary :
 // do type checking and proper lookup
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol* foundEntry = lookUp(tempNode->identLex,currentScope);
-		printf("******************HERE IT IS**************\n");
-		printf("**********************found entry %s, tempNode lexeme %s******************\n",foundEntry->lexeme,tempNode->identLex);
 		if (foundEntry)
 		{	
 			newNode->intValue =  foundEntry->value;
@@ -1855,7 +1886,7 @@ typeDeclaration :
 	type listType
 	{
 	printf("typeDeclaration\n");
-
+	//$$=$2;
 	}
 	;
 
@@ -2035,8 +2066,8 @@ unlabelledBasicStatement :
 	assignmentStatement
 	{		
 		Node *new = createNode();         	
-        	new->type = unlabelledBasicStatement; 
-        	new->pt0 = $1 ; 
+        new->type = unlabelledBasicStatement; 
+        new->pt0 = $1 ; 
 		Node *temp = $1 ;  
 		new->semTypeDef=temp->semTypeDef ;
 		strcpy(new->code,temp->code);
@@ -2047,8 +2078,8 @@ unlabelledBasicStatement :
 	{
 
 		Node *new = createNode();         	
-        	new->type = unlabelledBasicStatement;
-        	new->pt0 = $1 ;  
+        new->type = unlabelledBasicStatement;
+        new->pt0 = $1 ;  
 		Node *temp = $1 ;  
 
 		new->semTypeDef=temp->semTypeDef ;  
@@ -2057,14 +2088,15 @@ unlabelledBasicStatement :
 
 	}
 	|
-        procedureStatement
+	procedureStatement
 	{
 			
 		Node *new = createNode();         	
-        	new->type = unlabelledBasicStatement;
-        	new->pt0 = $1 ;  
+        new->type = unlabelledBasicStatement;
+        new->pt0 = $1 ;  
 		Node *temp = $1 ;  
 		new->semTypeDef=temp->semTypeDef ;  
+		strcpy(new->code,temp->code);
 		$$ = new;
 		printf("unlabelledbasicstmt -> procstmt\n");
 
@@ -2072,6 +2104,9 @@ unlabelledBasicStatement :
 	|
 	returnStatement
 	{
+		Node* newNode = createNode();
+		Node *tempNode = $1;
+		strcpy(newNode->code,tempNode->code);
 		$$ = $1;
 	}
 
@@ -2400,26 +2435,27 @@ procedureStatement :
 	procedureIdentifier actualParameterPart {
 		Node *new = createNode();
 		Node *temp1 = $1;
+		Node *temp2 = $2;
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol *symbol= lookUp(temp1->identLex,currentScope);
 
 		if(symbol == NULL)
 		{
-
 			new->semTypeDef = storeError;
 		}
 		else
 		{
-			Node *temp2 = $2;
-			if(temp2->semTypeDef==storeError)
+			/*if(temp2->semTypeDef==storeError)
 			{
 				new->semTypeDef =storeError;
 			}
 			else
-			{
+			{*/
 				new->semTypeDef = symbol->type;
+				new->place = getNewTemp();
+				sprintf(new->code, "sw\t$t0,-996($sp)\nsw\t$t1,-992($sp)\nsw\t$t2,-988($sp)\nsw\t$t3,-984($sp)\nsw\t$t4,-980($sp)\nsw\t$t5,-976($sp)\nsw\t$t6,-972($sp)\nsw\t$t7,-968($sp)\nsw\t$ra,-964($sp)\n%sli\t$t0,100\nsub\t$sp,$sp,$t0\njal\t%s\nli\t$t0,100\nadd\t$sp,$sp,$t0\nlw\t$t0,-996($sp)\nlw\t$t1,-992($sp)\nlw\t$t2,-988($sp)\nlw\t$t3,-984($sp)\nlw\t$t4,-980($sp)\nlw\t$t5,-976($sp)\nlw\t$t6,-972($sp)\nlw\t$t7,-968($sp)\nlw\t$ra,-964($sp)\nsw\t$v0,%d($sp)\n",temp2->code,temp1->identLex,new->place);
 
-			}
+			//}
 		}
 
 		$$ = new; 
@@ -2432,9 +2468,8 @@ procedureIdentifier :
 		Node *new = createNode(); 
 		new->type = procedureIdentifier;
 		new->pt0 = $1;
-	
 		Node *temp=$1;
-
+		strcpy(new->identLex,temp->identLex);
 		$$ = new;
 	}
 	;
@@ -2461,8 +2496,8 @@ actualParameterList :
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol* symbol= lookUp(temp1->identLex,currentScope);
 		Node *new = createNode();
-		new->intValue = 0;
-		
+		new->dim = 0;
+		sprintf(new->code,"%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp1->code,temp1->place,-100-4* new->dim);
 		new->semTypeDef = storeVoid;
 		
 		$$ = new;
@@ -2478,13 +2513,13 @@ actualParameterList :
 		Symbol* symbol= lookUp(temp->identLex,currentScope);
 		
 		Node *new = createNode();
-		new->intValue = 1 + temp3->intValue;
+		new->dim = 1 + temp3->dim;
 		if(temp3->semTypeDef == storeError)
 			new->semTypeDef = storeError;
 		else
-		{new->semTypeDef = storeVoid;
-			
-			
+		{
+			new->semTypeDef = storeVoid;
+			sprintf(new->code,"%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp1->code,temp1->place,-100-4* new->dim);			
 		}	
 		$$ = new;
 
@@ -2510,7 +2545,13 @@ parameterDelimiter : TOKEN_COMMA
 	| TOKEN_CLOSE_BRACKET identifier TOKEN_COLON TOKEN_OPEN_BRACKET;
 
 functionDesignator :
-	procedureIdentifier actualParameterPart;
+	procedureIdentifier actualParameterPart
+	{
+		Node* newNode = createNode();
+		
+
+	}
+	;
 
 statement :
 	unconditionalStatement
@@ -2561,28 +2602,37 @@ statement :
 formalParameter :
 	identifier
 	{
+		$0=$-1;
+		Node *node0 = $0;
 		Node *node1 = $1;
 		
 		int oldScope = currentScope;
 		currentScope = globalLevel + 1;
 
 		if (lookUpInCurrentScope(node1->identLex) == NULL){
-			Symbol * index = addEntry(node1->identLex);
+			Symbol * entry = addEntry(node1->identLex);
+			entry->offset = symbolTable[currentScope].currentOffset;
+			symbolTable[currentScope].currentOffset-=4;
 		}
 		else{
 			printf("Error in paramaters,%s already defined\n",node1->identLex);
 		}
+
 		currentScope = oldScope;
+		if (lookUpInCurrentScope(node0->identLex) == NULL){
+			Symbol * entry = addEntry(node1->identLex);
+			entry->procNumParam++;
+		}
 		printf("formalParmeter->identifer\n");
-		$$ = $1;
+		$$ = $0;
+		paramBelu++;
 	};
 	
 formalParameterList :
-	formalParameter{
-		$$ = 1;
-	}
+	formalParameter
 	| formalParameterList parameterDelimiter formalParameter{   ////check/////
-		$$ = (int)$1 + (int)$3;
+		$1=$0;
+		$2=$0;
 		printf("formalParmeterlist->formalParmeter\n");	
 	}
 	;
@@ -2601,22 +2651,44 @@ identifierList :
 	identifier {
 		Node *node1 = $0;
 		Node *node2 = $1;
-		currentScope = scopeStack[scopeStackTop-1];
-		printf("indenlist->ident\n");
+		int oldLevel = currentScope;
+		currentScope = globalLevel + 1;
+		printf("identlist->ident\n");
 		Symbol *symbol1=lookUp(node2->identLex,currentScope);
-		if(symbol1==NULL)
+		if(symbol1 != NULL)
 		{
-			Symbol *symbol=addEntry(node2->identLex);
-			symbol->type=node1->semTypeDef;		
+			symbol1->type=node1->semTypeDef;		
 		}
 		else{
-			symbol1->type = node1->semTypeDef;
+			printf("error!%s is absent from formal paramater",node2->identLex);
+			//symbol1->type = node1->semTypeDef;
 		}
+		currentScope = oldLevel;
+		paramBelu--;
+		$$ = node1;
+		
 	}
 
 	| identifierList TOKEN_COMMA identifier{
-		$2 = $0;
-		printf("indenlist ->identlist , ident\n");
+		Node *node1 = $1;
+		Node *node2 = $3;
+		int oldLevel = currentScope;
+		currentScope = globalLevel + 1;
+		printf("identlist->ident\n");
+		Symbol *symbol1=lookUp(node2->identLex,currentScope);
+		if(symbol1 != NULL)
+		{
+			symbol1->type=node1->semTypeDef;		
+		}
+		else{
+			printf("error!%s is absent from formal paramater",node2->identLex);
+			//symbol1->type = node1->semTypeDef;
+		}
+		currentScope = oldLevel;
+		printf("identlist ->identlist , ident\n");
+		paramBelu--;
+		$$ = node1;
+
 	};
 
 valuePart :  TOKEN_VALUE identifierList TOKEN_SEMICOLON{
@@ -2636,13 +2708,14 @@ specificationPart : empty
 	| specificationIdentifierList;
 
 specificationIdentifierList : specifier identifierList TOKEN_SEMICOLON{
-		//$3 = $0;
 		Node *node1 = $1;
 		printf("specificationidentlist->specifier identlist ;\n");
+
 	}
 	| specificationIdentifierList specifier identifierList TOKEN_SEMICOLON
 	{
 		printf("specificationidentlist->specificationidentlist specifier identlist ;\n");
+
 	};
 
 procedureHeading :
@@ -2655,18 +2728,22 @@ procedureHeading :
 		strcpy(node->identLex, node1->identLex);
 		currentScope = scopeStack[scopeStackTop-1];
 		if (lookUpInCurrentScope(node1->identLex) == NULL){
-			Symbol * index = addEntry(node1->identLex);
+			Symbol * entry = addEntry(node1->identLex);
+			entry->procNumParam = 0;
 		}
 		$$ = node;
 	} formalParameterPart TOKEN_SEMICOLON {
+		printf("the belu number of parameters defined is %d\n",paramBelu);
 		$3 = $1;
-	} valuePart specificationPart
+	} valuePart specificationPart{
+		printf("the belu number of parameters defined is %d\n",paramBelu);
+	}
 	;
 
 procedureBody :
 	statement{//changed 16th april
+
 		Node *new = createNode();
-		
 		new->type = procedureBody;
 		Node *temp = $1;
 		new->semTypeDef = temp->semTypeDef;
@@ -2684,35 +2761,47 @@ procedureDeclaration :
 		symbol->type = storeVoid;
 
 		Node *node = createNode();
-                
-        	node->type = procedureDeclaration;
+		node->type = procedureDeclaration;
 
-		if (node1->semTypeDef == storeVoid && node2->semTypeDef == storeVoid)
+		if (node1->semTypeDef == storeVoid && node2->semTypeDef == storeVoid){
 			node->semTypeDef = storeVoid;
-		else
+		}
+		else{
 			node->semTypeDef = storeError;
+		}
+		int label = getNewLabel();
+		sprintf(node->code,"b\tlabel%d\n%s:\n%s\njr $ra\nlabel%d:\n",label,node1->identLex,node2->code,label);		
 		$$ = node;
 		printf("procedureDeclaration -> procedure heading body");
+		if (paramBelu != 0)
+			printf("Error. too many or too few specifications\n");
+		paramBelu = 0;
 	}
 	| type TOKEN_PROCEDURE procedureHeading procedureBody
 	{
 		Node *node1 = $3;
-		Node *node2 = $1;
-		Node *node3 = $4;
+		Node *node2 = $4;
+		Node *node3 = $1;
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol* symbol = lookUpInCurrentScope(node1->identLex);
-		symbol->type = node2->semTypeDef;
+		symbol->type = node3->semTypeDef;
 
 		Node *node = createNode();
-                
-        	node->type = procedureDeclaration;
+       	node->type = procedureDeclaration;
 
-		if (node1->semTypeDef == storeVoid && node3->semTypeDef == storeVoid)
-			node->semTypeDef = node2->semTypeDef;
-		else
+		if (node1->semTypeDef == storeVoid && node2->semTypeDef == storeVoid){
+			node->semTypeDef = node3->semTypeDef;
+		}
+		else{
 			node->semTypeDef = storeError;
+		}
+		int label = getNewLabel();
+		sprintf(node->code,"b\tlabel%d\n%s:\n%s\njr $ra\nlabel%d:\n",label,node1->identLex,node2->code,label);		
 		$$ = node;
 		printf("proceduredeclaration -> type procedure heading body\n");
+		if (paramBelu != 0)
+			printf("Error. too many or too few specifications\n");
+		paramBelu = 0;
 	};
 
 
@@ -2723,7 +2812,7 @@ int main(int argc, char* argv[])
    	int i = 0;
 	for(i=0;i<1000;i++){
 		symbolTable[i].currentOffset=0;
-		symbolTable[i].newTempOffset=-100;
+		symbolTable[i].newTempOffset=-1000;
 		symbolTable[i].arrayOffset=-700;
 	}
 	for(i=1;i<argc;i++)
@@ -2735,7 +2824,7 @@ int main(int argc, char* argv[])
 		;
 	}
 	strcat(code,"jr\t$ra");
-	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"the result is = \"");
+	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n the result is = \"");
 	printf("%s",code);
 	FILE* fp1 = fopen("code1.asm","w");
 	fprintf(fp1,"%s",code);
