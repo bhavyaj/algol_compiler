@@ -6,7 +6,7 @@ integer procedure foo(a,b,c); integer a,b,c;
 		begin integer m;
 			m := x+y+z;
 			z := z+m;
-			if z<45 then bar(1,2,z);
+			if z<60 then bar(1,2,z);
 			print m;
 		end;
 		d := a+b+c;
@@ -20,3 +20,8 @@ y := 5;
 print x;
 print y;
 end
+
+
+function mein nesting check karna h
+array passing implement karna h
+

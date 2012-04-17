@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
@@ -657,7 +658,7 @@ arraySegment :
 	arrayIdentifier TOKEN_OPEN_SQUARE_BRACKET boundPairList TOKEN_CLOSE_SQUARE_BRACKET
 	{
 		Node* newNode = createNode();
-		newNode->type = boundPair;
+		newNode->type = arraySegment;
 		newNode->pt0 = $1;
 		newNode->pt2 = $3;
 		Node *tempNodeOne = $1;
@@ -686,9 +687,9 @@ arraySegment :
 		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
 	}
 	| arrayIdentifier TOKEN_COMMA arraySegment
-	{	printf("################## array identifier #################\n");
+	{	
 		Node* newNode = createNode();
-		newNode->type = boundPair;
+		newNode->type = arraySegment;
 		newNode->pt0 = $1;
 		newNode->pt2 = $3;
 		Node *tempNodeOne = $1;
@@ -698,46 +699,59 @@ arraySegment :
 		if(entry==NULL){
 			entry = addEntry(tempNodeOne->identLex);			
 		}
+		//Symbol *entry1=lookUpInCurrentScope(tempNodeTwo->identLex);
 		int size =1;
 		entry->dim = tempNodeTwo->dim;
 		newNode->dim = tempNodeTwo->dim;
 		int i;
-		printf("################## temp dim = %d #################\n",tempNodeTwo->dim);		
+		
 		for(i=tempNodeTwo->dim-1;i>=0;i--){
 			entry->lowerBound[i] = tempNodeTwo->lowerBound[i];
 			entry->upperBound[i] = tempNodeTwo->upperBound[i];
 			newNode->lowerBound[i] = tempNodeTwo->lowerBound[i];
 			newNode->upperBound[i] = tempNodeTwo->upperBound[i];
 			size = size*(tempNodeTwo->upperBound[i]-tempNodeTwo->lowerBound[i]+1);
-			printf("################## temp lower=%d, temp upper=%d #################\n",tempNodeTwo->lowerBound[i],tempNodeTwo->upperBound[i]);
 		}
 		entry->offset = symbolTable[currentScope].arrayOffset;
 		symbolTable[currentScope].arrayOffset-=size*4;
-		newNode->identLex = tempNodeOne->identLex;
+		newNode->identLex=tempNodeTwo->identLex;
+		strcat(newNode->identLex,",");		
+		strcat(newNode->identLex,tempNodeOne->identLex);
+		printf("arraySegment->arrayIdentifier,arraysegment== %s\n",newNode->identLex);		
 		
+				
 		$$ = newNode;
-		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
+		
 	}////check////
 	;
 
-arrayList :
+
 	arraySegment 
 	{
-		Node* tempNode0=$0;
+				
+		Node* tempNode0=$-1;
 		Node* tempNode1=$1;
 		currentScope = scopeStack[scopeStackTop-1];
-		Symbol* symbolEntry=lookUpInCurrentScope(tempNode1->identLex);
-		if (symbolEntry!=NULL){
-			symbolTable[currentScope].currentSymbol->type=tempNode1->semTypeDef;//return 0;
-		}
-		else{
-			symbolEntry = addEntry(tempNode1->identLex);
-			symbolTable[currentScope].currentSymbol->type=tempNode1->semTypeDef;
-			symbolTable[currentScope].currentSymbol->dim=tempNode1->dim;
-			
-		}
-		$$=$0; ////check////
+		printf("\n\n%s recieved\n\n",tempNode1->identLex);
 		printf("arrayList->arraySegment\n");
+		char* pch;
+		pch = strtok (tempNode1->identLex,",");
+  		while (pch != NULL)
+  		{
+  			Symbol* symbolEntry=lookUpInCurrentScope(pch);
+			if (symbolEntry!=NULL){
+				symbolEntry->type=tempNode0->semTypeDef;//return 0;
+			}
+			else{
+				symbolEntry = addEntry(pch);
+				symbolEntry->type=tempNode0->semTypeDef;
+				symbolEntry->dim=tempNode1->dim;
+			}
+  			pch = strtok (NULL, ",");
+ 		}
+					 
+		$$=$-1; ////check////
+		
 	}
 	|
 	arrayList TOKEN_COMMA arraySegment////check////  
@@ -747,26 +761,21 @@ arrayList :
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol* symbolEntry=lookUpInCurrentScope(tempNode1->identLex);
 		if (symbolEntry!=NULL){
-			symbolTable[currentScope].currentSymbol->type=tempNode1->semTypeDef;//return 0;
+			symbolEntry->type=tempNode0->semTypeDef;//return 0;
 		}
 		else{
 			symbolEntry = addEntry(tempNode1->identLex);
-			symbolTable[currentScope].currentSymbol->type=tempNode1->semTypeDef;
-			symbolTable[currentScope].currentSymbol->dim=tempNode1->dim;
+			symbolEntry->type=tempNode0->semTypeDef;
+			symbolEntry->dim=tempNode1->dim;
 		}
-		$$=$0; ////check////
+		$$=$1; ////check////
 		printf("arrayList->arrayList , arraySegment\n");
 	}
 	;
 
 arrayDeclaration :
-	TOKEN_ARRAY arrayList////check////
-	{
-		//$$=$2;
-	}
-	|
 	type TOKEN_ARRAY arrayList
-	{printf("here\n");
+	{
 		//$$=$3;
 	}
 	;
@@ -914,7 +923,8 @@ simpleArithmeticExpression :
 			}
 
 			newNode->realValue=tempNode0->realValue  +  tempNode2->realValue;
-			printf("tempnoderealval: %f\n",tempNode2->realValue);		
+			printf("tempnoderealval: %f\n",tempNode2->realValue);	
+			sprintf(newNode->code,"%s%sl.s\t$f0,%d($sp)\nl.s\t$f1,%d($sp)\nadd\t$f2,$f0,$f1\ns.s\t$f2,%d($sp)\n",tempNode0->code,tempNode2->code,tempNode0->place,tempNode2->place,tempNode0->place);	
 		}
 		else {  			
 			newNode->semTypeDef = storeInteger ;  
@@ -948,7 +958,8 @@ simpleArithmeticExpression :
 				tempNode2->realValue = 1.00*tempNode2->intValue ;  
 				tempNode2->semTypeDef==storeReal;
 			}
-			newNode->realValue=tempNode0->realValue  -  tempNode2->realValue ;  
+			newNode->realValue=tempNode0->realValue  -  tempNode2->realValue ;
+			sprintf(newNode->code,"%s%sl.s\t$f0,%d($sp)\nl.s\t$f1,%d($sp)\nsub\t$f2,$f0,$f1\ns.s\t$f2,%d($sp)\n",tempNode0->code,tempNode2->code,tempNode0->place,tempNode2->place,tempNode0->place);
 		}
 		else {  
 			newNode->semTypeDef = storeInteger ;  
@@ -2057,8 +2068,8 @@ unlabelledBasicStatement :
 	assignmentStatement
 	{		
 		Node *new = createNode();         	
-        new->type = unlabelledBasicStatement; 
-        new->pt0 = $1 ; 
+        	new->type = unlabelledBasicStatement; 
+        	new->pt0 = $1 ; 
 		Node *temp = $1 ;  
 		new->semTypeDef=temp->semTypeDef ;
 		strcpy(new->code,temp->code);
@@ -2069,8 +2080,8 @@ unlabelledBasicStatement :
 	{
 
 		Node *new = createNode();         	
-        new->type = unlabelledBasicStatement;
-        new->pt0 = $1 ;  
+        	new->type = unlabelledBasicStatement;
+        	new->pt0 = $1 ;  
 		Node *temp = $1 ;  
 
 		new->semTypeDef=temp->semTypeDef ;  
@@ -2083,8 +2094,8 @@ unlabelledBasicStatement :
 	{
 			
 		Node *new = createNode();         	
-        new->type = unlabelledBasicStatement;
-        new->pt0 = $1 ;  
+        	new->type = unlabelledBasicStatement;
+        	new->pt0 = $1 ;  
 		Node *temp = $1 ;  
 		new->semTypeDef=temp->semTypeDef ;  
 		strcpy(new->code,temp->code);
@@ -2147,9 +2158,9 @@ assignmentStatement :
 			new->semTypeDef=storeError;
 		}
 		else{
-			//if (symbol1->type==storeInteger && tmp2->semTypeDef==storeInteger){								
+			if (symbol1->type==storeInteger && tmp2->semTypeDef==storeInteger){								
 				// SYMBOL1>TYPE IS INTEGER  
-				symbol1->value=tmp2->intValue;
+				symbol1->value = tmp2->intValue;
 				int offset;
 				if(tmp1->isArray==1){
 					offset = tmp1->place;
@@ -2158,13 +2169,36 @@ assignmentStatement :
 					offset = symbol1->offset;
 				}
 				sprintf(new->code,"%s%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",tmp1->code,tmp2->code,tmp2->place,offset);
-			//}
-			/*else*/ if (symbol1->type==storeReal && tmp2->semTypeDef==storeReal){								
+			}
+			else if (symbol1->type==storeReal && tmp2->semTypeDef==storeReal){								
 				// SYMBOL1>TYPE IS Real
 		  		symbol1->realValue=tmp2->realValue;
-				printf("assignmentStatement->identifier:= arithmeticexpression, realValue= %f,,%f\n",tmp2->realValue,symbol1->realValue);		
+				printf("assignmentStatement->identifier:= arithmeticexpression, realValue= %f,,%f\n",tmp2->realValue,symbol1->realValue);
+				int offset;
+				if(tmp1->isArray==1){
+					offset = tmp1->place;
+				}
+				else{
+					offset = symbol1->offset;
+				}
+				sprintf(new->code,"%s%sl.s\t$f0,%d($sp)\ns.s\t$f0,%d($sp)\n",tmp1->code,tmp2->code,tmp2->place,offset);
+						
 			}
-		
+			else if(symbol1->type==storeReal && tmp2->semTypeDef==storeInteger){
+				symbol1->realValue = (tmp2->intValue)*1.0;
+				int offset;
+				if(tmp1->isArray==1){
+					offset = tmp1->place;
+				}
+				else{
+					offset = symbol1->offset;
+				}
+				sprintf(new->code,"%s%sl.s\t$f0,%d($sp)\ns.s\t$f0,%d($sp)\n",tmp1->code,tmp2->code,tmp2->place,offset);
+			}
+			else{	
+				printf("inconsistent Types in assignment\n");
+				new->semTypeDef = storeError;
+			}
 		}
 		$$ = new;
 	}
@@ -2190,7 +2224,7 @@ assignmentStatement :
 		
 		}
 		else{
-			//if (symbol2->type==storeBoolean==storeBoolean && temp2->semTypeDef==storeBoolean) {  
+			if (symbol2->type==storeBoolean==storeBoolean && temp2->semTypeDef==storeBoolean) {  
 				symbol2->boolean=temp2->boolValue;
 				int offset;
 				if(temp1->isArray==1){
@@ -2200,7 +2234,7 @@ assignmentStatement :
 					offset = symbol2->offset;
 				}
 				sprintf(new->code,"%s%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",temp1->code,temp2->code,temp2->place,offset);
-			//}
+			}
 		}
 		$$ = new;
 	}
