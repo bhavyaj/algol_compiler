@@ -52,18 +52,16 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 				if (tempString[0]=='\n') {lineNo++;}
 				tempString++;
 			 }
-			 printf(" COMMENT FOUND ");
 			}
 
 			
 "begin"			{
-			 printf("begin reached, global level=%d\n",globalLevel);
 			 globalLevel++;
 			 push(globalLevel);
 			 return TOKEN_BEGIN ;
 			}
 			
-"end"		{printf("end reached\n");
+"end"		{
 			 pop(globalLevel);
 			 return TOKEN_END;}
 
@@ -88,8 +86,8 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 "<>"			{return TOKEN_NOTEQUAL ;}
 
 ","			{return TOKEN_COMMA ;}
-";"			{printf("semicolon reached\n");return TOKEN_SEMICOLON ;}
-":="			{printf("assign reached\n");return TOKEN_ASSIGN ;}
+";"			{return TOKEN_SEMICOLON ;}
+":="			{return TOKEN_ASSIGN ;}
 ":"			{return TOKEN_COLON ;}
 "_"			{return TOKEN_UNDERSCORE ;}
 
@@ -121,13 +119,13 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 
 "own"			{return TOKEN_TYPE_OWN;}
 "boolean"		{return TOKEN_TYPE_BOOLEAN;}
-"integer"		{printf("type integer reached\n");return TOKEN_TYPE_INTEGER;}
+"integer"		{return TOKEN_TYPE_INTEGER;}
 "real"			{return TOKEN_TYPE_REAL;}
 "array"			{return TOKEN_ARRAY;}
 "switch"		{return TOKEN_SWITCH;}
 "procedure"		{return TOKEN_PROCEDURE;}
 "print"			{return TOKEN_PRINT;}
-"label"			{printf("labelu reached\n"); return TOKEN_TYPE_LABEL;}
+"label"			{ return TOKEN_TYPE_LABEL;}
 "value"			{return TOKEN_VALUE;}
 
 {specificator}		{return TOKEN_SPECIFIER;}
@@ -135,7 +133,7 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 {library}		{return TOKEN_LIBRARY;}
 
 
-{identifier}		{printf("identifier reached\n"); return TOKEN_IDENTIFIER;}
+{identifier}		{return TOKEN_IDENTIFIER;}
 
 {integer}		{return TOKEN_INTEGER;}
 
@@ -143,7 +141,4 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 
 
 %%
-// "."			{}
-//[a-zA-Z]+":="		{return TOKEN_ASSIGN_IDENTIFIER;}
-//[a-zA-Z]+":"		{printf("labelu identifier reached\n");return TOKEN_LABEL_IDENTIFIER;}
-//"bool_"{identifier}	{return TOKEN_BOOL_IDENTIFIER;}
+

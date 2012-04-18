@@ -30,10 +30,10 @@ void push(int num){
 	if(scopeStackTop<100){
 		scopeStack[scopeStackTop] = num;
 		scopeStackTop++;
-		symbolTable[scopeStackTop].parent = currentScope;
+		symbolTable[num].parent = currentScope;
 	}
 	else{
-		printf("Scope stack overflow\n");
+		printf("error: Scope stack overflow\n");
 	}
 }
 
@@ -65,7 +65,7 @@ void yyerror(const char *str)
 
 Symbol* lookUp(char *lexm,int scope){
 	Symbol *symbolEntry = symbolTable[scope].head;
-	//symbolTableDisplay(scope);
+
 	while(symbolEntry!=NULL){
 		if(strcmp(lexm,symbolEntry->lexeme)==0){
 			tempNodeScope = scope;
@@ -75,7 +75,7 @@ Symbol* lookUp(char *lexm,int scope){
 			symbolEntry = symbolEntry->next; 
 	}
 	if(scope==0){
-		printf("Error in lexical scoping %d\n", scope);
+		//printf("error:%s not found in scope %d, \n", scope,lexm);
 		tempNodeScope = -1;
 		return NULL;
 	}
@@ -131,11 +131,10 @@ void symbolTableDisplay(int scope){
 		if (entry->token != NULL)	
 			printf("token :%d\n",entry->token);
 		if (entry->value || entry->value==0)	
-			printf("value: %d\n",entry->value);
+			printf("intValue: %d\n",entry->value);
 		if (entry->realValue || entry->realValue==0.0)				
-		{
-			printf("belu1\n");			
-			printf("realValue belu: %f \n",entry->realValue);
+		{			
+			printf("realValue: %f \n",entry->realValue);
 		}
 		if (entry->boolean != NULL)	
 			printf("boolean: %d\n",entry->boolean); 
@@ -311,12 +310,12 @@ blockHead :
 	TOKEN_BEGIN declaration
 	{
 		currentScope = scopeStack[scopeStackTop-1];
-		printf("current Scope = %d\n",currentScope);
+		//printf("current Scope = %d\n",currentScope);
 		Node* newNode = createNode();
 		Node* tempNode = $2;
 		strcpy(newNode->code,tempNode->code);
 		$$=newNode;
-		printf("blockHead\n");
+		//printf("blockHead\n");
 	}
 	|blockHead TOKEN_SEMICOLON declaration
 	{
@@ -325,7 +324,7 @@ blockHead :
 		Node* tempNode2 = $3;
 		sprintf(newNode->code,"%s%s",tempNode1->code,tempNode2->code);
 		$$=newNode;
-		printf("blockHead\n");
+		//printf("blockHead\n");
 	}
 	;
 
@@ -348,7 +347,7 @@ block :
 		Node* tempNode = $1;
 		sprintf(newNode->code,tempNode->code);
 		$$ = newNode;
-		printf("unlabelled block\n");
+		//printf("unlabelled block\n");
 	}
 	|
 	tlabel
@@ -366,14 +365,16 @@ block :
 		Node* tempNode2 = $2;
 		Node* tempNode1 = $1;
 		strcpy(newNode->identLex,tempNode1->identLex);
-		sprintf(newNode->code,"%s:\n%s", tempNode1->identLex, tempNode2->code);
+		//No need to get a new label
+		int label = getNewLabel();
+		sprintf(newNode->code,"b\tlabel%d\n%s:\n%slabel%d:\n",label, tempNode1->identLex, tempNode2->code,label);
 		$$ = newNode;
-		printf("labelled block\n");
+		//printf("labelled block\n");
 	}
 	/*|
 	error
 	{
-		printf("Syntax error in block containing line num %d\n",lineNo);
+		//printf("Syntax error in block containing line num %d\n",lineNo);
 	}*/
 	;
 
@@ -415,7 +416,7 @@ label :
 program :
 	compoundStatement
 	{
-		printf("compoundStatement\n");
+		//printf("compoundStatement\n");
 		Node* newNode = createNode();
 		Node* tempNode = $1;
 		strcpy(newNode->code,tempNode->code);
@@ -429,7 +430,7 @@ program :
 	
 	| block
 	{
-		printf("block\n");
+		//printf("block\n");
 		Node* newNode = createNode();
 		Node* tempNode = $1;
 		strcpy(newNode->code,tempNode->code);
@@ -447,11 +448,11 @@ program :
 unlabelledCompound :
 	TOKEN_BEGIN compoundTail{
 		currentScope = scopeStack[scopeStackTop-1];
-		printf("current Scope = %d\n",currentScope);
+		//printf("current Scope = %d\n",currentScope);
 		Node* newNode = createNode();
 		Node* tempNode = $2;
 		strcpy(newNode->code,tempNode->code);
-		printf("unlabelled compound\n");
+		//printf("unlabelled compound\n");
 		$$=newNode;	
 	}
 	;
@@ -462,7 +463,7 @@ compoundStatement :
 		Node* newNode = createNode();
 		Node* tempNode = $1;
 		strcpy(newNode->code,tempNode->code);
-		printf("cmpndStatement->unlabelledCompnd\n");
+		//printf("cmpndStatement->unlabelledCompnd\n");
 		$$=newNode;	
 	}
 	|
@@ -471,9 +472,10 @@ compoundStatement :
 		Node* newNode = createNode();
 		Node* tempNode1 = $1;
 		Node* tempNode2 = $2;
-		sprintf(newNode->code,"%s:\n%s",tempNode1->identLex,tempNode2->code);
+		int label = getNewLabel();
+		sprintf(newNode->code,"b\tlabel%d\n%s:\n%slabel%d:\n",label,tempNode1->identLex,tempNode2->code,label);
 		$$=newNode;	
-		printf("labelled compoundstatement\n");
+		//printf("labelled compoundstatement\n");
 	}
 	;
 
@@ -551,7 +553,7 @@ lowerBound:
 			printf("error in array declaration-> lowerbound should be integer\n");
 		}
 		$$=newNode;
-		printf("lowerBound->arithmeticExpression\n");
+		//printf("lowerBound->arithmeticExpression\n");
 	};
 
 upperBound:
@@ -568,10 +570,10 @@ upperBound:
 			newNode->intValue = tempNode->intValue;
 		}
 		else{
-			printf("error in array declaration-> lowerbound should be integer\n");
+			printf("error in array declaration-> upperbound should be integer\n");
 		}
 		$$=newNode;
-		printf("upperBound->arithmeticExpression\n");
+		//printf("upperBound->arithmeticExpression\n");
 	};
 
 boundPair :
@@ -594,7 +596,7 @@ boundPair :
 			
 		}
 		$$ = newNode;
-		printf("boundPair->lowerBound : upperBound\n");
+		//printf("boundPair->lowerBound : upperBound\n");
 	};
 
 boundPairList :
@@ -611,7 +613,7 @@ boundPairList :
 			newNode->upperBound[newNode->dim-1] = tempNode->upperBound[0];
 		}
 		$$ = newNode;
-		printf("boundPairList->boundPair\n");
+		//printf("boundPairList->boundPair\n");
 	}
 	|
 	boundPairList TOKEN_COMMA boundPair
@@ -638,7 +640,7 @@ boundPairList :
 		}
 		
 		$$ = newNode;
-		printf("boundPairList->boundPairList , boundPair\n");
+		//printf("boundPairList->boundPairList , boundPair\n");
 	};
 
 arrayIdentifier :
@@ -650,7 +652,7 @@ arrayIdentifier :
 		Node* tempNode = $1;
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
-		printf("arrayIdentifier->identifier\n");
+		//printf("arrayIdentifier->identifier\n");
 	}
 	;
 
@@ -684,7 +686,7 @@ arraySegment :
 		newNode->identLex = tempNodeOne->identLex;
 		
 		$$ = newNode;
-		printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
+		//printf("arraySegment->arrayIdentifier [ boundPairList ]\n");
 	}
 	| arrayIdentifier TOKEN_COMMA arraySegment
 	{	
@@ -717,7 +719,7 @@ arraySegment :
 		newNode->identLex=tempNodeTwo->identLex;
 		strcat(newNode->identLex,",");		
 		strcat(newNode->identLex,tempNodeOne->identLex);
-		printf("arraySegment->arrayIdentifier,arraysegment== %s\n",newNode->identLex);		
+		//printf("arraySegment->arrayIdentifier,arraysegment== %s\n",newNode->identLex);		
 		
 				
 		$$ = newNode;
@@ -732,8 +734,8 @@ arrayList :
 		Node* tempNode0=$-1;
 		Node* tempNode1=$1;
 		currentScope = scopeStack[scopeStackTop-1];
-		printf("\n\n%s recieved\n\n",tempNode1->identLex);
-		printf("arrayList->arraySegment\n");
+		//printf("\n\n%s recieved\n\n",tempNode1->identLex);
+		//printf("arrayList->arraySegment\n");
 		char* pch;
 		pch = strtok (tempNode1->identLex,",");
   		while (pch != NULL)
@@ -769,7 +771,7 @@ arrayList :
 			symbolEntry->dim=tempNode1->dim;
 		}
 		$$=$1; ////check////
-		printf("arrayList->arrayList , arraySegment\n");
+		//printf("arrayList->arrayList , arraySegment\n");
 	}
 	;
 
@@ -808,7 +810,7 @@ expression :
 	|
 	designationalExpression////check////
 	{
-				
+			
 	};
 
 arithmeticExpression :
@@ -824,7 +826,7 @@ arithmeticExpression :
 		newNode->semTypeDef = tempNode->semTypeDef;
 		newNode->place = tempNode->place;
 		strcpy(newNode->code,tempNode->code);
-		printf("arithmetic->simplearithmetic, intval = %d,realval=%f\n",newNode->intValue,newNode->realValue);		
+		//printf("arithmetic->simplearithmetic, intval = %d,realval=%f\n",newNode->intValue,newNode->realValue);		
 		$$ = newNode;
 	}
 	/*|
@@ -861,7 +863,7 @@ simpleArithmeticExpression :
 		newNode->place=tempNode->place;
 		strcpy(newNode->code,tempNode->code);
 		$$ = newNode;
-		printf("simplearithmetic->term, intval = %d\n",newNode->intValue);
+		//printf("simplearithmetic->term, intval = %d\n",newNode->intValue);
 		
 	}
 	| TOKEN_PLUS term ////check////
@@ -876,7 +878,7 @@ simpleArithmeticExpression :
 		newNode->place=tempNode->place;
 		strcpy(newNode->code,tempNode->code);
 		$$ = newNode;
-		printf("simplearithmetic->term, intval = %d\n",newNode->intValue);
+		//printf("simplearithmetic->term, intval = %d\n",newNode->intValue);
 
 	}
 	| TOKEN_MINUS term ////check////
@@ -886,13 +888,18 @@ simpleArithmeticExpression :
 		newNode->pt0 = $2;
 		Node* tempNode = (Node*)$2;
 		newNode->intValue = 0-tempNode->intValue;
-		newNode->realValue = tempNode->realValue;
+		newNode->realValue = 0.0-tempNode->realValue;
 		newNode->semTypeDef=tempNode->semTypeDef ;
 		newNode->place=getNewTemp();
 		//strcpy(newNode->code,tempNode->code);
-		sprintf(newNode->code,"%s\nli\t$t0,0\nlw\t$t1,%d($sp)\nsub\t$t2,$t0,$t1\nsw\t$t2,%d($sp)\n",tempNode->code,tempNode->place,newNode->place);
+		if(tempNode->semTypeDef == storeReal){
+			sprintf(newNode->code,"%s\nli.s\t$f0,0.0\nl.s\t$f1,%d($sp)\nsub\t$f2,$f0,$f1\ns.s\t$f2,%d($sp)\n",tempNode->code,tempNode->place,newNode->place);
+		}
+		else{
+			sprintf(newNode->code,"%s\nli\t$t0,0\nlw\t$t1,%d($sp)\nsub\t$t2,$t0,$t1\nsw\t$t2,%d($sp)\n",tempNode->code,tempNode->place,newNode->place);
+		}
 		$$ = newNode;
-		printf("simplearithmetic->term, intval = %d\n",newNode->intValue);
+		//printf("simplearithmetic->term, intval = %d\n",newNode->intValue);
 
 	}
 	
@@ -907,33 +914,35 @@ simpleArithmeticExpression :
 		Node* tempNode0 = (Node*)$1;
 		Node* tempNode1 = (Node*)$2;
 		Node* tempNode2 = (Node*)$3;
-
-		  
+		sprintf(newNode->code,"%s%s",tempNode0->code,tempNode2->code);
 		if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal)
 		{			
 			newNode->semTypeDef = storeReal ;  
 			if (tempNode0->semTypeDef==storeInteger) {  
 				tempNode0->realValue = 1.00*tempNode0->intValue;  
 				tempNode0->semTypeDef==storeReal;
+				sprintf(newNode->code,"%slw\t$t0,%d($sp)\nmtc1\t$t0,$f0\ncvt.s.w\t$f0,$f0\ns.s\t$f0,%d($sp)\n",newNode->code,tempNode0->place,tempNode0->place);
 				
 			}
 			else if (tempNode2->semTypeDef==storeInteger) {  
 				tempNode2->realValue = 1.00*tempNode2->intValue;  
 				tempNode2->semTypeDef==storeReal;
+				sprintf(newNode->code,"%slw\t$t0,%d($sp)\nmtc1\t$t0,$f0\ncvt.s.w\t$f0,$f0\ns.s\t$f0,%d($sp)\n",newNode->code,tempNode2->place,tempNode2->place);
 			}
 
 			newNode->realValue=tempNode0->realValue  +  tempNode2->realValue;
-			printf("tempnoderealval: %f\n",tempNode2->realValue);	
-			sprintf(newNode->code,"%s%sl.s\t$f0,%d($sp)\nl.s\t$f1,%d($sp)\nadd\t$f2,$f0,$f1\ns.s\t$f2,%d($sp)\n",tempNode0->code,tempNode2->code,tempNode0->place,tempNode2->place,tempNode0->place);	
+			//printf("tempnoderealval: %f\n",tempNode2->realValue);	
+			sprintf(newNode->code,"%sl.s\t$f0,%d($sp)\nl.s\t$f1,%d($sp)\nadd.s\t$f2,$f0,$f1\ns.s\t$f2,%d($sp)\n",newNode->code,tempNode0->place,tempNode2->place,tempNode0->place);
+			newNode->place = tempNode0->place;	
 		}
 		else {  			
 			newNode->semTypeDef = storeInteger ;  
 			newNode->intValue = tempNode0->intValue  +  tempNode2->intValue ;
 			//newNode->place=getNewTemp(); 
-			sprintf(newNode->code,"%s%slw\t$t0,%d($sp)\nlw\t$t1,%d($sp)\nadd\t$t2,$t0,$t1\nsw\t$t2,%d($sp)\n",tempNode0->code,tempNode2->code,tempNode0->place,tempNode2->place,tempNode0->place);
+			sprintf(newNode->code,"%slw\t$t0,%d($sp)\nlw\t$t1,%d($sp)\nadd\t$t2,$t0,$t1\nsw\t$t2,%d($sp)\n",newNode->code,tempNode0->place,tempNode2->place,tempNode0->place);
 			newNode->place=tempNode0->place;
 		}
-		printf("simplearithmetic->simplearithmetic + term, realval = %f\n",newNode->realValue);
+		//printf("simplearithmetic->simplearithmetic + term, realval = %f\n",newNode->realValue);
 		$$ = newNode;
 	}
 	|
@@ -947,25 +956,28 @@ simpleArithmeticExpression :
 		Node* tempNode0 = (Node*)$1;
 		Node* tempNode1 = (Node*)$2;
 		Node* tempNode2 = (Node*)$3;
-		  
+		sprintf(newNode->code,"%s%s",tempNode0->code,tempNode2->code);
 		if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal) {  
 			newNode->semTypeDef = storeReal ;  
 			if (tempNode0->semTypeDef==storeInteger) {  
 				tempNode0->realValue = 1.00*tempNode0->intValue;  
 				tempNode0->semTypeDef==storeReal;
+				sprintf(newNode->code,"%slw\t$t0,%d($sp)\nmtc1\t$t0,$f0\ncvt.s.w\t$f0,$f0\ns.s\t$f0,%d($sp)\n",newNode->code,tempNode0->place,tempNode0->place);
 			}
 			else if (tempNode2->semTypeDef==storeInteger) {  
 				tempNode2->realValue = 1.00*tempNode2->intValue ;  
 				tempNode2->semTypeDef==storeReal;
+				sprintf(newNode->code,"%slw\t$t0,%d($sp)\nmtc1\t$t0,$f0\ncvt.s.w\t$f0,$f0\ns.s\t$f0,%d($sp)\n",newNode->code,tempNode2->place,tempNode2->place);
 			}
 			newNode->realValue=tempNode0->realValue  -  tempNode2->realValue ;
-			sprintf(newNode->code,"%s%sl.s\t$f0,%d($sp)\nl.s\t$f1,%d($sp)\nsub\t$f2,$f0,$f1\ns.s\t$f2,%d($sp)\n",tempNode0->code,tempNode2->code,tempNode0->place,tempNode2->place,tempNode0->place);
+			sprintf(newNode->code,"%sl.s\t$f0,%d($sp)\nl.s\t$f1,%d($sp)\nsub.s\t$f2,$f0,$f1\ns.s\t$f2,%d($sp)\n",newNode->code,tempNode0->place,tempNode2->place,tempNode0->place);
+			newNode->place = tempNode0->place;
 		}
 		else {  
 			newNode->semTypeDef = storeInteger ;  
 			newNode->intValue = tempNode0->intValue - tempNode2->intValue ; 
 			//newNode->place=getNewTemp(); 
-			sprintf(newNode->code,"%s%slw\t$t0,%d($sp)\nlw\t$t1,%d($sp)\nsub\t$t2,$t0,$t1\nsw\t$t2,%d($sp)\n",tempNode0->code,tempNode2->code,tempNode0->place,tempNode2->place,tempNode0->place);
+			sprintf(newNode->code,"%slw\t$t0,%d($sp)\nlw\t$t1,%d($sp)\nsub\t$t2,$t0,$t1\nsw\t$t2,%d($sp)\n",newNode->code,tempNode0->place,tempNode2->place,tempNode0->place);
 			newNode->place=tempNode0->place;
 		}
 		$$ = newNode;
@@ -984,7 +996,7 @@ term :
 		newNode->semTypeDef=tempNode->semTypeDef;
 		newNode->place=tempNode->place;
 		strcpy(newNode->code,tempNode->code);
-		printf("term->factor, intval = %d\n",newNode->intValue);
+		//printf("term->factor, intval = %d\n",newNode->intValue);
 		$$ = newNode;
 	}
 	|
@@ -998,27 +1010,31 @@ term :
 		Node* tempNode0 = (Node*)$1;
 		Node* tempNode1 = (Node*)$2;
 		Node* tempNode2 = (Node*)$3;
-		
+		sprintf(newNode->code,"%s%s",tempNode0->code,tempNode2->code);
 			if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal) {  
 				newNode->semTypeDef = storeReal ;  
 				if (tempNode0->semTypeDef==storeInteger) {     
 					tempNode0->realValue = 1.00*tempNode0->intValue ;  
 					tempNode0->semTypeDef==storeReal;
+					sprintf(newNode->code,"%slw\t$t0,%d($sp)\nmtc1\t$t0,$f0\ncvt.s.w\t$f0,$f0\ns.s\t$f0,%d($sp)\n",newNode->code,tempNode0->place,tempNode0->place);
 				}
 				else if (tempNode2->semTypeDef==storeInteger) {  
 					tempNode2->realValue = 1.00*tempNode2->intValue ;  
-					tempNode2->semTypeDef==storeReal;					}
+					tempNode2->semTypeDef==storeReal;
+					sprintf(newNode->code,"%slw\t$t0,%d($sp)\nmtc1\t$t0,$f0\ncvt.s.w\t$f0,$f0\ns.s\t$f0,%d($sp)\n",newNode->code,tempNode2->place,tempNode2->place);
+				}
 
 					newNode->realValue=tempNode0->realValue  *  tempNode2->realValue;
-				}
-				else {  
-					newNode->semTypeDef = storeInteger ;  
-					newNode->intValue = tempNode0->intValue*tempNode2->intValue ;
-					//newNode->place=getNewTemp;
-					sprintf(newNode->code,"%s%slw\t$t0,%d($sp)\nlw\t$t1,%d($sp)\nmult\t$t0,$t1\nmflo\t$t0\nsw\t$t0,%d($sp)\n",tempNode0->code,tempNode2->code,tempNode0->place,tempNode2->place,tempNode0->place);
-				}
-				newNode->place=tempNode0->place;
-				$$ = newNode;
+					sprintf(newNode->code,"%sl.s\t$f0,%d($sp)\nl.s\t$f1,%d($sp)\nmul.s\t$f0,$f0,$f1\ns.s\t$f0,%d($sp)\n",newNode->code,tempNode0->place,tempNode2->place,tempNode0->place);
+			}
+			else {  
+				newNode->semTypeDef = storeInteger ;  
+				newNode->intValue = tempNode0->intValue*tempNode2->intValue ;
+				//newNode->place=getNewTemp;
+				sprintf(newNode->code,"%slw\t$t0,%d($sp)\nlw\t$t1,%d($sp)\nmult\t$t0,$t1\nmflo\t$t0\nsw\t$t0,%d($sp)\n",newNode->code,tempNode0->place,tempNode2->place,tempNode0->place);
+			}
+			newNode->place=tempNode0->place;
+			$$ = newNode;
 		}
 		|
 		term TOKEN_DIVIDE factor
@@ -1028,21 +1044,28 @@ term :
 			Node* tempNode0 = (Node*)$1;
 			Node* tempNode1 = (Node*)$2;
 			Node* tempNode2 = (Node*)$3;
-			if (tempNode0->semTypeDef  | tempNode2->semTypeDef) {  
+			sprintf(newNode->code,"%s%s",tempNode0->code,tempNode2->code);
+			if (tempNode0->semTypeDef==storeReal  || tempNode2->semTypeDef==storeReal) {  
 				newNode->semTypeDef = storeReal ;  
 				if (tempNode0->semTypeDef==storeInteger){
 					tempNode0->realValue = 1.00*tempNode0->intValue ;  
 					tempNode0->semTypeDef==storeReal;
+					sprintf(newNode->code,"%slw\t$t0,%d($sp)\nmtc1\t$t0,$f0\ncvt.s.w\t$f0,$f0\ns.s\t$f0,%d($sp)\n",newNode->code,tempNode0->place,tempNode0->place);
 				}
 				else if (tempNode2->semTypeDef==storeInteger) {
 					tempNode2->realValue = 1.00*tempNode2->intValue;
 					tempNode2->semTypeDef==storeReal;
+					sprintf(newNode->code,"%slw\t$t0,%d($sp)\nmtc1\t$t0,$f0\ncvt.s.w\t$f0,$f0\ns.s\t$f0,%d($sp)\n",newNode->code,tempNode2->place,tempNode2->place);
 				}
 
 				if (tempNode2->realValue==0.00){
 					exit(0);
 				}
-				else newNode->realValue=tempNode0->realValue/tempNode2->realValue;
+				else {
+					newNode->realValue=tempNode0->realValue/tempNode2->realValue;
+					sprintf(newNode->code,"%sl.s\t$f0,%d($sp)\nl.s\t$f1,%d($sp)\ndiv.s\t$f1,$f0,$f1\ns.s\t$f1,%d($sp)\n",newNode->code, tempNode0->place, tempNode2->place, tempNode0->place);
+					newNode->place = tempNode0->place;
+				}
 			}
 			else {  
 				newNode->semTypeDef = storeInteger;
@@ -1052,7 +1075,7 @@ term :
 				else {
 					newNode->intValue = tempNode0->intValue/tempNode2->intValue;
 					//newNode->place=getNewTemp();
-					sprintf(newNode->code,"%s%slw\t$t0,%d($sp)\nlw\t$t1,%d($sp)\ndiv\t$t0,$t1\nmflo\t$t1\nsw\t$t1,%d($sp)\n",tempNode0->code, tempNode2->code, tempNode0->place, tempNode2->place, tempNode0->place);
+					sprintf(newNode->code,"%slw\t$t0,%d($sp)\nlw\t$t1,%d($sp)\ndiv\t$t0,$t1\nmflo\t$t1\nsw\t$t1,%d($sp)\n",newNode->code, tempNode0->place, tempNode2->place, tempNode0->place);
 					newNode->place=tempNode0->place;
 				}
 			}
@@ -1075,7 +1098,7 @@ factor :
 		newNode->semTypeDef=tempNode->semTypeDef ; 
 		newNode->place=tempNode->place;
 		strcpy(newNode->code,tempNode->code); 
-		printf("factor->primary, intval = %d\n",newNode->intValue);
+		////printf("factor->primary, intval = %d\n",newNode->intValue);
 		$$ = newNode;
 	}
 	|
@@ -1118,7 +1141,7 @@ primary :
 		newNode->place=tempNode->place;
 		strcpy(newNode->code,tempNode->code);
 		$$ = newNode;
-		printf("primary->unsignedNumber");	
+		//printf("primary->unsignedNumber");	
 	
 	}
 	|	
@@ -1133,7 +1156,7 @@ primary :
 		newNode->place=tempNode->place;
 		strcpy(newNode->code,tempNode->code);
 		$$ = newNode;
-		printf("primary->unsignedNumber");
+		//printf("primary->unsignedNumber");
 	}
 	|
 	variable
@@ -1142,7 +1165,7 @@ primary :
 		newNode->type = primary;
 		newNode->pt0 = $1;
 		Node *tempNode = (Node*)$1;
-		printf("primary->variable, int value=%d\n",newNode->intValue);
+		////printf("primary->variable, int value=%d\n",newNode->intValue);
 // do type checking and proper lookup
 		currentScope = scopeStack[scopeStackTop-1];
 		Symbol* foundEntry = lookUp(tempNode->identLex,currentScope);
@@ -1159,10 +1182,15 @@ primary :
 			else{
 				offset = foundEntry->offset;
 			}
-			sprintf(newNode->code,"%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",tempNode->code,offset,newNode->place);	
+			if(foundEntry->type==storeReal){
+				sprintf(newNode->code,"%sl.s\t$f0,%d($sp)\ns.s\t$f0,%d($sp)\n",tempNode->code,offset,newNode->place);	
+			}
+			else{
+				sprintf(newNode->code,"%slw\t$t0,%d($sp)\nsw\t$t0,%d($sp)\n",tempNode->code,offset,newNode->place);	
+			}
 		}
 		else
-			printf("error belu\n");		
+			printf("error: %s not declared\n",tempNode->identLex);		
 		$$ = newNode;
 
 		
@@ -1193,10 +1221,10 @@ unsignedNumber :
 		newNode->intValue = tempNode->intValue;
 		newNode->realValue = tempNode->realValue;
 		newNode->semTypeDef=storeReal;
-		newNode->place=tempNode->place;
-		strcpy(newNode->code,tempNode->code);
+		newNode->place=getNewTemp();
+		sprintf(newNode->code,"li.s\t$f0,%f\ns.s\t$f0,%d($sp)\n",newNode->realValue,newNode->place);
 		$$ = newNode;
-		printf("unsignedNumber->real, realval = %f\n",newNode->realValue);	
+		//printf("unsignedNumber->real, realval = %f\n",newNode->realValue);	
 	}
 	|
 	integer
@@ -1211,14 +1239,13 @@ unsignedNumber :
 		newNode->place=getNewTemp();
 		sprintf(newNode->code,"li\t$t0,%d\nsw\t$t0,%d($sp)\n",newNode->intValue,newNode->place);
 		$$ = newNode;
-		printf("unsignedNumber->integer, intval = %d\n",newNode->intValue);
+		//printf("unsignedNumber->integer, intval = %d\n",newNode->intValue);
 	};
 
 realNumber :  
 	TOKEN_REAL_NUM
 	{
-		Node *newNode = createNode();
-		
+		Node *newNode = createNode();		
 		newNode->type = realNumber;
 		newNode->realValue = atof(yytext);
 		newNode->semTypeDef=storeReal;
@@ -1232,7 +1259,7 @@ integer :
 		
 		newNode->type = integer;
 		newNode->intValue = atoi(yytext);
-		printf("integer-> TOKEN_INTEGER %d\n",newNode->intValue);
+		//printf("integer-> TOKEN_INTEGER %d\n",newNode->intValue);
 		newNode->semTypeDef=storeInteger;  
 		$$ = newNode;
 	};
@@ -1251,7 +1278,7 @@ simpleVariable :
 		strcpy(new->identLex, temp->identLex);
 		new->place=temp->place;
 		strcpy(new->code,temp->code);
-		printf("simplevariable->varIdentifier");			
+		//printf("simplevariable->varIdentifier");			
 		$$ = new;
 	};
 
@@ -1311,14 +1338,15 @@ subscriptedVariable :
 		{	
 			if(tempNode1->semTypeDef == storeInteger){		
 				newNode->semTypeDef = foundEntry->type;
-				int offset = foundEntry->offset-tempNode1->lowerBound[tempNode1->dim-1]*4;
-				int i=0;
+				int i;
+
+				int offset = foundEntry->offset - (tempNode1->lowerBound[tempNode1->dim-1]-foundEntry->lowerBound[tempNode1->dim-1])*4;
 				for(i=foundEntry->dim-1;i>0;i--){
 					if(tempNode1->lowerBound[i-1] <= foundEntry->upperBound[i-1] && tempNode1->lowerBound[i-1] >= foundEntry->lowerBound[i-1]){
-						offset-=(foundEntry->upperBound[i]-foundEntry->lowerBound[i])*4*tempNode1->lowerBound[i-1];
+						offset-=(foundEntry->upperBound[i]-foundEntry->lowerBound[i])*4*(tempNode1->lowerBound[i-1]-foundEntry->lowerBound[i-1]);
 					}
 					else{
-						printf("array dimension is out of range\n");
+						printf("error: array dimension is out of range\n");
 					}
 				}
 				newNode->place = offset;
@@ -1365,6 +1393,10 @@ subscriptList:
 		sprintf(newNode->code,"%s%s",tempNode1->code,tempNode2->code);
 		if(tempNode2->semTypeDef == storeInteger){
 			newNode->semTypeDef = tempNode2->semTypeDef;
+			int i;
+			for(i=tempNode1->dim-1;i>=0;i--){
+				newNode->lowerBound[i] = tempNode1->lowerBound[i];
+			}
 			newNode->dim = tempNode1->dim+1;
 			newNode->lowerBound[newNode->dim-1] = tempNode2->intValue;
 		}
@@ -1386,7 +1418,7 @@ subscriptExpression :
 		newNode->place = tempNode->place ;
 		strcpy(newNode->code,tempNode->code);
 		$$ = newNode;
-		printf("subscriptedExpression->arithmeticExpression\n");
+		//printf("subscriptedExpression->arithmeticExpression\n");
 	};
 
 identifier :
@@ -1394,16 +1426,16 @@ identifier :
 	{
 		Node* newNode = createNode();
 		newNode->type = identifier;
-		printf("yytext: %s\n",yytext);
+		//printf("yytext: %s\n",yytext);
 		strcpy(newNode->identLex,yytext);
 		currentScope = scopeStack[scopeStackTop-1];
 		//Symbol* symbol = lookUp(newNode->identLex, currentScope);
 		//if(symbol==NULL){
-		//	printf("entry not declared \n");
+		//	//printf("entry not declared \n");
 		//}
 		//newNode->semTypeDef = symbol->type;
 		sprintf(newNode->code,"");
-		printf("TOKEN_IDENTIFIER\n");		
+		//printf("TOKEN_IDENTIFIER\n");		
 		$$ = newNode;
 	};
 
@@ -1423,7 +1455,7 @@ booleanExpression :
 			newNode->semTypeDef = storeError;
 		}
 		$$ = newNode;
-		printf("booleanExpression->simpleBoolean\n");
+		//printf("booleanExpression->simpleBoolean\n");
 	}
 	/*|   ////check////
 	ifClause simpleBoolean TOKEN_ELSE booleanExpression
@@ -1457,7 +1489,7 @@ simpleBoolean:
 		newNode->place = tempNode->place ;
 		strcpy(newNode->code,tempNode->code);
 		$$ = newNode;
-		printf("simpleBoolean->implication\n");
+		//printf("simpleBoolean->implication\n");
 	}
 	|
 	simpleBoolean TOKEN_EQUIV implication
@@ -1474,7 +1506,7 @@ simpleBoolean:
 		newNode->place = tempNode1->place;
 
 		$$ = newNode;
-		printf("simpleBoolean->simple = implication\n");
+		//printf("simpleBoolean->simple = implication\n");
 	};
 
 implication : 
@@ -1488,7 +1520,7 @@ implication :
 		newNode->place=tempNode->place ;  
 		strcpy(newNode->code, tempNode->code);
 		$$ = newNode;  
-		printf("implication->booleanterm\n");
+		//printf("implication->booleanterm\n");
 	}
 	|
 	implication TOKEN_IMPLY booleanTerm
@@ -1776,8 +1808,8 @@ relation :
 		newNode->semTypeDef=tempNode->semTypeDef;
 		strcpy(newNode->identLex, tempNode->identLex);
 		$$ = newNode;
-		printf("Boolvariable->simpleVariable\n");
-	}; //{printf("Variable Parsed \n");}
+		//printf("Boolvariable->simpleVariable\n");
+	}; //{//printf("Variable Parsed \n");}
 /*
 boolSimpleVariable :
 	TOKEN_BOOL_IDENTIFIER
@@ -1786,7 +1818,7 @@ boolSimpleVariable :
 		newNode->type = boolSimpleVariable;
 		strcpy(newNode->identLex, yytext);
 		$$ = newNode;
-	} {////printf("Identifier parsed\n");}
+	} {//////printf("Identifier parsed\n");}
 	;
 */
 relationalOperator :
@@ -1805,14 +1837,14 @@ listType :
 		Node *temp2=$0;
 
 		Node *temp1=$1;
-		printf("belu listType\n");
+		//printf("belu listType\n");
 		currentScope = scopeStack[scopeStackTop-1];
 		if (lookUpInCurrentScope(temp1->identLex)!=NULL){
-			printf("belu if\n");
+			//printf("belu if\n");
 			return 0;
 		}
 		else{
-			printf("belu else\n");			
+			//printf("belu else\n");			
 			Symbol *newEntry=addEntry(temp1->identLex);
 			newEntry->type=temp2->semTypeDef;
 			if(currentGlobalOffset <= symbolTable[currentScope].currentOffset){
@@ -1823,7 +1855,7 @@ listType :
 				newEntry->offset=symbolTable[currentScope].currentOffset;
 				symbolTable[currentScope].currentOffset-=4;				
 			}
-			printf("belu semtypedef : %d\n", newEntry->type);	
+			//printf("belu semtypedef : %d\n", newEntry->type);	
 			$$=$0;
 		}
 	}
@@ -1859,7 +1891,7 @@ type :
 		Node *new = createNode();         	
         	new->type = type;
         	new->semTypeDef = storeReal;
-		printf("Token_real\n");		
+		//printf("Token_real\n");		
 		$$ = new;
 
 	}
@@ -1869,7 +1901,7 @@ type :
 		Node *new = createNode();         	
         	new->type = type;
         	new->semTypeDef=storeInteger;
-		printf("Token_integer\n");
+		//printf("Token_integer\n");
 		$$ = new;	
 
 	}
@@ -1887,7 +1919,7 @@ type :
 typeDeclaration :
 	type listType
 	{
-	printf("typeDeclaration\n");
+	//printf("typeDeclaration\n");
 	//$$=$2;
 	}
 	;
@@ -1906,7 +1938,7 @@ varIdentifier :
 		strcpy(new->identLex, temp->identLex);
 		new->place=temp->place;
 		strcpy(new->code,temp->code);
-		printf("varIdentifier");			
+		//printf("varIdentifier");			
 		$$ = new;
 	}
 	;
@@ -1921,7 +1953,7 @@ unconditionalStatement :
 		new->semTypeDef=temp1->semTypeDef;
 		strcpy(new->code,temp1->code);
 		$$ = new;
-		printf("unconditional -> basic\n");
+		//printf("unconditional -> basic\n");
 	}
 	|
         compoundStatement {
@@ -1958,7 +1990,7 @@ conditionalStatement :
 		newNode->place=tempNode->place;
 		sprintf(newNode->code,"%slabel%d:\n",tempNode->code,tempNode->intValue);
 		$$ = newNode;
-		printf("conditionalStatement -> ifStatement\n");
+		//printf("conditionalStatement -> ifStatement\n");
 	}
 	|
         ifStatement TOKEN_ELSE statement	{
@@ -1974,7 +2006,7 @@ conditionalStatement :
 		if (tempNode1->semTypeDef==storeVoid && tempNode2->semTypeDef==storeVoid ) {  
 			newNode->semTypeDef=storeVoid ;  
 		}
-		printf("conditionalStatement -> ifstatement ELSE statement\n");
+		//printf("conditionalStatement -> ifstatement ELSE statement\n");
 		$$ = newNode;
 	}
 	|
@@ -1998,7 +2030,16 @@ conditionalStatement :
 		$$=newNode;
 	}
 	|
-        tlabel /*TOKEN_COLON*/ conditionalStatement////check////
+	tlabel /*TOKEN_COLON*/ conditionalStatement////check////
+	{
+		Node* newNode = createNode();
+		Node* tempNode1 = $1;
+		Node* tempNode2 = $2;
+		//sprintf(newNode->code,"%s:\n%s\n",tempNode1->identLex,tempNode2->code);
+		int label = getNewLabel();
+		sprintf(newNode->code,"b\tlabel%d\n%s:\n%slabel%d:\n",label,tempNode1->identLex,tempNode2->code,label);
+		$$=newNode;	
+	}		
 	;
 
 ifStatement :
@@ -2022,7 +2063,7 @@ ifStatement :
 		}
 		
 		$$ = newNode;
-		printf("ifStatement -> ifClause unconditionalStatement\n");
+		//printf("ifStatement -> ifClause unconditionalStatement\n");
 	}
 	;
 
@@ -2041,7 +2082,7 @@ ifClause :
 		else {  
 			newNode->semTypeDef=storeError ;  
 		}
-		printf("ifClause -> IF booleanExpression THEN\n");
+		//printf("ifClause -> IF booleanExpression THEN\n");
 		$$ = newNode;  
 	}
 	;
@@ -2056,12 +2097,20 @@ basicStatement :
 		Node *temp = $1 ;  
 		new->semTypeDef=temp->semTypeDef ;
 		strcpy(new->code,temp->code);  
-		printf("basic -> unlabbasic\n");
+		//printf("basic -> unlabbasic\n");
 		$$ = new;
 
 	}
 	|
         tlabel basicStatement ////check////
+	{
+		Node* newNode = createNode();
+		Node* tempNode1 = $1;
+		Node* tempNode2 = $2;
+		int label = getNewLabel();
+		sprintf(newNode->code,"b\tlabel%d\n%s:\n%slabel%d:\n",label,tempNode1->identLex,tempNode2->code,label);
+		$$=newNode;	
+	}
 	;
 
 unlabelledBasicStatement :
@@ -2083,9 +2132,9 @@ unlabelledBasicStatement :
         	new->type = unlabelledBasicStatement;
         	new->pt0 = $1 ;  
 		Node *temp = $1 ;  
-
+		strcpy(new->code,"");
 		new->semTypeDef=temp->semTypeDef ;  
-		printf("unlabelledstatement->dummystatement\n");
+		//printf("unlabelledstatement->dummystatement\n");
 		$$ = new;
 
 	}
@@ -2100,7 +2149,7 @@ unlabelledBasicStatement :
 		new->semTypeDef=temp->semTypeDef ;  
 		strcpy(new->code,temp->code);
 		$$ = new;
-		printf("unlabelledbasicstmt -> procstmt\n");
+		//printf("unlabelledbasicstmt -> procstmt\n");
 
 	}
 	|
@@ -2152,8 +2201,10 @@ assignmentStatement :
 		Node *tmp1=$1;
 		Node *tmp2=$3;
 		new->semTypeDef=storeVoid;
-		currentScope = scopeStack[scopeStackTop-1];		
+		currentScope = scopeStack[scopeStackTop-1];	
   		symbol1=lookUp(tmp1->identLex, currentScope);
+		//printf("################### scope parent = %d,current scope=%d and sybol lexeme =  #####################\n",symbolTable[currentScope].parent,currentScope);
+		//printf("################### symbol lexeme = %s #####################\n",symbol1->lexeme);	
 		if (symbol1==NULL){
 			new->semTypeDef=storeError;
 		}
@@ -2173,7 +2224,7 @@ assignmentStatement :
 			else if (symbol1->type==storeReal && tmp2->semTypeDef==storeReal){								
 				// SYMBOL1>TYPE IS Real
 		  		symbol1->realValue=tmp2->realValue;
-				printf("assignmentStatement->identifier:= arithmeticexpression, realValue= %f,,%f\n",tmp2->realValue,symbol1->realValue);
+				////printf("assignmentStatement->identifier:= arithmeticexpression, realValue= %f,,%f\n",tmp2->realValue,symbol1->realValue);
 				int offset;
 				if(tmp1->isArray==1){
 					offset = tmp1->place;
@@ -2193,10 +2244,11 @@ assignmentStatement :
 				else{
 					offset = symbol1->offset;
 				}
-				sprintf(new->code,"%s%sl.s\t$f0,%d($sp)\ns.s\t$f0,%d($sp)\n",tmp1->code,tmp2->code,tmp2->place,offset);
+				sprintf(new->code,"%s%slw\t$t0,%d($sp)\nmtc1\t$t0,$f0\ncvt.s.w\t$f0,$f0\ns.s\t$f0,%d($sp)\n",tmp1->code,tmp2->code,tmp2->place,offset);
+				
 			}
 			else{	
-				printf("inconsistent Types in assignment\n");
+				printf("error: inconsistent Types in assignment\n");
 				new->semTypeDef = storeError;
 			}
 		}
@@ -2239,180 +2291,6 @@ assignmentStatement :
 		$$ = new;
 	}
 	;
-/*
-
-forListElement :
-	arithmeticExpression
-	{
-		Node *temp = $-2;
-		//////printf("%p\n",temp);
-		//////printf("\t\t\t\t\t\t\t\t a as %d\n", temp->type);
-	
-
-		if (!(temp->semTypeDef==storeInteger || temp->semTypeDef==storeReal)) {  
-			temp->semTypeDef=storeError ;  
-		}
-		else {	Symbol *symbol2=lookUp(temp->identLex,currentScope);
-			//int tableindex=lookUp(temp->identifier,current_scope);
-			//int type_variable = table[temp_scope].entry[tableindex].type ;
-			//////printf("\t\t\t\t\t\t\t\twith a as %d\n", type_variable);
-			
-			//type cast
-			Node *temp1 = $1;
-			if (temp1->semTypeDef == symbol2->type) {  
-				temp->semTypeDef=storeVoid ;  
-				//good case
-				//////printf("\t\t\t\t\t\t\t\tgood case with a as %d\n", type_variable);
-
-// This is not required to be done REDUNDANT
-
-				if (symbol2->type==streInteger) {  
-					symbol2->value=temp1->intValue;
-				}
-				else {  
-					//table[current_scope].entry[tableindex].floatvalue=temp1->real;					//check here
-				}
-
-
-
-			}
-			else {  
-				if (symbol2->type == storeInteger) {  
-					//////printf("Loss of precision in for statement\n");	
-					//error
-				}
-			
-				else {  
-
-//POSSIBLY REDUNDANT !!!!!!!!!!!!!
-
-					//table[tableindex].floatvalue=1.00*temp1->integer;
-					//Have to do type casting in code generation stage
-					//////printf("%s now been type cast to value %f\n",temp->identifier,table[tableindex].floatvalue);
-				}
-
-			}
-			//////printf("%s yabba\n",temp->identifier);
-			
-		}
-		$$=$-2;
-	}
-	|
-	arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression {  
-
-		Node *temp = $-2;
-		Symbol *symbol2=lookUp(temp->identLex,currentScope);
-
-		//int tableindex=lookUp(temp->identifier,current_scope);
-		//int type_variable = table[temp_scope].entry[tableindex].type ;
-
-		if (!(temp->semTypeDef==storeInteger || temp->semTypeDef==storeReal)) {  
-			temp->semTypeDef=storeError ;  
-		}
-		else
-		{
-
-			//type cast
-	
-			Node *temp1 = $1;
-			Node *temp2 = $3;
-			Node *temp3 = $5;
-			if (temp1->semTypeDef == symbol2->type && temp2->semTypeDef == symbol2->type && temp1->semTypeDef == symbol2->type) {  
-				
-				//good case
-			}
-			else {  
-				//error
-				if(symbol2->type == storeInteger)
-				{
-					//error
-				}
-				else
-				{
-					//TYPE CASTING TO BE DONE DURING CODE GENERATION
-				}
-				
-			}
-			//////printf("%s yabba\n",temp->identifier);
-		}
-		$$=$-2;
-	}
-	|
-        arithmeticExpression TOKEN_WHILE booleanExpression	{
-		Node *temp = $-2;
-		Symbol *symbol2=lookUp(temp->identLex,currentScope)
-		//////printf("%sBOOLEAN rtrtyabba\n",temp->identifier);
-		//int tableindex=lookUp(temp->identifier,current_scope);
-		//int type_variable = table[temp_scope].entry[tableindex].type ;
-		//type cast
-
-		if (!(temp->semTypeDef==storeInteger || temp->semTypeDef==storeReal)) {  
-			temp->semTypeDef=storeError ;  
-		}
-		else
-		{
-
-			Node *temp1 = $1;
-			if (temp1->semTypeDef == storeVariable) {  
-				
-				//good case
-	
-	
-			}
-			else {  
-				//error
-				//Check for error in Boolean Expression
-			}
-			//////printf("%sBOOLEAN yabba\n",temp->identifier);
-		}
-		$$=$-2;
-	}
-	;
-
-
-forList :
-	forListElement
-	|
-	forListElement TOKEN_COMMA {
-		Node *temp1 = $-1;
-		Node *temp2 = $0;
-		//Node *temp3 = $1;
-		//////printf("R says %p\n",temp1);
-		//////printf("R says %p\n",temp2);
-		//////printf("R says %p\n",temp3);
-
-		//$1=$-1;
-		
-		//$$=$0;
-	} forList 
-	;
-
-
-
-forClause :
-	TOKEN_FOR variable 
-	{
-		Node *temp = $2;
-		Symbol *symbol2=lookUp(temp->identLex,currentScope);
-		if (symbol2 == NULL) {  
-			temp->semTypeDef=storeError;		
-		}
-		else {  
-			if (symbol2->type==storeInteger || symbol2->type==storeReal)){
-				temp->semTypeDef=storeError;
-			}
-		}
-
-		$$=$2;
-		
-
-	}
-
- TOKEN_ASSIGN forList TOKEN_DO
-	{
-		
-	};*/
-
 forStatement :
 	TOKEN_FOR variable TOKEN_ASSIGN arithmeticExpression TOKEN_STEP arithmeticExpression TOKEN_UNTIL arithmeticExpression TOKEN_DO statement
 	{  
@@ -2456,9 +2334,9 @@ forStatement :
 
 empty :	
 	{	
-		printf("empty reached\n");
+		//printf("empty reached\n");
 		Node *new = createNode();         	            	  
-        	new->type =empty;
+        new->type =empty;
 		$$ = new;
 	}
 	;
@@ -2514,7 +2392,7 @@ actualParameterPart :
 		{		
 			temp->semTypeDef == storeVoid;
 		}
-		printf("actparampart -> ( act param list )\n");
+		//printf("actparampart -> ( act param list )\n");
 		$$=$2;
 	}
 	;
@@ -2532,7 +2410,7 @@ actualParameterList :
 		new->semTypeDef = storeVoid;
 		
 		$$ = new;
-		printf("actual parameter list -> actual parameter\n");
+		//printf("actual parameter list -> actual parameter\n");
 	}
 	|
         actualParameterList parameterDelimiter actualParameter  
@@ -2567,7 +2445,7 @@ actualParameter :
 		newNode->pt0 = $1;
 		newNode->place = tempNode->place;
 		strcpy(newNode->code, tempNode->code);
-		printf("actual parameter -> expression\n");
+		//printf("actual parameter -> expression\n");
 		$$ = newNode;
 	}
 	;
@@ -2617,7 +2495,7 @@ statement :
 		newNode->semTypeDef = tempNode->semTypeDef;
 		strcpy(newNode->code,tempNode->code);
 		$$=newNode;
-		printf("stmt -> unconditionalstmt\n");
+		//printf("stmt -> unconditionalstmt\n");
 	}
 	|
         conditionalStatement
@@ -2643,7 +2521,12 @@ statement :
 		Node* newNode=createNode();
 		Node* tempNode=$2;
 		newNode->semTypeDef = tempNode->semTypeDef;
-		sprintf(newNode->code,"%sli\t$v0,4\nla\t$a0, MSG\nsyscall\nlw\t$t0,%d($sp)\nli\t$v0,1\nmove\t$a0,$t0\nsyscall\n",tempNode->code,tempNode->place);
+		if(newNode->semTypeDef==storeReal){
+			sprintf(newNode->code,"%sli\t$v0,4\nla\t$a0, MSG\nsyscall\nl.s\t$f10,%d($sp)\nmov.s\t$f12,$f10\nli\t$v0,2\nsyscall\n",tempNode->code,tempNode->place);
+		}
+		else{
+			sprintf(newNode->code,"%sli\t$v0,4\nla\t$a0, MSG\nsyscall\nlw\t$t0,%d($sp)\nli\t$v0,1\nmove\t$a0,$t0\nsyscall\n",tempNode->code,tempNode->place);
+		}
 		$$=newNode;
 	}
 /*	|
@@ -2671,7 +2554,7 @@ formalParameter :
 			symbolTable[currentScope].currentOffset-=4;
 		}
 		else{
-			printf("Error in paramaters,%s already defined\n",node1->identLex);
+			printf("warning: paramaters,%s already defined\n",node1->identLex);
 		}
 
 		currentScope = oldScope;
@@ -2679,7 +2562,7 @@ formalParameter :
 			Symbol * entry = addEntry(node1->identLex);
 			entry->procNumParam++;
 		}
-		printf("formalParmeter->identifer\n");
+		////printf("formalParmeter->identifer\n");
 		$$ = $0;
 		paramBelu++;
 	};
@@ -2689,7 +2572,7 @@ formalParameterList :
 	| formalParameterList parameterDelimiter formalParameter{   ////check/////
 		$1=$0;
 		$2=$0;
-		printf("formalParmeterlist->formalParmeter\n");	
+		//printf("formalParmeterlist->formalParmeter\n");	
 	}
 	;
 
@@ -2700,7 +2583,7 @@ formalParameterPart :
 	| TOKEN_OPEN_BRACKET {
 		$1 = $0;
 	} formalParameterList TOKEN_CLOSE_BRACKET{
-		printf("formalParmeterpart->(formalParmeterlist)\n");
+		//printf("formalParmeterpart->(formalParmeterlist)\n");
 	};
 
 identifierList :
@@ -2709,14 +2592,14 @@ identifierList :
 		Node *node2 = $1;
 		int oldLevel = currentScope;
 		currentScope = globalLevel + 1;
-		printf("identlist->ident\n");
+		//printf("identlist->ident\n");
 		Symbol *symbol1=lookUp(node2->identLex,currentScope);
 		if(symbol1 != NULL)
 		{
 			symbol1->type=node1->semTypeDef;		
 		}
 		else{
-			printf("error!%s is absent from formal paramater",node2->identLex);
+			printf("error: %s is absent from formal paramater",node2->identLex);
 			//symbol1->type = node1->semTypeDef;
 		}
 		currentScope = oldLevel;
@@ -2730,18 +2613,18 @@ identifierList :
 		Node *node2 = $3;
 		int oldLevel = currentScope;
 		currentScope = globalLevel + 1;
-		printf("identlist->ident\n");
+		//printf("identlist->ident\n");
 		Symbol *symbol1=lookUp(node2->identLex,currentScope);
 		if(symbol1 != NULL)
 		{
 			symbol1->type=node1->semTypeDef;		
 		}
 		else{
-			printf("error!%s is absent from formal paramater",node2->identLex);
+			printf("error: %s is absent from formal paramater",node2->identLex);
 			//symbol1->type = node1->semTypeDef;
 		}
 		currentScope = oldLevel;
-		printf("identlist ->identlist , ident\n");
+		//printf("identlist ->identlist , ident\n");
 		paramBelu--;
 		$$ = node1;
 
@@ -2753,7 +2636,7 @@ valuePart :  TOKEN_VALUE identifierList TOKEN_SEMICOLON{
 	| empty;
 specifier :
 	type{
-		printf("specifier->type\n"); 
+		//printf("specifier->type\n"); 
 	}
 	| type TOKEN_ARRAY
 	| TOKEN_TYPE_LABEL 
@@ -2765,12 +2648,12 @@ specificationPart : empty
 
 specificationIdentifierList : specifier identifierList TOKEN_SEMICOLON{
 		Node *node1 = $1;
-		printf("specificationidentlist->specifier identlist ;\n");
+		//printf("specificationidentlist->specifier identlist ;\n");
 
 	}
 	| specificationIdentifierList specifier identifierList TOKEN_SEMICOLON
 	{
-		printf("specificationidentlist->specificationidentlist specifier identlist ;\n");
+		//printf("specificationidentlist->specificationidentlist specifier identlist ;\n");
 
 	};
 
@@ -2789,10 +2672,10 @@ procedureHeading :
 		}
 		$$ = node;
 	} formalParameterPart TOKEN_SEMICOLON {
-		printf("the belu number of parameters defined is %d\n",paramBelu);
+		//printf("the belu number of parameters defined is %d\n",paramBelu);
 		$3 = $1;
 	} valuePart specificationPart{
-		printf("the belu number of parameters defined is %d\n",paramBelu);
+		//printf("the belu number of parameters defined is %d\n",paramBelu);
 	}
 	;
 
@@ -2805,7 +2688,7 @@ procedureBody :
 		new->semTypeDef = temp->semTypeDef;
 		strcpy(new->code,temp->code);
 		$$ = new;
-		printf("proc body -> stmt\n");
+		//printf("proc body -> stmt\n");
 	};
 
 procedureDeclaration : 
@@ -2828,9 +2711,9 @@ procedureDeclaration :
 		int label = getNewLabel();
 		sprintf(node->code,"b\tlabel%d\n%s:\n%s\njr $ra\nlabel%d:\n",label,node1->identLex,node2->code,label);		
 		$$ = node;
-		printf("procedureDeclaration -> procedure heading body");
+		//printf("procedureDeclaration -> procedure heading body");
 		if (paramBelu != 0)
-			printf("Error. too many or too few specifications\n");
+			printf("error: too many or too few specifications\n");
 		paramBelu = 0;
 	}
 	| type TOKEN_PROCEDURE procedureHeading procedureBody
@@ -2854,9 +2737,9 @@ procedureDeclaration :
 		int label = getNewLabel();
 		sprintf(node->code,"b\tlabel%d\n%s:\n%s\njr $ra\nlabel%d:\n",label,node1->identLex,node2->code,label);		
 		$$ = node;
-		printf("proceduredeclaration -> type procedure heading body\n");
+		//printf("proceduredeclaration -> type procedure heading body\n");
 		if (paramBelu != 0)
-			printf("Error. too many or too few specifications\n");
+			printf("error: too many or too few specifications\n");
 		paramBelu = 0;
 	};
 
@@ -2886,7 +2769,7 @@ switchIdentifier :
 		strcpy(newNode->identLex,tempNode->identLex);
 
 		$$=newNode;
-		printf("switchIdent->Identifier\n");
+		//printf("switchIdent->Identifier\n");
 	}
 	;
 
@@ -2901,10 +2784,10 @@ designationalExpression :
 	| ifClause simpleDesignationalExpression TOKEN_ELSE designationalExpression;
 
 simpleDesignationalExpression : 
-	TOKEN_COLON label
+	tlabel
 	{
 		Node* newNode=createNode();
-		Node* tempNode = $2;
+		Node* tempNode = $1;
 		strcpy(newNode->identLex,tempNode->identLex);
 		$$=newNode;
 	}
@@ -2932,11 +2815,15 @@ int main(int argc, char* argv[])
 	    while(yyparse() != 0)
 		;
 	}
-	strcat(code,"jr\t$ra");
-	strcat(code,"\n\n\t.data\nMSG:\t.asciiz \"\\n OUTPUT = \"");
-	//printf("%s",code);
+	//check while merging the codes
+	char * code1[99999];
+	strcpy(code1,"b\tmain\n");
+	strcat(code1,code);
+	strcat(code1,"jr\t$ra");
+	strcat(code1,"\n\n\t.data\nMSG:\t.asciiz \"\\n OUTPUT = \"");
+	////printf("%s",code);
 	FILE* fp1 = fopen("code1.asm","w");
-	fprintf(fp1,"%s",code);
+	fprintf(fp1,"%s",code1);
 	return 0;
 }
 

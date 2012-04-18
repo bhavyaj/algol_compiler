@@ -1,0 +1,16 @@
+main:
+begin
+	integer a,b,c;
+	a:=4;
+	c:=3;
+	if a=4 then goto labewaaw:
+		labewaaw:
+		begin;
+			print c;
+			if c=12 then b:=1 else b:=2;
+		end;
+	else b:=3;
+	print a;
+	print b;
+	print c;
+end
