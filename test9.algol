@@ -1,0 +1,9 @@
+main:
+begin real s,r,k;
+	s := 6.0;
+	r := 4.0;
+	k := 22-7;
+	print s;
+	print r;
+	print k;
+end
