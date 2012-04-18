@@ -1,13 +1,16 @@
 main:
 begin
+	integer c;
 	integer array b,a[0:3,1:4];
-	integer i,j;
-	i := 4;
-	a[2,3] := 5;
-	j := a[2,3] - i;
-	b[i-3,j] := 6;
-	print i;
+	a[2,3] := 5-1;
+	b[2,3] := 6;
+	b[2,1] := 10;
+	c:=3;
 	print a[2,3];
-	print b[1,1];
-	print j;
+	print b[2,3];
+	print b[2,1];
 end
+
+
+
+

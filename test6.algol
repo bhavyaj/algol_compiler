@@ -1,0 +1,13 @@
+main:
+begin integer x,y;
+integer procedure fibonacci(n); integer n;
+	begin integer d;
+		if n=0 then return 1 else if n=1 then return 1 else return fibonacci(n-1)+fibonacci(n-2);
+	end;
+x := 4+5;
+print x;
+x:=fibonacci(10);
+y := 5;
+print x;
+print y;
+end

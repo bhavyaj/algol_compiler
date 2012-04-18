@@ -1,0 +1,16 @@
+main:
+begin integer s,r,k;
+	s := 6;
+	r := 2;
+	begin;
+			integer j,i;
+			j := 3;
+			i := 4;
+			i := s-r;
+			k := i * j;
+			print k;
+	end;
+	print s;
+	print r;
+	print k;
+end

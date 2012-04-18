@@ -126,7 +126,7 @@ COMMENT[^.;]*;		{char *tempString = (char *)yytext;
 "array"			{return TOKEN_ARRAY;}
 "switch"		{return TOKEN_SWITCH;}
 "procedure"		{return TOKEN_PROCEDURE;}
-
+"print"			{return TOKEN_PRINT;}
 "label"			{printf("labelu reached\n"); return TOKEN_TYPE_LABEL;}
 "value"			{return TOKEN_VALUE;}
 

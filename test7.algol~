@@ -1,0 +1,19 @@
+main:
+begin
+	integer array b,a[0:3,1:4];
+	integer i,j;
+	i := 4;
+	a[2,3] := 5;
+	j := a[2,3] - i;
+	b[1,3] := 11;
+	b[i-3,j] := 6;
+	a[1,1] := 100;
+	print i;
+	print j;
+	print a[2,3];
+	print a[1,1];
+	print b[2,3];
+	print b[1,1];
+end
+
+
