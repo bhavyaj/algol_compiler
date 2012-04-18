@@ -1,6 +1,6 @@
 main:
 begin integer x,y;
-integer procedure sheku(a,b,c); integer a,b,c;
+integer procedure foo(a,b,c); integer a,b,c;
 	begin integer d;
 		integer procedure bar(x,y,z); integer x,y,z;
 		begin integer m;
@@ -15,7 +15,7 @@ integer procedure sheku(a,b,c); integer a,b,c;
 		print d;
 	end;
 x := 4;
-sheku(1,2,3);
+foo(1,2,3);
 y := 5;
 print x;
 print y;

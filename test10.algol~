@@ -5,10 +5,10 @@ begin
 	c:=3;
 	if a=4 then goto labewaaw:
 		labewaaw:
-		begin;
+		begin
 			print c;
 			if c=12 then b:=1 else b:=2;
-		end
+		end;
 	else b:=3;
 	print a;
 	print b;
