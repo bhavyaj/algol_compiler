@@ -75,7 +75,7 @@ Symbol* lookUp(char *lexm,int scope){
 			symbolEntry = symbolEntry->next; 
 	}
 	if(scope==0){
-		printf("error:%s not found in scope %d, \n", scope,lexm);
+		//printf("error:%s not found in scope %d, \n", scope,lexm);
 		tempNodeScope = -1;
 		return NULL;
 	}
